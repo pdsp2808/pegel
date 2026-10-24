@@ -31,7 +31,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -63,7 +62,7 @@
           </div>
           <div>
             <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegelstand-Monitor</h1>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Datenquelle: inondations.lu / data.public.lu</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Quelle: inondations.lu / data.public.lu</p>
           </div>
         </div>
 
@@ -85,25 +84,20 @@
 
         <!-- Actions (Refresh, Theme, File Upload) -->
         <div class="flex items-center space-x-2">
-          
-          <!-- Last Updated Badge -->
           <div class="hidden sm:flex flex-col text-right mr-2">
             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Stand</span>
             <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--:--</span>
           </div>
 
-          <!-- Refresh Button -->
           <button onclick="fetchData(true)" title="Daten jetzt aktualisieren" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
             <i id="refresh-icon" data-lucide="refresh-cw" class="w-5 h-5"></i>
           </button>
 
-          <!-- Theme Toggle Button -->
           <button id="theme-toggle" onclick="toggleTheme()" title="Design umschalten" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
             <i id="theme-icon-sun" data-lucide="sun" class="w-5 h-5 hidden"></i>
             <i id="theme-icon-moon" data-lucide="moon" class="w-5 h-5"></i>
           </button>
 
-          <!-- Manual CSV Upload Button -->
           <label class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors" title="CSV manuell hochladen">
             <i data-lucide="upload" class="w-5 h-5"></i>
             <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
@@ -113,7 +107,7 @@
       </div>
     </div>
 
-    <!-- Mobile Navigation Tabs (Bottom Header Bar) -->
+    <!-- Mobile Navigation Tabs -->
     <div class="flex md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 justify-around">
       <button id="mobile-nav-dashboard" onclick="switchTab('dashboard')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm">
         Dashboard
@@ -127,7 +121,7 @@
     </div>
   </header>
 
-  <!-- Notification Banner (Offline / Cors / Demo mode) -->
+  <!-- Notification Banner -->
   <div id="status-banner" class="hidden bg-amber-500/10 border-b border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs px-4 py-2">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2">
@@ -145,8 +139,6 @@
 
     <!-- TAB 1: DASHBOARD VIEW -->
     <section id="tab-content-dashboard" class="space-y-6">
-      
-      <!-- Section Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">Haupt-Messstationen</h2>
@@ -154,9 +146,7 @@
         </div>
       </div>
 
-      <!-- Dashboard Cards Grid -->
       <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-        <!-- Skeleton Loading Placeholders -->
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 animate-pulse h-36"></div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 animate-pulse h-36"></div>
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 animate-pulse h-36"></div>
@@ -166,8 +156,6 @@
 
     <!-- TAB 2: INTERACTIVE CHART VIEW -->
     <section id="tab-content-chart" class="hidden space-y-6">
-      
-      <!-- Chart Controls Header -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
         
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -192,13 +180,10 @@
         <!-- Station Toggle Checklist -->
         <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50">
           <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">Stationen im Diagramm:</span>
-          <div id="chart-stations-selector" class="flex flex-wrap gap-2">
-            <!-- Dynamic station checkboxes will be injected here -->
-          </div>
+          <div id="chart-stations-selector" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
 
-      <!-- Main Chart Container -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative min-h-[380px]">
         <canvas id="mainChart" class="w-full h-[400px]"></canvas>
       </div>
@@ -207,8 +192,6 @@
     <!-- TAB 3: ALL STATIONS TABLE VIEW -->
     <section id="tab-content-all" class="hidden space-y-6">
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        
-        <!-- Search & Filter Header -->
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alle verfügbaren Pegelstationen</h2>
@@ -220,7 +203,6 @@
           </div>
         </div>
 
-        <!-- Table Container -->
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold border-b border-gray-200 dark:border-gray-700">
@@ -232,9 +214,7 @@
                 <th class="px-4 py-3 text-right">Letzte Messung</th>
               </tr>
             </thead>
-            <tbody id="all-stations-table-body" class="divide-y divide-gray-200 dark:divide-gray-700/50">
-              <!-- Dynamic table rows -->
-            </tbody>
+            <tbody id="all-stations-table-body" class="divide-y divide-gray-200 dark:divide-gray-700/50"></tbody>
           </table>
         </div>
       </div>
@@ -242,7 +222,6 @@
 
   </main>
 
-  <!-- Footer -->
   <footer class="mt-auto bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
       <span>Pegelstand-Dashboard &bull; Stand-alone Single File App</span>
@@ -250,9 +229,7 @@
     </div>
   </footer>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Configuration & Key Primary Stations (Excluding Rosport, Ettelbruck, Mersch)
     const PRIMARY_STATIONS = [
       { name: 'Diekirch', river: 'Sauer', key: 'diekirch' },
       { name: 'Vianden', river: 'Our', key: 'vianden' },
@@ -262,8 +239,7 @@
       { name: 'Lintgen', river: 'Alzette', key: 'lintgen' }
     ];
 
-    // Data State
-    let parsedData = {}; // { stationKey: [{ time: Date, value: Number }, ...] }
+    let parsedData = {};
     let rawCSVText = '';
     let activeTab = 'dashboard';
     let selectedHours = 24;
@@ -271,21 +247,22 @@
     let mainChartInstance = null;
     let sparklineInstances = {};
 
-    // Live CSV Source Endpoint
     const CSV_URL = 'https://inondations.public.lu/dam-assets/ctie/datas/Water-Levels-LocalTime.csv';
-    const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
-    // Init App
+    // List of CORS proxies to attempt sequentially
+    const PROXIES = [
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://thingproxy.freeboard.io/fetch/${url}`
+    ];
+
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       lucide.createIcons();
       fetchData();
-      
-      // Auto Refresh every 15 Minutes (900,000 ms)
       setInterval(() => fetchData(true), 900000);
     });
 
-    // Theme Management
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -308,21 +285,17 @@
       document.getElementById('theme-icon-sun').classList.toggle('hidden', !isDark);
       document.getElementById('theme-icon-moon').classList.toggle('hidden', isDark);
 
-      // Re-render chart with correct theme colors
       if (mainChartInstance) renderMainChart();
       renderDashboard();
     }
 
-    // Tab Switching
     function switchTab(tabId) {
       activeTab = tabId;
       
-      // Update Tab Content View
       document.getElementById('tab-content-dashboard').classList.toggle('hidden', tabId !== 'dashboard');
       document.getElementById('tab-content-chart').classList.toggle('hidden', tabId !== 'chart');
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
-      // Update Desktop Nav Styling
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150 flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
       });
@@ -331,7 +304,6 @@
         activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150 flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
       }
 
-      // Update Mobile Nav Styling
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
         btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400';
       });
@@ -340,56 +312,56 @@
         activeMobileNav.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm';
       }
 
-      // Trigger re-render of chart if entering chart tab
       if (tabId === 'chart') {
         setTimeout(() => renderMainChart(), 50);
       }
     }
 
-    // Data Fetching with Cache Buster & CORS Proxy Fallback
     async function fetchData(forceRefresh = false) {
       const refreshIcon = document.getElementById('refresh-icon');
       if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
       const cacheBuster = `?t=${Date.now()}`;
+      const targetUrl = CSV_URL + cacheBuster;
       let csvContent = null;
-      let usedFallback = false;
 
-      // Try Direct Fetch First
+      // Try Direct Fetch
       try {
-        const response = await fetch(CSV_URL + cacheBuster, { cache: 'no-store' });
-        if (response.ok) {
-          csvContent = await response.text();
-        }
+        const response = await fetch(targetUrl, { cache: 'no-store' });
+        if (response.ok) csvContent = await response.text();
       } catch (err) {
-        console.warn('Direct fetch failed (likely CORS or file:// restriction). Trying proxy...');
+        console.warn('Direct fetch blocked by CORS. Trying fallback proxies...');
       }
 
-      // Try Proxy if Direct Fetch Failed
+      // Try Proxies in Sequence
       if (!csvContent) {
-        try {
-          const proxyResponse = await fetch(CORS_PROXY + encodeURIComponent(CSV_URL + cacheBuster));
-          if (proxyResponse.ok) {
-            csvContent = await proxyResponse.text();
+        for (const proxyFn of PROXIES) {
+          try {
+            const proxyUrl = proxyFn(targetUrl);
+            const proxyResponse = await fetch(proxyUrl);
+            if (proxyResponse.ok) {
+              const text = await proxyResponse.text();
+              if (text && text.length > 100) {
+                csvContent = text;
+                break;
+              }
+            }
+          } catch (pErr) {
+            console.warn('Proxy attempt failed, trying next...');
           }
-        } catch (proxyErr) {
-          console.warn('Proxy fetch failed.');
         }
       }
 
-      // Process Data or Show Banner
       if (csvContent && csvContent.trim().length > 0) {
         rawCSVText = csvContent;
         parseCSVData(csvContent);
         document.getElementById('status-banner').classList.add('hidden');
       } else {
-        usedFallback = true;
         document.getElementById('status-banner').classList.remove('hidden');
         document.getElementById('status-message').innerText = 'Live-Zugriff durch Browser blockiert. Verwende Demo-Daten oder nutze das Upload-Icon.';
         generateDemoData();
       }
 
-      // Update Time Stamp
       const now = new Date();
       document.getElementById('last-update-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -397,14 +369,12 @@
         setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
       }
 
-      // Refresh UI Views
       renderDashboard();
       initChartControls();
       renderMainChart();
       renderAllStationsTable();
     }
 
-    // File Upload Handler
     function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -425,31 +395,26 @@
       reader.readAsText(file);
     }
 
-    // CSV Parser Logic
     function parseCSVData(csvText) {
       parsedData = {};
       const lines = csvText.split(/\r\n|\n/);
       if (lines.length < 2) return;
 
       const headers = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, ''));
-      
-      // Find Date Column (usually 'Date' or 'Time')
       let dateIdx = headers.findIndex(h => h.toLowerCase().includes('date') || h.toLowerCase().includes('time') || h.toLowerCase().includes('datum'));
       if (dateIdx === -1) dateIdx = 0;
 
-      // Extract station columns
       const stationMap = [];
       for (let i = 0; i < headers.length; i++) {
         if (i === dateIdx) continue;
         const colName = headers[i];
         if (colName) {
-          const key = colName.toLowerCase().replace(/[^a-z0-0]/g, '');
+          const key = colName.toLowerCase().replace(/[^a-z0-9]/g, '');
           stationMap.push({ colIdx: i, name: colName, key: key });
           parsedData[key] = [];
         }
       }
 
-      // Parse Data Rows
       for (let r = 1; r < lines.length; r++) {
         if (!lines[r].trim()) continue;
         const cols = lines[r].split(';').map(c => c.trim().replace(/^"|"$/g, ''));
@@ -457,7 +422,6 @@
         const rawDate = cols[dateIdx];
         if (!rawDate) continue;
 
-        // Parse German/Lux format (DD.MM.YYYY HH:mm) or Standard ISO
         let timeObj = null;
         if (rawDate.includes('.')) {
           const parts = rawDate.split(' ');
@@ -481,13 +445,11 @@
         });
       }
 
-      // Sort Chronologically
       Object.keys(parsedData).forEach(k => {
         parsedData[k].sort((a, b) => a.time - b.time);
       });
     }
 
-    // Demo Data Generator for Offline / Fallback
     function generateDemoData() {
       parsedData = {};
       const now = new Date();
@@ -497,7 +459,7 @@
         let baseVal = st.key === 'diekirch' ? 140 : st.key === 'vianden' ? 95 : st.key === 'bollendorf' ? 120 : 75;
         
         for (let i = 100; i >= 0; i--) {
-          const time = new Date(now.getTime() - i * 15 * 60 * 1000); // Every 15 mins
+          const time = new Date(now.getTime() - i * 15 * 60 * 1000);
           const variation = Math.sin(i / 10) * 15 + (Math.random() * 4 - 2);
           parsedData[st.key].push({
             time: time,
@@ -508,7 +470,6 @@
       });
     }
 
-    // Render Dashboard Cards with 12h Sparklines
     function renderDashboard() {
       const grid = document.getElementById('dashboard-grid');
       grid.innerHTML = '';
@@ -517,8 +478,6 @@
         const dataSeries = parsedData[st.key] || [];
         const latest = dataSeries.length > 0 ? dataSeries[dataSeries.length - 1] : { value: '--', time: new Date() };
         
-        // Calculate Trend (compare with 1 hour ago / 4 steps back)
-        let trend = 'neutral';
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
         
@@ -526,20 +485,16 @@
           const prev = dataSeries[dataSeries.length - 5] || dataSeries[0];
           const diff = latest.value - prev.value;
           if (diff > 1) {
-            trend = 'up';
             trendIcon = 'trending-up';
             trendColor = 'text-red-500';
           } else if (diff < -1) {
-            trend = 'down';
             trendIcon = 'trending-down';
             trendColor = 'text-green-500';
           }
         }
 
-        // Format Time
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
 
-        // Card Element
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between hover:border-gray-300 dark:hover:border-gray-600 transition-all';
         
@@ -560,7 +515,6 @@
             </div>
           </div>
 
-          <!-- Sparkline 12h Container -->
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
             <div class="sparkline-container">
@@ -570,20 +524,16 @@
         `;
 
         grid.appendChild(card);
-
-        // Render Sparkline Chart
         setTimeout(() => createSparkline(st.key, dataSeries), 20);
       });
 
       lucide.createIcons();
     }
 
-    // Helper: Create 12h Mini Sparkline
     function createSparkline(key, dataSeries) {
       const ctx = document.getElementById(`sparkline-${key}`);
       if (!ctx) return;
 
-      // Filter last 12 hours (48 intervals of 15 min)
       const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
       const filtered = dataSeries.filter(d => d.time >= twelveHoursAgo);
       
@@ -612,15 +562,11 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false }, tooltip: { enabled: false } },
-          scales: {
-            x: { display: false },
-            y: { display: false }
-          }
+          scales: { x: { display: false }, y: { display: false } }
         }
       });
     }
 
-    // Initialize Chart Station Selector
     function initChartControls() {
       const container = document.getElementById('chart-stations-selector');
       container.innerHTML = '';
@@ -628,7 +574,6 @@
       Object.keys(parsedData).forEach(key => {
         const series = parsedData[key];
         const displayName = series.length > 0 && series[0].originalName ? series[0].originalName : key;
-        
         const isChecked = selectedChartStations.includes(key);
 
         const btn = document.createElement('label');
@@ -659,7 +604,6 @@
 
     function setTimeFilter(hours) {
       selectedHours = hours;
-      
       document.querySelectorAll('.time-filter-btn').forEach(btn => {
         const btnHours = parseInt(btn.getAttribute('data-hours'));
         if (btnHours === hours) {
@@ -668,11 +612,9 @@
           btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900';
         }
       });
-
       renderMainChart();
     }
 
-    // Render Large Interactive Chart
     function renderMainChart() {
       const ctx = document.getElementById('mainChart');
       if (!ctx) return;
@@ -682,11 +624,8 @@
       const textColor = isDark ? '#9ca3af' : '#4b5563';
 
       const colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48'];
-
-      // Time cutoff calculation
       const cutoff = selectedHours > 0 ? new Date(Date.now() - selectedHours * 60 * 60 * 1000) : null;
 
-      // Build Datasets
       const datasets = [];
       let labelTimestamps = [];
 
@@ -713,44 +652,26 @@
 
       mainChartInstance = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: labelTimestamps,
-          datasets: datasets
-        },
+        data: { labels: labelTimestamps, datasets: datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: {
-              position: 'top',
-              labels: { color: textColor, font: { size: 12, weight: 'bold' } }
-            },
-            tooltip: {
-              padding: 10,
-              cornerRadius: 8
-            }
+            legend: { position: 'top', labels: { color: textColor, font: { size: 12, weight: 'bold' } } },
+            tooltip: { padding: 10, cornerRadius: 8 }
           },
           scales: {
-            x: {
-              grid: { color: gridColor },
-              ticks: { color: textColor, maxTicksLimit: 12 }
-            },
-            y: {
-              grid: { color: gridColor },
-              ticks: { color: textColor },
-              title: { display: true, text: 'Wasserstand (cm)', color: textColor }
-            }
+            x: { grid: { color: gridColor }, ticks: { color: textColor, maxTicksLimit: 12 } },
+            y: { grid: { color: gridColor }, ticks: { color: textColor }, title: { display: true, text: 'Wasserstand (cm)', color: textColor } }
           }
         }
       });
     }
 
-    // Render "All Stations" Table
     function renderAllStationsTable() {
       const tbody = document.getElementById('all-stations-table-body');
       if (!tbody) return;
-
       tbody.innerHTML = '';
 
       Object.keys(parsedData).forEach(key => {
