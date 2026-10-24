@@ -583,6 +583,7 @@
           borderColor: colors[idx % colors.length],
           borderWidth: 2,
           pointRadius: 0,
+          hoverRadius: 5,
           tension: 0.2
         });
       });
@@ -595,6 +596,10 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
           plugins: {
             tooltip: {
               callbacks: {
