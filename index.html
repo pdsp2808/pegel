@@ -54,10 +54,10 @@
           </button>
         </nav>
 
-        <div class="flex items-center space-x-2">
-          <div class="hidden sm:flex flex-col text-right mr-2">
+        <div class="flex items-center space-x-3">
+          <div class="flex flex-col text-right">
             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Stand</span>
-            <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--:--</span>
+            <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--</span>
           </div>
 
           <button onclick="fetchData()" title="Daten jetzt aktualisieren" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
@@ -93,7 +93,6 @@
 
     <!-- CHART TAB -->
     <section id="tab-content-chart" class="hidden space-y-6">
-      <!-- Top Box: Time filters & Primary Stations -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
@@ -104,17 +103,24 @@
             <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="2">2h</button>
             <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="4">4h</button>
             <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="8">8h</button>
-            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="12">12h</button>
-            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="24">24h</button>
+            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="12">12h</button>
+            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="24">24h</button>
             <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="48">48h</button>
             <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="72">72h</button>
             <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="0">Alle</button>
           </div>
         </div>
         
-        <!-- Primary Station Selectors -->
-        <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50">
-          <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block mb-1.5">Hauptstationen (Vorausgewählt):</span>
+        <!-- Primary Station Selectors with Quick Actions -->
+        <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Hauptstationen (Vorausgewählt):</span>
+            <div class="space-x-2">
+              <button onclick="selectAllStations(true)" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline">Alle anzeigen</button>
+              <span class="text-gray-300 dark:text-gray-600">|</span>
+              <button onclick="selectAllStations(false)" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline">Alle entfernen</button>
+            </div>
+          </div>
           <div id="primary-stations-selector" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
@@ -133,18 +139,24 @@
 
     <!-- ALL STATIONS TABLE TAB -->
     <section id="tab-content-all" class="hidden space-y-6">
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden p-4 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alle Messstationen</h2>
             <p class="text-xs text-gray-500 dark:text-gray-400">Vollständige Übersicht aller luxemburgischen Pegel</p>
           </div>
           <div class="relative w-full sm:w-72">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Nach Station oder Gewässer suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station oder Gewässer suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
-        <div class="overflow-x-auto">
+
+        <!-- River Filter Pills -->
+        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-700/50" id="river-filter-container">
+          <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+        </div>
+
+        <div class="overflow-x-auto pt-2">
           <table class="w-full text-left text-xs">
             <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold border-b border-gray-200 dark:border-gray-700">
               <tr>
@@ -171,7 +183,7 @@
       { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' }
     ];
 
-    // Erweiterte Fluss-Zuordnung für Luxemburg
+    // Korrigierte und erweiterte Fluss-Zuordnung für Luxemburg
     const RIVER_KNOWN_MAP = {
       'diekirch': 'Sauer',
       'vianden': 'Our',
@@ -184,33 +196,47 @@
       'echternach': 'Sauer',
       'rosport': 'Sauer',
       'wallendorf': 'Sauer',
+      'goebelsmuehle': 'Sauer',
+      'michelau': 'Sauer',
       'mersch': 'Alzette',
       'walferdange': 'Alzette',
       'steinsel': 'Alzette',
       'eschsuralzette': 'Alzette',
       'schifflange': 'Alzette',
+      'pfaffenthal': 'Alzette',
+      'hesperange': 'Alzette',
+      'livange': 'Alzette',
       'remich': 'Mosel',
       'grevenmacher': 'Mosel',
       'wasserbillig': 'Mosel / Sauer',
       'stadtbredimus': 'Mosel',
       'mertert': 'Mosel',
       'clervaux': 'Clerve',
+      'kautenbach': 'Wiltz',
       'wiltz': 'Wiltz',
-      'goebelsmuehle': 'Sauer',
+      'troisvierges': 'Wiltz',
       'atanas': 'Attert',
       'bissen': 'Attert',
       'colmarberg': 'Attert',
       'roodt': 'Syre',
+      'ubersyren': 'Syre',
       'bertrange': 'Mamer',
       'mamer': 'Mamer',
       'eisch': 'Eisch',
       'koerich': 'Eisch',
-      'helldange': 'Gander'
+      'helldange': 'Gander',
+      'mondorf': 'Gander',
+      'welscheid': 'Wark',
+      'heiderscheidergrund': 'Sauer',
+      'niederfeulen': 'Wark',
+      'perly': 'Mosel',
+      'perl': 'Mosel'
     };
 
     let parsedData = {};
-    let selectedHours = 24;
+    let selectedHours = 12; // Standardmäßig auf 12h
     let selectedChartStations = [];
+    let selectedRiverFilter = 'all';
     let mainChartInstance = null;
     let sparklineInstances = {};
 
@@ -252,31 +278,42 @@
 
     async function fetchData() {
       const refreshIcon = document.getElementById('refresh-icon');
-      if (refreshIcon) refreshIcon.classList.add('animate-spin');
+      if (refreshIcon) refreshIcon.classList.add('animate-spin'); // Nur beim Laden drehen
+
+      let latestDataTime = null;
 
       try {
         const response = await fetch(`data.csv?t=${Date.now()}`);
         if (response.ok) {
           const csvText = await response.text();
-          parseMatrixCSV(csvText);
+          latestDataTime = parseMatrixCSV(csvText);
         }
       } catch (err) {
         console.error('Fehler beim Laden der CSV:', err);
       }
 
-      document.getElementById('last-update-time').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
+      // Stand: Letzte Messzeit aus den CSV-Daten anzeigen
+      if (latestDataTime) {
+        document.getElementById('last-update-time').innerText = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+      } else {
+        document.getElementById('last-update-time').innerText = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+      }
+
+      if (refreshIcon) {
+        setTimeout(() => refreshIcon.classList.remove('animate-spin'), 600);
+      }
 
       renderDashboard();
       initChartControls();
       renderMainChart();
       renderAllStationsTable();
+      initRiverFilters();
     }
 
     function parseMatrixCSV(csvText) {
       parsedData = {};
       const lines = csvText.split(/\r\n|\n/).filter(line => line.trim().length > 0);
-      if (lines.length < 2) return;
+      if (lines.length < 2) return null;
 
       const delimiter = lines[0].includes(';') ? ';' : ',';
       const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
@@ -298,6 +335,8 @@
         }
       }
 
+      let globalLatestTime = null;
+
       for (let r = 1; r < lines.length; r++) {
         const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
         const stationName = cols[0];
@@ -312,13 +351,16 @@
             const val = parseFloat(valStr.replace(',', '.'));
             if (!isNaN(val)) {
               points.push({ time: ts.time, value: val });
+              if (!globalLatestTime || ts.time > globalLatestTime) {
+                globalLatestTime = ts.time;
+              }
             }
           }
         });
 
         points.sort((a, b) => a.time - b.time);
         
-        let riverName = 'Luxemburg';
+        let riverName = 'Sonstige';
         for (const [k, rName] of Object.entries(RIVER_KNOWN_MAP)) {
           if (key.includes(k)) {
             riverName = rName;
@@ -335,6 +377,8 @@
           if (matchKey) selectedChartStations.push(matchKey);
         });
       }
+
+      return globalLatestTime;
     }
 
     function renderDashboard() {
@@ -358,11 +402,11 @@
           else if (diff < -1) { trendIcon = 'trending-down'; trendColor = 'text-green-500'; }
         }
 
-        const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
+        const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
 
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
-        card.setAttribute('onclick', `focusStationInChart('${st.search}')`);
+        card.setAttribute('onclick', `focusSingleStationInChart('${matchedKey || st.search}')`);
         
         card.innerHTML = `
           <div class="space-y-1">
@@ -392,12 +436,10 @@
       lucide.createIcons();
     }
 
-    function focusStationInChart(searchKey) {
-      const matchedKey = Object.keys(parsedData).find(k => k.includes(searchKey));
+    function focusSingleStationInChart(key) {
+      const matchedKey = Object.keys(parsedData).find(k => k.includes(key));
       if (matchedKey) {
-        if (!selectedChartStations.includes(matchedKey)) {
-          selectedChartStations.push(matchedKey);
-        }
+        selectedChartStations = [matchedKey]; // Nur diese eine Station anzeigen
         switchTab('chart');
         initChartControls();
         renderMainChart();
@@ -416,7 +458,7 @@
       sparklineInstances[key] = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: filtered.map(d => d.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
+          labels: filtered.map(d => d.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })),
           datasets: [{ data: filtered.map(d => d.value), borderColor: document.documentElement.classList.contains('dark') ? '#60a5fa' : '#2563eb', borderWidth: 2, pointRadius: 0, tension: 0.3 }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
@@ -456,6 +498,16 @@
       });
     }
 
+    function selectAllStations(select) {
+      if (select) {
+        selectedChartStations = Object.keys(parsedData);
+      } else {
+        selectedChartStations = [];
+      }
+      initChartControls();
+      renderMainChart();
+    }
+
     function toggleChartStation(id) {
       selectedChartStations = selectedChartStations.includes(id) ? selectedChartStations.filter(k => k !== id) : [...selectedChartStations, id];
       initChartControls();
@@ -492,7 +544,7 @@
         const filtered = cutoff ? st.points.filter(d => d.time >= cutoff) : st.points;
 
         if (filtered.length > labelTimestamps.length) {
-          labelTimestamps = filtered.map(d => d.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          labelTimestamps = filtered.map(d => d.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }));
         }
 
         datasets.push({
@@ -521,33 +573,88 @@
       });
     }
 
+    function initRiverFilters() {
+      const container = document.getElementById('river-filter-container');
+      if (!container) return;
+
+      const riversSet = new Set();
+      Object.values(parsedData).forEach(st => {
+        if (st.river) riversSet.add(st.river);
+      });
+
+      const sortedRivers = Array.from(riversSet).sort();
+      
+      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all" data-river="all">Alle Flüsse</button>`;
+
+      sortedRivers.forEach(river => {
+        const isActive = selectedRiverFilter === river;
+        const btn = document.createElement('button');
+        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all`;
+        btn.setAttribute('onclick`, `filterByRiver('${river}')`);
+        btn.innerText = river;
+        container.appendChild(btn);
+      });
+    }
+
+    function filterByRiver(river) {
+      selectedRiverFilter = river;
+      initRiverFilters();
+      renderAllStationsTable();
+    }
+
     function renderAllStationsTable() {
       const tbody = document.getElementById('all-stations-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
+      const searchInput = document.getElementById('table-search-input').value.toLowerCase();
+
       Object.keys(parsedData).forEach(id => {
         const st = parsedData[id];
         if (!st.points || st.points.length === 0) return;
 
+        // Filter prüfen
+        if (selectedRiverFilter !== 'all' && st.river !== selectedRiverFilter) return;
+
         const latest = st.points[st.points.length - 1];
+        
+        let trendIcon = 'minus';
+        let trendColor = 'text-gray-400';
+        
+        if (st.points.length >= 4) {
+          const prev = st.points[st.points.length - 5] || st.points[0];
+          const diff = latest.value - prev.value;
+          if (diff > 1) { trendIcon = 'trending-up'; trendColor = 'text-red-500'; }
+          else if (diff < -1) { trendIcon = 'trending-down'; trendColor = 'text-green-500'; }
+        }
+
+        const timeStr = latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30';
+        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
         tr.innerHTML = `
           <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">${st.name}</td>
           <td class="px-4 py-3 text-gray-500 dark:text-gray-400">${st.river}</td>
           <td class="px-4 py-3 font-bold text-right text-blue-600 dark:text-blue-400">${latest.value} cm</td>
-          <td class="px-4 py-3 text-center text-gray-400">&bull;</td>
-          <td class="px-4 py-3 text-right text-gray-500 font-mono">${latest.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+          <td class="px-4 py-3 text-center">
+            <div class="inline-flex items-center justify-center ${trendColor}">
+              <i data-lucide="${trendIcon}" class="w-4 h-4"></i>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right text-gray-500 font-mono">${timeStr}</td>
         `;
         tbody.appendChild(tr);
       });
+
+      lucide.createIcons();
+      filterAllStationsTable();
     }
 
     function filterAllStationsTable() {
       const input = document.getElementById('table-search-input').value.toLowerCase();
       document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? '' : 'none';
       });
     }
   </script>
