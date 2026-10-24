@@ -168,7 +168,6 @@
       initTheme();
       lucide.createIcons();
       fetchData();
-      setInterval(fetchData, 300000);
     });
 
     function initTheme() {
@@ -209,7 +208,7 @@
         const response = await fetch(`data.csv?t=${Date.now()}`);
         if (response.ok) {
           const csvText = await response.text();
-          parseRobustCSV(csvText);
+          parseMatrixCSV(csvText);
         }
       } catch (err) {
         console.error('Fehler beim Laden der CSV:', err);
@@ -224,62 +223,56 @@
       renderAllStationsTable();
     }
 
-    function parseRobustCSV(csvText) {
+    function parseMatrixCSV(csvText) {
       parsedData = {};
       const lines = csvText.split(/\r\n|\n/).filter(line => line.trim().length > 0);
       if (lines.length < 2) return;
 
-      // Erkenne Trennzeichen (Semikolon oder Komma)
       const delimiter = lines[0].includes(';') ? ';' : ',';
       const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
 
-      // Finde Spalten für Datum/Zeit
-      let dateIdx = headers.findIndex(h => /date|time|datum|zeit/i.test(h));
-      if (dateIdx === -1) dateIdx = 0;
-
-      const stationMap = [];
-      for (let i = 0; i < headers.length; i++) {
-        if (i === dateIdx) continue;
-        const name = headers[i];
-        if (name) {
-          stationMap.push({ colIdx: i, name: name, id: 'st_' + i });
-          parsedData['st_' + i] = { name: name, points: [] };
-        }
-      }
-
-      for (let r = 1; r < lines.length; r++) {
-        const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
-        const rawDate = cols[dateIdx];
-        if (!rawDate) continue;
-
-        // Erstelle Datumsobjekt universell
-        let timeObj = new Date(rawDate);
-        if (isNaN(timeObj.getTime()) && rawDate.includes('.')) {
-          const parts = rawDate.split(' ');
+      // Spalte 0 = Name, Spalte 1 = Number, Spalte 2 = Unit
+      // Ab Spalte 3 kommen die Zeitstempel
+      const timeStamps = [];
+      for (let i = 3; i < headers.length; i++) {
+        const rawT = headers[i];
+        let timeObj = null;
+        if (rawT.includes('.')) {
+          const parts = rawT.split(' ');
           const dParts = parts[0].split('.');
           const tParts = parts[1] ? parts[1].split(':') : [0,0];
           timeObj = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1]);
+        } else {
+          timeObj = new Date(rawT);
         }
+        if (!isNaN(timeObj.getTime())) {
+          timeStamps.push({ index: i, time: timeObj });
+        }
+      }
 
-        if (isNaN(timeObj.getTime())) continue;
+      // Zeilen durchgehen (Stationen)
+      for (let r = 1; r < lines.length; r++) {
+        const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+        const stationName = cols[0]; // z.B. "Diekirch", "Vianden", "SN_Remich"
+        if (!stationName) continue;
 
-        stationMap.forEach(st => {
-          const valStr = cols[st.colIdx];
+        const key = stationName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const points = [];
+
+        timeStamps.forEach(ts => {
+          const valStr = cols[ts.index];
           if (valStr !== undefined && valStr !== '') {
             const val = parseFloat(valStr.replace(',', '.'));
             if (!isNaN(val)) {
-              parsedData[st.id].points.push({ time: timeObj, value: val });
+              points.push({ time: ts.time, value: val });
             }
           }
         });
+
+        points.sort((a, b) => a.time - b.time);
+        parsedData[key] = { name: stationName, points: points };
       }
 
-      // Sortieren
-      Object.keys(parsedData).forEach(id => {
-        parsedData[id].points.sort((a, b) => a.time - b.time);
-      });
-
-      // Vorauswahl für Chart treffen
       if (selectedChartStations.length === 0) {
         selectedChartStations = Object.keys(parsedData).slice(0, 4);
       }
@@ -290,13 +283,11 @@
       grid.innerHTML = '';
 
       PRIMARY_STATIONS.forEach(st => {
-        // Finde die passende Station aus den echten CSV-Daten
-        const matchedKey = Object.keys(parsedData).find(k => 
-          parsedData[k].name.toLowerCase().includes(st.search)
-        );
-
-        const series = matchedKey ? parsedData[matchedKey].points : [];
+        const matchedKey = Object.keys(parsedData).find(k => k.includes(st.search));
+        const stObj = matchedKey ? parsedData[matchedKey] : null;
+        const series = stObj ? stObj.points : [];
         const latest = series.length > 0 ? series[series.length - 1] : { value: '--', time: new Date() };
+        const displayName = stObj ? stObj.name : st.name;
         
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
@@ -319,7 +310,7 @@
               <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
               <span class="text-xs text-gray-400 font-mono">${timeStr} Uhr</span>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${st.name}</h3>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${displayName}</h3>
             <div class="flex items-baseline space-x-2 pt-1">
               <span class="text-3xl font-extrabold text-gray-900 dark:text-white">${latest.value}</span>
               <span class="text-xs text-gray-500 dark:text-gray-400">cm</span>
@@ -364,12 +355,12 @@
       const container = document.getElementById('chart-stations-selector');
       container.innerHTML = '';
       Object.keys(parsedData).forEach(id => {
-        const name = parsedData[id].name;
+        const st = parsedData[id];
         const isChecked = selectedChartStations.includes(id);
 
         const btn = document.createElement('label');
         btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${isChecked ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'}`;
-        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${name}</span>`;
+        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name}</span>`;
         container.appendChild(btn);
       });
     }
