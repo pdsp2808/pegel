@@ -145,7 +145,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alle Messstationen</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Vollständige Übersicht aller luxemburgischen Pegel</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Vollständige Übersicht aller luxemburgischen Pegel (Klick auf Station öffnet Diagramm)</p>
           </div>
           <div class="relative w-full sm:w-72">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -180,8 +180,8 @@
   <script>
     const PRIMARY_STATIONS = [
       { name: 'Diekirch', river: 'Sauer', search: 'diekirch' },
-      { name: 'Vianden', river: 'Our', search: 'vianden' },
       { name: 'Bollendorf', river: 'Sauer', search: 'bollendorf' },
+      { name: 'Vianden', river: 'Our', search: 'vianden' },
       { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' }
     ];
 
@@ -254,7 +254,6 @@
       if (savedTheme) {
         isDark = (savedTheme === 'dark');
       } else {
-        // Zeitbasierte Automatik: 22:00 Uhr bis 06:00 Uhr Dark Mode, sonst Light Mode
         const currentHour = new Date().getHours();
         isDark = (currentHour >= 22 || currentHour < 6);
       }
@@ -596,6 +595,16 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.dataset.label}: ${context.parsed.y} cm`;
+                }
+              }
+            },
+            legend: { labels: { color: isDark ? '#9ca3af' : '#4b5563' } }
+          },
           scales: {
             x: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' } },
             y: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' }, title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' } }
@@ -659,7 +668,8 @@
         const timeStr = latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors';
+        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/35 transition-colors cursor-pointer';
+        tr.setAttribute('onclick', `focusSingleStationInChart('${id}')`);
         tr.innerHTML = `
           <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">${st.name}</td>
           <td class="px-4 py-3 text-gray-500 dark:text-gray-400">${st.river}</td>
