@@ -183,7 +183,6 @@
       { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' }
     ];
 
-    // Korrigierte und erweiterte Fluss-Zuordnung für Luxemburg
     const RIVER_KNOWN_MAP = {
       'diekirch': 'Sauer',
       'vianden': 'Our',
@@ -234,7 +233,7 @@
     };
 
     let parsedData = {};
-    let selectedHours = 12; // Standardmäßig auf 12h
+    let selectedHours = 12;
     let selectedChartStations = [];
     let selectedRiverFilter = 'all';
     let mainChartInstance = null;
@@ -278,7 +277,7 @@
 
     async function fetchData() {
       const refreshIcon = document.getElementById('refresh-icon');
-      if (refreshIcon) refreshIcon.classList.add('animate-spin'); // Nur beim Laden drehen
+      if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
       let latestDataTime = null;
 
@@ -292,7 +291,6 @@
         console.error('Fehler beim Laden der CSV:', err);
       }
 
-      // Stand: Letzte Messzeit aus den CSV-Daten anzeigen
       if (latestDataTime) {
         document.getElementById('last-update-time').innerText = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
       } else {
@@ -439,7 +437,7 @@
     function focusSingleStationInChart(key) {
       const matchedKey = Object.keys(parsedData).find(k => k.includes(key));
       if (matchedKey) {
-        selectedChartStations = [matchedKey]; // Nur diese eine Station anzeigen
+        selectedChartStations = [matchedKey];
         switchTab('chart');
         initChartControls();
         renderMainChart();
@@ -590,7 +588,7 @@
         const isActive = selectedRiverFilter === river;
         const btn = document.createElement('button');
         btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all`;
-        btn.setAttribute('onclick`, `filterByRiver('${river}')`);
+        btn.onclick = () => filterByRiver(river);
         btn.innerText = river;
         container.appendChild(btn);
       });
@@ -607,13 +605,10 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      const searchInput = document.getElementById('table-search-input').value.toLowerCase();
-
       Object.keys(parsedData).forEach(id => {
         const st = parsedData[id];
         if (!st.points || st.points.length === 0) return;
 
-        // Filter prüfen
         if (selectedRiverFilter !== 'all' && st.river !== selectedRiverFilter) return;
 
         const latest = st.points[st.points.length - 1];
