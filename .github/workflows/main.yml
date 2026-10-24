@@ -1,0 +1,28 @@
+name: Fetch Live Water Levels
+
+on:
+  schedule:
+    # Läuft alle 15 Minuten automatisch
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Erlaubt manuelles Ausführen per Klick
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download CSV from inondations.lu
+        run: |
+          curl -s "https://inondations.public.lu/dam-assets/ctie/datas/Water-Levels-LocalTime.csv" -o data.csv
+
+      - name: Commit and Push updated CSV
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.csv
+          git commit -m "Auto-update water level data" || exit 0
+          git push
