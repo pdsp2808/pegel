@@ -290,7 +290,7 @@
           latestDataTime = parseMatrixCSV(csvText);
         }
       } catch (err) {
-        console.error('Fehler beim Laden der CSV:', err);
+        console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
       }
 
       if (latestDataTime) {
