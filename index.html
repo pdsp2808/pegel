@@ -60,7 +60,7 @@
             <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--:--</span>
           </div>
 
-          <button onclick="fetchData(true)" title="Daten jetzt aktualisieren" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <button onclick="fetchData()" title="Daten jetzt aktualisieren" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
             <i id="refresh-icon" data-lucide="refresh-cw" class="w-5 h-5"></i>
           </button>
 
@@ -68,11 +68,6 @@
             <i id="theme-icon-sun" data-lucide="sun" class="w-5 h-5 hidden"></i>
             <i id="theme-icon-moon" data-lucide="moon" class="w-5 h-5"></i>
           </button>
-
-          <label class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer transition-colors" title="CSV manuell hochladen">
-            <i data-lucide="upload" class="w-5 h-5"></i>
-            <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
-          </label>
         </div>
 
       </div>
@@ -140,7 +135,6 @@
             <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold border-b border-gray-200 dark:border-gray-700">
               <tr>
                 <th class="px-4 py-3">Station</th>
-                <th class="px-4 py-3">Gewässer</th>
                 <th class="px-4 py-3 text-right">Aktueller Pegel</th>
                 <th class="px-4 py-3 text-center">Trend</th>
                 <th class="px-4 py-3 text-right">Messung</th>
@@ -156,17 +150,17 @@
 
   <script>
     const PRIMARY_STATIONS = [
-      { name: 'Diekirch', river: 'Sauer', key: 'diekirch' },
-      { name: 'Vianden', river: 'Our', key: 'vianden' },
-      { name: 'Bollendorf', river: 'Sauer', key: 'bollendorf' },
-      { name: 'Larochette', river: 'Weiße Ernz', key: 'larochette' },
-      { name: 'Reisdorf', river: 'Sauer', key: 'reisdorf' },
-      { name: 'Lintgen', river: 'Alzette', key: 'lintgen' }
+      { name: 'Diekirch', river: 'Sauer', search: 'diekirch' },
+      { name: 'Vianden', river: 'Our', search: 'vianden' },
+      { name: 'Bollendorf', river: 'Sauer', search: 'bollendorf' },
+      { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' },
+      { name: 'Reisdorf', river: 'Sauer', search: 'reisdorf' },
+      { name: 'Lintgen', river: 'Alzette', search: 'lintgen' }
     ];
 
     let parsedData = {};
     let selectedHours = 24;
-    let selectedChartStations = ['diekirch', 'vianden', 'bollendorf', 'larochette'];
+    let selectedChartStations = [];
     let mainChartInstance = null;
     let sparklineInstances = {};
 
@@ -174,7 +168,7 @@
       initTheme();
       lucide.createIcons();
       fetchData();
-      setInterval(() => fetchData(true), 300000);
+      setInterval(fetchData, 300000);
     });
 
     function initTheme() {
@@ -212,14 +206,13 @@
       if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
       try {
-        // Lädt die von GitHub bereitgestellte data.csv aus demselben Ordner
         const response = await fetch(`data.csv?t=${Date.now()}`);
         if (response.ok) {
           const csvText = await response.text();
-          parseCSVData(csvText);
+          parseRobustCSV(csvText);
         }
       } catch (err) {
-        console.error('Fehler beim Laden der lokalen CSV:', err);
+        console.error('Fehler beim Laden der CSV:', err);
       }
 
       document.getElementById('last-update-time').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -231,40 +224,41 @@
       renderAllStationsTable();
     }
 
-    function parseCSVData(csvText) {
+    function parseRobustCSV(csvText) {
       parsedData = {};
-      const lines = csvText.split(/\r\n|\n/);
+      const lines = csvText.split(/\r\n|\n/).filter(line => line.trim().length > 0);
       if (lines.length < 2) return;
 
-      const headers = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, ''));
-      let dateIdx = headers.findIndex(h => h.toLowerCase().includes('date') || h.toLowerCase().includes('time') || h.toLowerCase().includes('datum'));
+      // Erkenne Trennzeichen (Semikolon oder Komma)
+      const delimiter = lines[0].includes(';') ? ';' : ',';
+      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+
+      // Finde Spalten für Datum/Zeit
+      let dateIdx = headers.findIndex(h => /date|time|datum|zeit/i.test(h));
       if (dateIdx === -1) dateIdx = 0;
 
       const stationMap = [];
       for (let i = 0; i < headers.length; i++) {
         if (i === dateIdx) continue;
-        const colName = headers[i];
-        if (colName) {
-          const key = colName.toLowerCase().replace(/[^a-z0-9]/g, '');
-          stationMap.push({ colIdx: i, name: colName, key: key });
-          parsedData[key] = [];
+        const name = headers[i];
+        if (name) {
+          stationMap.push({ colIdx: i, name: name, id: 'st_' + i });
+          parsedData['st_' + i] = { name: name, points: [] };
         }
       }
 
       for (let r = 1; r < lines.length; r++) {
-        if (!lines[r].trim()) continue;
-        const cols = lines[r].split(';').map(c => c.trim().replace(/^"|"$/g, ''));
+        const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
         const rawDate = cols[dateIdx];
         if (!rawDate) continue;
 
-        let timeObj = null;
-        if (rawDate.includes('.')) {
+        // Erstelle Datumsobjekt universell
+        let timeObj = new Date(rawDate);
+        if (isNaN(timeObj.getTime()) && rawDate.includes('.')) {
           const parts = rawDate.split(' ');
-          const dateParts = parts[0].split('.');
-          const timeParts = parts[1] ? parts[1].split(':') : [0,0];
-          timeObj = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1]);
-        } else {
-          timeObj = new Date(rawDate);
+          const dParts = parts[0].split('.');
+          const tParts = parts[1] ? parts[1].split(':') : [0,0];
+          timeObj = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1]);
         }
 
         if (isNaN(timeObj.getTime())) continue;
@@ -273,12 +267,22 @@
           const valStr = cols[st.colIdx];
           if (valStr !== undefined && valStr !== '') {
             const val = parseFloat(valStr.replace(',', '.'));
-            if (!isNaN(val)) parsedData[st.key].push({ time: timeObj, value: val, originalName: st.name });
+            if (!isNaN(val)) {
+              parsedData[st.id].points.push({ time: timeObj, value: val });
+            }
           }
         });
       }
 
-      Object.keys(parsedData).forEach(k => parsedData[k].sort((a, b) => a.time - b.time));
+      // Sortieren
+      Object.keys(parsedData).forEach(id => {
+        parsedData[id].points.sort((a, b) => a.time - b.time);
+      });
+
+      // Vorauswahl für Chart treffen
+      if (selectedChartStations.length === 0) {
+        selectedChartStations = Object.keys(parsedData).slice(0, 4);
+      }
     }
 
     function renderDashboard() {
@@ -286,14 +290,19 @@
       grid.innerHTML = '';
 
       PRIMARY_STATIONS.forEach(st => {
-        const dataSeries = parsedData[st.key] || [];
-        const latest = dataSeries.length > 0 ? dataSeries[dataSeries.length - 1] : { value: '--', time: new Date() };
+        // Finde die passende Station aus den echten CSV-Daten
+        const matchedKey = Object.keys(parsedData).find(k => 
+          parsedData[k].name.toLowerCase().includes(st.search)
+        );
+
+        const series = matchedKey ? parsedData[matchedKey].points : [];
+        const latest = series.length > 0 ? series[series.length - 1] : { value: '--', time: new Date() };
         
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
         
-        if (dataSeries.length >= 4) {
-          const prev = dataSeries[dataSeries.length - 5] || dataSeries[0];
+        if (series.length >= 4) {
+          const prev = series[series.length - 5] || series[0];
           const diff = latest.value - prev.value;
           if (diff > 1) { trendIcon = 'trending-up'; trendColor = 'text-red-500'; }
           else if (diff < -1) { trendIcon = 'trending-down'; trendColor = 'text-green-500'; }
@@ -321,23 +330,23 @@
           </div>
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
-            <div class="sparkline-container"><canvas id="sparkline-${st.key}"></canvas></div>
+            <div class="sparkline-container"><canvas id="sparkline-${st.search}"></canvas></div>
           </div>
         `;
 
         grid.appendChild(card);
-        setTimeout(() => createSparkline(st.key, dataSeries), 20);
+        if (matchedKey) setTimeout(() => createSparkline(st.search, series), 20);
       });
 
       lucide.createIcons();
     }
 
-    function createSparkline(key, dataSeries) {
+    function createSparkline(key, series) {
       const ctx = document.getElementById(`sparkline-${key}`);
       if (!ctx) return;
 
       const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
-      const filtered = dataSeries.filter(d => d.time >= twelveHoursAgo);
+      const filtered = series.filter(d => d.time >= twelveHoursAgo);
 
       if (sparklineInstances[key]) sparklineInstances[key].destroy();
 
@@ -354,20 +363,19 @@
     function initChartControls() {
       const container = document.getElementById('chart-stations-selector');
       container.innerHTML = '';
-      Object.keys(parsedData).forEach(key => {
-        const series = parsedData[key];
-        const displayName = series.length > 0 && series[0].originalName ? series[0].originalName : key;
-        const isChecked = selectedChartStations.includes(key);
+      Object.keys(parsedData).forEach(id => {
+        const name = parsedData[id].name;
+        const isChecked = selectedChartStations.includes(id);
 
         const btn = document.createElement('label');
         btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${isChecked ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'}`;
-        btn.innerHTML = `<input type="checkbox" value="${key}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${key}')" class="hidden"><span>${displayName}</span>`;
+        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${name}</span>`;
         container.appendChild(btn);
       });
     }
 
-    function toggleChartStation(key) {
-      selectedChartStations = selectedChartStations.includes(key) ? selectedChartStations.filter(k => k !== key) : [...selectedChartStations, key];
+    function toggleChartStation(id) {
+      selectedChartStations = selectedChartStations.includes(id) ? selectedChartStations.filter(k => k !== id) : [...selectedChartStations, id];
       initChartControls();
       renderMainChart();
     }
@@ -388,16 +396,17 @@
       const datasets = [];
       let labelTimestamps = [];
 
-      selectedChartStations.forEach((key, idx) => {
-        const series = parsedData[key] || [];
-        const filtered = cutoff ? series.filter(d => d.time >= cutoff) : series;
+      selectedChartStations.forEach((id, idx) => {
+        const st = parsedData[id];
+        if (!st) return;
+        const filtered = cutoff ? st.points.filter(d => d.time >= cutoff) : st.points;
 
         if (filtered.length > labelTimestamps.length) {
           labelTimestamps = filtered.map(d => d.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         }
 
         datasets.push({
-          label: series.length > 0 && series[0].originalName ? series[0].originalName : key,
+          label: st.name,
           data: filtered.map(d => d.value),
           borderColor: colors[idx % colors.length],
           borderWidth: 2,
@@ -427,16 +436,15 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      Object.keys(parsedData).forEach(key => {
-        const series = parsedData[key];
-        if (!series || series.length === 0) return;
+      Object.keys(parsedData).forEach(id => {
+        const st = parsedData[id];
+        if (!st.points || st.points.length === 0) return;
 
-        const latest = series[series.length - 1];
+        const latest = st.points[st.points.length - 1];
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/30';
         tr.innerHTML = `
-          <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">${latest.originalName || key}</td>
-          <td class="px-4 py-3 text-gray-500">Luxemburg</td>
+          <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">${st.name}</td>
           <td class="px-4 py-3 font-bold text-right text-blue-600 dark:text-blue-400">${latest.value} cm</td>
           <td class="px-4 py-3 text-center text-gray-400">&bull;</td>
           <td class="px-4 py-3 text-right text-gray-500 font-mono">${latest.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
