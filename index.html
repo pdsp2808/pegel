@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" class="dark">
+<html lang="de" class="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -249,18 +249,37 @@
 
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      let isDark = false;
+
+      if (savedTheme) {
+        isDark = (savedTheme === 'dark');
+      } else {
+        // Zeitbasierte Automatik: 22:00 Uhr bis 06:00 Uhr Dark Mode, sonst Light Mode
+        const currentHour = new Date().getHours();
+        isDark = (currentHour >= 22 || currentHour < 6);
+      }
+
+      applyTheme(isDark);
+    }
+
+    function applyTheme(isDark) {
+      if (isDark) {
         document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
         document.getElementById('theme-icon-sun').classList.remove('hidden');
         document.getElementById('theme-icon-moon').classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.getElementById('theme-icon-sun').classList.add('hidden');
+        document.getElementById('theme-icon-moon').classList.remove('hidden');
       }
     }
 
     function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
+      const isDark = !document.documentElement.classList.contains('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      document.getElementById('theme-icon-sun').classList.toggle('hidden', !isDark);
-      document.getElementById('theme-icon-moon').classList.toggle('hidden', isDark);
+      applyTheme(isDark);
       if (mainChartInstance) renderMainChart();
       renderDashboard();
     }
@@ -277,7 +296,7 @@
       if (tabId === 'chart') setTimeout(() => renderMainChart(), 50);
     }
 
-async function fetchData() {
+    async function fetchData() {
       const refreshWrapper = document.getElementById('refresh-wrapper');
       if (refreshWrapper) refreshWrapper.classList.add('animate-spin');
 
