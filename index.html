@@ -277,7 +277,7 @@
       if (tabId === 'chart') setTimeout(() => renderMainChart(), 50);
     }
 
-    async function fetchData() {
+async function fetchData() {
       const refreshWrapper = document.getElementById('refresh-wrapper');
       if (refreshWrapper) refreshWrapper.classList.add('animate-spin');
 
@@ -288,6 +288,8 @@
         if (response.ok) {
           const csvText = await response.text();
           latestDataTime = parseMatrixCSV(csvText);
+        } else {
+          console.error('HTTP Fehler:', response.status);
         }
       } catch (err) {
         console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
