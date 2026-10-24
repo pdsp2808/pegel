@@ -85,14 +85,15 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       <div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Haupt-Messstationen (CIS Reisdorf Region)</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Haupt-Messstationen</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend (Klick auf Karte öffnet Diagramm)</p>
       </div>
       <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
     </section>
 
     <!-- CHART TAB -->
     <section id="tab-content-chart" class="hidden space-y-6">
+      <!-- Top Box: Time filters & Primary Stations -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
@@ -100,32 +101,33 @@
             <p class="text-xs text-gray-500 dark:text-gray-400">Wählen Sie die gewünschten Stationen aus</p>
           </div>
           <div class="flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="2">2h</button>
-            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="4">4h</button>
-            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="8">8h</button>
-            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="12">12h</button>
+            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="2">2h</button>
+            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="4">4h</button>
+            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="8">8h</button>
+            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="12">12h</button>
             <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="24">24h</button>
-            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="48">48h</button>
-            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="72">72h</button>
-            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400" data-hours="0">Alle</button>
+            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="48">48h</button>
+            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="72">72h</button>
+            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="0">Alle</button>
           </div>
         </div>
         
-        <!-- Station Selectors Grouped -->
-        <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50 space-y-3">
-          <div>
-            <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block mb-1.5">Hauptstationen (Vorausgewählt):</span>
-            <div id="primary-stations-selector" class="flex flex-wrap gap-2"></div>
-          </div>
-          <div>
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Weitere Stationen:</span>
-            <div id="other-stations-selector" class="flex flex-wrap gap-2"></div>
-          </div>
+        <!-- Primary Station Selectors -->
+        <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50">
+          <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block mb-1.5">Hauptstationen (Vorausgewählt):</span>
+          <div id="primary-stations-selector" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
 
+      <!-- Main Chart Container -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative min-h-[380px]">
         <canvas id="mainChart" class="w-full h-[400px]"></canvas>
+      </div>
+
+      <!-- Other Stations Below Chart -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-2">
+        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Weitere Stationen:</span>
+        <div id="other-stations-selector" class="flex flex-wrap gap-2"></div>
       </div>
     </section>
 
@@ -162,7 +164,6 @@
   </main>
 
   <script>
-    // Exakte 4 Dashboard-Hauptstationen
     const PRIMARY_STATIONS = [
       { name: 'Diekirch', river: 'Sauer', search: 'diekirch' },
       { name: 'Vianden', river: 'Our', search: 'vianden' },
@@ -170,7 +171,7 @@
       { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' }
     ];
 
-    // Zuordnung von bekannten Stationen zu Gewässern
+    // Erweiterte Fluss-Zuordnung für Luxemburg
     const RIVER_KNOWN_MAP = {
       'diekirch': 'Sauer',
       'vianden': 'Our',
@@ -180,15 +181,31 @@
       'lintgen': 'Alzette',
       'eschsure': 'Sauer',
       'ettelbruck': 'Sauer',
+      'echternach': 'Sauer',
+      'rosport': 'Sauer',
+      'wallendorf': 'Sauer',
       'mersch': 'Alzette',
       'walferdange': 'Alzette',
+      'steinsel': 'Alzette',
+      'eschsuralzette': 'Alzette',
+      'schifflange': 'Alzette',
       'remich': 'Mosel',
       'grevenmacher': 'Mosel',
       'wasserbillig': 'Mosel / Sauer',
       'stadtbredimus': 'Mosel',
+      'mertert': 'Mosel',
       'clervaux': 'Clerve',
       'wiltz': 'Wiltz',
-      'echternach': 'Sauer'
+      'goebelsmuehle': 'Sauer',
+      'atanas': 'Attert',
+      'bissen': 'Attert',
+      'colmarberg': 'Attert',
+      'roodt': 'Syre',
+      'bertrange': 'Mamer',
+      'mamer': 'Mamer',
+      'eisch': 'Eisch',
+      'koerich': 'Eisch',
+      'helldange': 'Gander'
     };
 
     let parsedData = {};
@@ -301,7 +318,6 @@
 
         points.sort((a, b) => a.time - b.time);
         
-        // Gewässer ermitteln
         let riverName = 'Luxemburg';
         for (const [k, rName] of Object.entries(RIVER_KNOWN_MAP)) {
           if (key.includes(k)) {
@@ -313,7 +329,6 @@
         parsedData[key] = { name: stationName, river: riverName, points: points };
       }
 
-      // Beim ersten Laden nur die 4 Hauptstationen im Chart vorauswählen
       if (selectedChartStations.length === 0) {
         PRIMARY_STATIONS.forEach(st => {
           const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
@@ -346,7 +361,8 @@
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--';
 
         const card = document.createElement('div');
-        card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between';
+        card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
+        card.setAttribute('onclick', `focusStationInChart('${st.search}')`);
         
         card.innerHTML = `
           <div class="space-y-1">
@@ -376,6 +392,18 @@
       lucide.createIcons();
     }
 
+    function focusStationInChart(searchKey) {
+      const matchedKey = Object.keys(parsedData).find(k => k.includes(searchKey));
+      if (matchedKey) {
+        if (!selectedChartStations.includes(matchedKey)) {
+          selectedChartStations.push(matchedKey);
+        }
+        switchTab('chart');
+        initChartControls();
+        renderMainChart();
+      }
+    }
+
     function createSparkline(key, series) {
       const ctx = document.getElementById(`sparkline-${key}`);
       if (!ctx) return;
@@ -401,7 +429,6 @@
       primaryContainer.innerHTML = '';
       otherContainer.innerHTML = '';
 
-      // Finde Primary Keys
       const primaryKeys = [];
       PRIMARY_STATIONS.forEach(st => {
         const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
@@ -437,6 +464,14 @@
 
     function setTimeFilter(hours) {
       selectedHours = hours;
+      document.querySelectorAll('.time-filter-btn').forEach(btn => {
+        const btnHours = parseInt(btn.getAttribute('data-hours'));
+        if (btnHours === hours) {
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+        } else {
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+        }
+      });
       renderMainChart();
     }
 
