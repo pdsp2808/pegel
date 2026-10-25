@@ -27,15 +27,15 @@
   <!-- Header & Navigation -->
   <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-16 gap-2">
         
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 shrink-0">
           <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors" title="Zum Dashboard">
             <i data-lucide="waves" class="w-6 h-6"></i>
           </div>
           <div>
-            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegelstand Monitor</h1>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
+            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white whitespace-nowrap">Pegelstand Monitor</h1>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5 whitespace-nowrap">
               <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
               <span class="hidden sm:inline">&bull;</span>
               <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
@@ -43,22 +43,23 @@
           </div>
         </div>
 
-        <nav class="hidden md:flex space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">
-            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+        <!-- Strict single-line navigation container -->
+        <nav class="hidden md:flex flex-nowrap shrink-0 max-w-max space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0">
+            <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
             <span>Dashboard</span>
           </button>
-          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
-            <i data-lucide="line-chart" class="w-4 h-4"></i>
+          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+            <i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i>
             <span>Verlaufsdiagramm</span>
           </button>
-          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
-            <i data-lucide="list" class="w-4 h-4"></i>
+          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+            <i data-lucide="list" class="w-4 h-4 shrink-0"></i>
             <span>Alle Pegel</span>
           </button>
         </nav>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 shrink-0">
           <div class="flex flex-col text-right">
             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Stand</span>
             <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--</span>
@@ -80,9 +81,9 @@
     </div>
 
     <div class="flex md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 justify-around">
-      <button id="mobile-nav-dashboard" onclick="switchTab('dashboard')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm">Dashboard</button>
-      <button id="mobile-nav-chart" onclick="switchTab('chart')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400">Diagramm</button>
-      <button id="mobile-nav-all" onclick="switchTab('all')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400">Alle Pegel</button>
+      <button id="mobile-nav-dashboard" onclick="switchTab('dashboard')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">Dashboard</button>
+      <button id="mobile-nav-chart" onclick="switchTab('chart')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Diagramm</button>
+      <button id="mobile-nav-all" onclick="switchTab('all')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Alle Pegel</button>
     </div>
   </header>
 
@@ -106,14 +107,14 @@
             <p class="text-xs text-gray-500 dark:text-gray-400">Wählen Sie die gewünschten Stationen aus</p>
           </div>
           <div class="flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="2">2h</button>
-            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="4">4h</button>
-            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="8">8h</button>
-            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="12">12h</button>
-            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="24">24h</button>
-            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="48">48h</button>
-            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="72">72h</button>
-            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="0">Alle</button>
+            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="2">2h</button>
+            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="4">4h</button>
+            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="8">8h</button>
+            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap" data-hours="12">12h</button>
+            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="24">24h</button>
+            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="48">48h</button>
+            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="72">72h</button>
+            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="0">Alle</button>
           </div>
         </div>
         
@@ -160,7 +161,7 @@
         <!-- River Filter Pills & Count -->
         <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
           <div class="flex flex-wrap gap-1.5" id="river-filter-container">
-            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all whitespace-nowrap" data-river="all">Alle Flüsse</button>
           </div>
           <div id="river-count-display" class="text-[11px] text-gray-500 dark:text-gray-400 font-medium"></div>
         </div>
@@ -299,14 +300,14 @@
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
       // Update Desktop Nav Buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap shrink-0');
       const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
+      if (activeNav) activeNav.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0';
 
       // Update Mobile Nav Buttons
-      document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400');
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap');
       const activeMobileNav = document.getElementById(`mobile-nav-${tabId}`);
-      if (activeMobileNav) activeMobileNav.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm';
+      if (activeMobileNav) activeMobileNav.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
 
       if (tabId === 'chart') setTimeout(() => renderMainChart(), 50);
     }
@@ -627,9 +628,9 @@
       document.querySelectorAll('.time-filter-btn').forEach(btn => {
         const btnHours = parseInt(btn.getAttribute('data-hours'));
         if (btnHours === hours) {
-          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
         } else {
-          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap';
         }
       });
       renderMainChart();
@@ -707,21 +708,16 @@
 
       const sortedRivers = Array.from(riversSet).sort();
       
-      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all" data-river="all">Alle Flüsse</button>`;
+      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all whitespace-nowrap" data-river="all">Alle Flüsse</button>`;
 
       sortedRivers.forEach(river => {
         const isActive = selectedRiverFilter === river;
         const btn = document.createElement('button');
-        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all`;
+        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all whitespace-nowrap`;
         btn.onclick = () => filterByRiver(river);
         btn.innerText = river;
         container.appendChild(btn);
       });
-
-      const countEl = document.getElementById('river-count-display');
-      if (countEl) {
-        countEl.innerText = `Anzahl Flüsse: ${sortedRivers.length}`;
-      }
     }
 
     function filterByRiver(river) {
@@ -804,10 +800,19 @@
 
     function filterAllStationsTable() {
       const input = document.getElementById('table-search-input').value.toLowerCase();
+      let visibleCount = 0;
+
       document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
         const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(input) ? '' : 'none';
+        const isMatch = text.includes(input);
+        row.style.display = isMatch ? '' : 'none';
+        if (isMatch) visibleCount++;
       });
+
+      const countEl = document.getElementById('river-count-display');
+      if (countEl) {
+        countEl.innerText = `Messstationen: ${visibleCount}`;
+      }
     }
   </script>
 </body>
