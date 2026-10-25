@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pegelstand-Dashboard Luxemburg</title>
+  <title>Pegelstand Monitor Luxemburg</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -30,12 +30,16 @@
       <div class="flex items-center justify-between h-16">
         
         <div class="flex items-center space-x-3">
-          <div class="p-2 bg-blue-600 text-white rounded-lg shadow">
+          <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors" title="Zum Dashboard">
             <i data-lucide="waves" class="w-6 h-6"></i>
           </div>
           <div>
-            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegelstand-Monitor</h1>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">CIS Reisdorf &bull; Quelle: inondations.lu</p>
+            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegelstand Monitor</h1>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
+              <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
+              <span class="hidden sm:inline">&bull;</span>
+              <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
+            </div>
           </div>
         </div>
 
@@ -87,8 +91,8 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       <div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Haupt-Messstationen</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend (Klick auf Karte öffnet Diagramm)</p>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hauptmessstationen</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
       </div>
       <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
     </section>
@@ -192,8 +196,6 @@
       'larochette': 'Weiße Ernz',
       'reisdorf': 'Sauer',
       'lintgen': 'Alzette',
-      'eschsure': 'Sauer',
-      'ettelbruck': 'Sauer',
       'echternach': 'Sauer',
       'rosport': 'Sauer',
       'wallendorf': 'Sauer',
@@ -207,11 +209,6 @@
       'pfaffenthal': 'Alzette',
       'hesperange': 'Alzette',
       'livange': 'Alzette',
-      'remich': 'Mosel',
-      'grevenmacher': 'Mosel',
-      'wasserbillig': 'Mosel / Sauer',
-      'stadtbredimus': 'Mosel',
-      'mertert': 'Mosel',
       'clervaux': 'Clerve',
       'kautenbach': 'Wiltz',
       'wiltz': 'Wiltz',
@@ -219,19 +216,29 @@
       'atanas': 'Attert',
       'bissen': 'Attert',
       'colmarberg': 'Attert',
-      'roodt': 'Syre',
-      'ubersyren': 'Syre',
       'bertrange': 'Mamer',
       'mamer': 'Mamer',
-      'eisch': 'Eisch',
       'koerich': 'Eisch',
       'helldange': 'Gander',
       'mondorf': 'Gander',
       'welscheid': 'Wark',
       'heiderscheidergrund': 'Sauer',
       'niederfeulen': 'Wark',
-      'perly': 'Mosel',
-      'perl': 'Mosel'
+      'perl': 'Mosel',
+      'welscheidvillage': 'Wark'
+    };
+
+    const RIVER_STATION_ORDERS = {
+      'Alzette': ['Livange', 'Hesperange', 'Pfaffenthal', 'Walferdange', 'Steinsel', 'Mersch', 'Ettelbrück / Alzette'],
+      'Attert': ['Reichlange', 'Bissen'],
+      'Clerve': ['Troisvierges', 'Clervaux'],
+      'Eisch': ['Eischen', 'Hunnebuer', 'Hunnebour'],
+      'Mosel': ['Perl', 'Remich', 'Stadtbredimus', 'Grevenmacher', 'Wasserbillig'],
+      'Our': ['Dasbourg', 'Gemünd Our', 'Gemünd', 'Vianden'],
+      'Sauer': ['Bigonville', 'Barrage Esch-Sauer', 'Heiderscheidergrund', 'Michelau', 'Diekirch', 'Bollendorf', 'Rosport'],
+      'Syre': ['Ubersysren', 'Ubersyren', 'Roodt-sur-Syre', 'Mertert'],
+      'Wark': ['Niederfeulen', 'Welscheid', 'Welscheid-Village', 'Ettelbrück / Wark'],
+      'Wiltz': ['Wiltz', 'Kautenbach']
     };
 
     let parsedData = {};
@@ -288,9 +295,15 @@
       document.getElementById('tab-content-chart').classList.toggle('hidden', tabId !== 'chart');
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
+      // Update Desktop Nav Buttons
       document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400');
       const activeNav = document.getElementById(`nav-${tabId}`);
       if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+
+      // Update Mobile Nav Buttons
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400');
+      const activeMobileNav = document.getElementById(`mobile-nav-${tabId}`);
+      if (activeMobileNav) activeMobileNav.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm';
 
       if (tabId === 'chart') setTimeout(() => renderMainChart(), 50);
     }
@@ -359,8 +372,70 @@
 
       for (let r = 1; r < lines.length; r++) {
         const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
-        const stationName = cols[0];
+        let stationName = cols[0];
         if (!stationName) continue;
+
+        const lowerName = stationName.toLowerCase();
+        let riverName = 'Sonstige';
+
+        // Apply requested renamings & river mappings
+        if ((lowerName.includes('gemünd') && lowerName.includes('our')) || lowerName.includes('gemünd_our') || lowerName.includes('gemund_our')) {
+          stationName = 'Gemünd Our';
+          riverName = 'Our';
+        } else if (lowerName.includes('müllerthal') || lowerName.includes('mullerthal')) {
+          stationName = 'Müllerthal';
+          riverName = 'Schwarze Ernz';
+        } else if (lowerName.includes('ettelbrück / wark') || lowerName.includes('ettelbruck / wark')) {
+          stationName = 'Ettelbrück / Wark';
+          riverName = 'Wark';
+        } else if (lowerName.includes('ettelbrück / alzette') || lowerName.includes('ettelbruck / alzette')) {
+          stationName = 'Ettelbrück / Alzette';
+          riverName = 'Alzette';
+        } else if (lowerName.includes('schoenfels')) {
+          stationName = 'Schoenfels';
+          riverName = 'Mamer';
+        } else if (lowerName.includes('hunnebuer') || lowerName.includes('hunnebour')) {
+          stationName = 'Hunnebuer';
+          riverName = 'Eisch';
+        } else if (lowerName.includes('reichlange')) {
+          stationName = 'Reichlange';
+          riverName = 'Attert';
+        } else if (lowerName.includes('dasbourg')) {
+          stationName = 'Dasbourg';
+          riverName = 'Our';
+        } else if (lowerName.includes('bigonville')) {
+          stationName = 'Bigonville';
+          riverName = 'Sauer';
+        } else if (lowerName.includes('pétange') || lowerName.includes('petange')) {
+          stationName = 'Pétange';
+          riverName = 'Korn';
+        } else if (lowerName.includes('esch-sure') || lowerName.includes('eschsure')) {
+          stationName = 'Barrage Esch-Sauer';
+          riverName = 'Sauer';
+        } else if (lowerName === 'sn_remich' || lowerName === 'snremich') {
+          stationName = 'Remich';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_stadtbredimus' || lowerName === 'snstadtbredimus') {
+          stationName = 'Stadtbredimus';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_grevenmacher' || lowerName === 'sngrevenmacher') {
+          stationName = 'Grevenmacher';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_wasserbillig' || lowerName === 'snwasserbillig') {
+          stationName = 'Wasserbillig';
+          riverName = 'Mosel';
+        } else if (lowerName.includes('mertert')) {
+          stationName = 'Mertert';
+          riverName = 'Syre';
+        } else {
+          const cleanKey = lowerName.replace(/[^a-z0-9]/g, '');
+          for (const [k, rName] of Object.entries(RIVER_KNOWN_MAP)) {
+            if (cleanKey.includes(k)) {
+              riverName = rName;
+              break;
+            }
+          }
+        }
 
         const key = stationName.toLowerCase().replace(/[^a-z0-9]/g, '');
         const points = [];
@@ -379,15 +454,6 @@
         });
 
         points.sort((a, b) => a.time - b.time);
-        
-        let riverName = 'Sonstige';
-        for (const [k, rName] of Object.entries(RIVER_KNOWN_MAP)) {
-          if (key.includes(k)) {
-            riverName = rName;
-            break;
-          }
-        }
-
         parsedData[key] = { name: stationName, river: riverName, points: points };
       }
 
@@ -432,7 +498,6 @@
           <div class="space-y-1">
             <div class="flex items-center space-x-2">
               <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
-              <span class="text-xs text-gray-400 font-mono">${timeStr} Uhr</span>
             </div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">${displayName}</h3>
             <div class="flex items-baseline space-x-2 pt-1">
@@ -442,6 +507,7 @@
                 <i data-lucide="${trendIcon}" class="w-4 h-4 mr-0.5"></i>
               </div>
             </div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 font-mono pt-0.5">Stand: ${timeStr} Uhr</div>
           </div>
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
@@ -497,7 +563,14 @@
         if (matchKey) primaryKeys.push(matchKey);
       });
 
-      Object.keys(parsedData).forEach(id => {
+      const sortedKeys = Object.keys(parsedData).sort((a, b) => {
+        const stA = parsedData[a];
+        const stB = parsedData[b];
+        if (stA.river !== stB.river) return stA.river.localeCompare(stB.river);
+        return stA.name.localeCompare(stB.name);
+      });
+
+      sortedKeys.forEach(id => {
         const st = parsedData[id];
         const isPrimary = primaryKeys.includes(id);
         const isChecked = selectedChartStations.includes(id);
@@ -647,17 +720,38 @@
       renderAllStationsTable();
     }
 
+    function getStationSortRank(river, name) {
+      const orderList = RIVER_STATION_ORDERS[river] || [];
+      const idx = orderList.findIndex(s => name.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(name.toLowerCase()));
+      return idx !== -1 ? idx : 999;
+    }
+
     function renderAllStationsTable() {
       const tbody = document.getElementById('all-stations-table-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      Object.keys(parsedData).forEach(id => {
+      const stationKeys = Object.keys(parsedData).filter(id => {
         const st = parsedData[id];
-        if (!st.points || st.points.length === 0) return;
+        if (!st.points || st.points.length === 0) return false;
+        if (selectedRiverFilter !== 'all' && st.river !== selectedRiverFilter) return false;
+        return true;
+      });
 
-        if (selectedRiverFilter !== 'all' && st.river !== selectedRiverFilter) return;
+      stationKeys.sort((a, b) => {
+        const stA = parsedData[a];
+        const stB = parsedData[b];
+        if (stA.river !== stB.river) {
+          return stA.river.localeCompare(stB.river);
+        }
+        const rankA = getStationSortRank(stA.river, stA.name);
+        const rankB = getStationSortRank(stB.river, stB.name);
+        if (rankA !== rankB) return rankA - rankB;
+        return stA.name.localeCompare(stB.name);
+      });
 
+      stationKeys.forEach(id => {
+        const st = parsedData[id];
         const latest = st.points[st.points.length - 1];
         
         let trendIcon = 'minus';
