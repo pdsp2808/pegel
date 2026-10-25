@@ -100,7 +100,7 @@
     <!-- CHART TAB -->
     <section id="tab-content-chart" class="hidden space-y-6">
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Interaktiver Pegelverlauf</h2>
             <p class="text-xs text-gray-500 dark:text-gray-400">Wählen Sie die gewünschten Stationen aus</p>
@@ -378,7 +378,6 @@
         const lowerName = stationName.toLowerCase();
         let riverName = 'Sonstige';
 
-        // Apply requested renamings & river mappings
         if ((lowerName.includes('gemünd') && lowerName.includes('our')) || lowerName.includes('gemünd_our') || lowerName.includes('gemund_our')) {
           stationName = 'Gemünd Our';
           riverName = 'Our';
@@ -476,6 +475,7 @@
         const stObj = matchedKey ? parsedData[matchedKey] : null;
         const series = stObj ? stObj.points : [];
         const latest = series.length > 0 ? series[series.length - 1] : { value: '--', time: new Date() };
+        const previous = series.length > 1 ? series[series.length - 2] : null;
         const displayName = stObj ? stObj.name : st.name;
         
         let trendIcon = 'minus';
@@ -489,6 +489,7 @@
         }
 
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+        const prevText = previous ? `${previous.value} cm (${previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })})` : '--';
 
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
@@ -496,8 +497,9 @@
         
         card.innerHTML = `
           <div class="space-y-1">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center justify-between">
               <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
+              <span class="text-xs text-gray-400 font-mono ml-2">${timeStr} Uhr</span>
             </div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">${displayName}</h3>
             <div class="flex items-baseline space-x-2 pt-1">
@@ -507,7 +509,7 @@
                 <i data-lucide="${trendIcon}" class="w-4 h-4 mr-0.5"></i>
               </div>
             </div>
-            <div class="text-[11px] text-gray-500 dark:text-gray-400 font-mono pt-0.5">Stand: ${timeStr} Uhr</div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">Davor: ${prevText}</div>
           </div>
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
@@ -741,13 +743,20 @@
       stationKeys.sort((a, b) => {
         const stA = parsedData[a];
         const stB = parsedData[b];
-        if (stA.river !== stB.river) {
-          return stA.river.localeCompare(stB.river);
+        
+        if (selectedRiverFilter === 'all') {
+          // Sort strictly by station name alphabetically when "Alle Flüsse" is selected
+          return stA.name.localeCompare(stB.name);
+        } else {
+          // Sort by river-specific downstream order if a specific river is chosen
+          if (stA.river !== stB.river) {
+            return stA.river.localeCompare(stB.river);
+          }
+          const rankA = getStationSortRank(stA.river, stA.name);
+          const rankB = getStationSortRank(stB.river, stB.name);
+          if (rankA !== rankB) return rankA - rankB;
+          return stA.name.localeCompare(stB.name);
         }
-        const rankA = getStationSortRank(stA.river, stA.name);
-        const rankB = getStationSortRank(stB.river, stB.name);
-        if (rankA !== rankB) return rankA - rankB;
-        return stA.name.localeCompare(stB.name);
       });
 
       stationKeys.forEach(id => {
