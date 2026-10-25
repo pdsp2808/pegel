@@ -44,18 +44,18 @@
         </div>
 
         <!-- Strict single-line navigation container -->
-        <nav class="hidden md:flex flex-nowrap shrink-0 max-w-max space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0">
+        <nav class="hidden md:flex flex-row items-center shrink-0 max-w-max space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0">
             <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
-            <span>Dashboard</span>
+            <span class="whitespace-nowrap">Dashboard</span>
           </button>
-          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
             <i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i>
-            <span>Verlaufsdiagramm</span>
+            <span class="whitespace-nowrap">Verlaufsdiagramm</span>
           </button>
-          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
             <i data-lucide="list" class="w-4 h-4 shrink-0"></i>
-            <span>Alle Pegel</span>
+            <span class="whitespace-nowrap">Alle Pegel</span>
           </button>
         </nav>
 
@@ -222,6 +222,7 @@
       'colmarberg': 'Attert',
       'bertrange': 'Mamer',
       'mamer': 'Mamer',
+      'eischen': 'Eisch',
       'koerich': 'Eisch',
       'helldange': 'Gander',
       'mondorf': 'Gander',
@@ -229,7 +230,10 @@
       'heiderscheidergrund': 'Sauer',
       'niederfeulen': 'Wark',
       'perl': 'Mosel',
-      'welscheidvillage': 'Wark'
+      'welscheidvillage': 'Wark',
+      'roodt': 'Syre',
+      'ubersyren': 'Syre',
+      'uebersyren': 'Syre'
     };
 
     const RIVER_STATION_ORDERS = {
@@ -240,7 +244,7 @@
       'Mosel': ['Perl', 'Remich', 'Stadtbredimus', 'Grevenmacher', 'Wasserbillig'],
       'Our': ['Dasbourg', 'Gemünd Our', 'Gemünd', 'Vianden'],
       'Sauer': ['Bigonville', 'Barrage Esch-Sauer', 'Heiderscheidergrund', 'Michelau', 'Diekirch', 'Bollendorf', 'Rosport'],
-      'Syre': ['Ubersysren', 'Ubersyren', 'Roodt-sur-Syre', 'Mertert'],
+      'Syre': ['Ubersyren', 'Roodt-sur-Syre', 'Mertert'],
       'Wark': ['Niederfeulen', 'Welscheid', 'Welscheid-Village', 'Ettelbrück / Wark'],
       'Wiltz': ['Wiltz', 'Kautenbach']
     };
@@ -300,9 +304,9 @@
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
       // Update Desktop Nav Buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap shrink-0');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 whitespace-nowrap shrink-0');
       const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0';
+      if (activeNav) activeNav.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0';
 
       // Update Mobile Nav Buttons
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap');
@@ -427,6 +431,15 @@
         } else if (lowerName === 'sn_wasserbillig' || lowerName === 'snwasserbillig') {
           stationName = 'Wasserbillig';
           riverName = 'Mosel';
+        } else if (lowerName.includes('roodt')) {
+          stationName = 'Roodt-sur-Syre';
+          riverName = 'Syre';
+        } else if (lowerName.includes('ubersyren') || lowerName.includes('uebersyren')) {
+          stationName = 'Ubersyren';
+          riverName = 'Syre';
+        } else if (lowerName.includes('eischen')) {
+          stationName = 'Eischen';
+          riverName = 'Eisch';
         } else if (lowerName.includes('mertert')) {
           stationName = 'Mertert';
           riverName = 'Syre';
@@ -493,7 +506,7 @@
         }
 
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
-        const prevText = previous ? `${previous.value} cm (${previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })})` : '--';
+        const prevText = previous ? `${previous.value} cm (${previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })} Uhr)` : '--';
 
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
@@ -573,6 +586,10 @@
         const stA = parsedData[a];
         const stB = parsedData[b];
         if (stA.river !== stB.river) return stA.river.localeCompare(stB.river);
+        
+        const rankA = getStationSortRank(stA.river, stA.name);
+        const rankB = getStationSortRank(stB.river, stB.name);
+        if (rankA !== rankB) return rankA - rankB;
         return stA.name.localeCompare(stB.name);
       });
 
@@ -587,7 +604,7 @@
             ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
         }`;
-        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name}</span>`;
+        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] text-gray-400">(${st.river})</span></span>`;
 
         if (isPrimary) {
           primaryContainer.appendChild(btn);
