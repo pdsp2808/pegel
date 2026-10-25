@@ -44,15 +44,15 @@
         </div>
 
         <nav class="hidden md:flex space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">
             <i data-lucide="layout-grid" class="w-4 h-4"></i>
             <span>Dashboard</span>
           </button>
-          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
             <i data-lucide="line-chart" class="w-4 h-4"></i>
             <span>Verlaufsdiagramm</span>
           </button>
-          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
             <i data-lucide="list" class="w-4 h-4"></i>
             <span>Alle Pegel</span>
           </button>
@@ -157,9 +157,12 @@
           </div>
         </div>
 
-        <!-- River Filter Pills -->
-        <div class="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-700/50" id="river-filter-container">
-          <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+        <!-- River Filter Pills & Count -->
+        <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          <div class="flex flex-wrap gap-1.5" id="river-filter-container">
+            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+          </div>
+          <div id="river-count-display" class="text-[11px] text-gray-500 dark:text-gray-400 font-medium"></div>
         </div>
 
         <div class="overflow-x-auto pt-2">
@@ -296,9 +299,9 @@
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
       // Update Desktop Nav Buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap');
       const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
 
       // Update Mobile Nav Buttons
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400');
@@ -714,6 +717,11 @@
         btn.innerText = river;
         container.appendChild(btn);
       });
+
+      const countEl = document.getElementById('river-count-display');
+      if (countEl) {
+        countEl.innerText = `Anzahl Flüsse: ${sortedRivers.length}`;
+      }
     }
 
     function filterByRiver(river) {
@@ -745,10 +753,8 @@
         const stB = parsedData[b];
         
         if (selectedRiverFilter === 'all') {
-          // Sort strictly by station name alphabetically when "Alle Flüsse" is selected
           return stA.name.localeCompare(stB.name);
         } else {
-          // Sort by river-specific downstream order if a specific river is chosen
           if (stA.river !== stB.river) {
             return stA.river.localeCompare(stB.river);
           }
