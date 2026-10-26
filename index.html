@@ -27,15 +27,15 @@
   <!-- Header & Navigation -->
   <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 gap-2">
+      <div class="flex items-center justify-between h-16">
         
-        <div class="flex items-center space-x-3 shrink-0">
+        <div class="flex items-center space-x-3">
           <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors" title="Zum Dashboard">
             <i data-lucide="waves" class="w-6 h-6"></i>
           </div>
           <div>
-            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white whitespace-nowrap">Pegelstand Monitor</h1>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5 whitespace-nowrap">
+            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegelstand Monitor</h1>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
               <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
               <span class="hidden sm:inline">&bull;</span>
               <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
@@ -43,23 +43,22 @@
           </div>
         </div>
 
-        <!-- Strict single-line navigation container -->
-        <nav class="hidden md:flex flex-row items-center shrink-0 max-w-max space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0">
+        <nav class="hidden md:flex space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800 max-w-max shrink-0">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">
             <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
             <span class="whitespace-nowrap">Dashboard</span>
           </button>
-          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
             <i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i>
             <span class="whitespace-nowrap">Verlaufsdiagramm</span>
           </button>
-          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap shrink-0">
+          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
             <i data-lucide="list" class="w-4 h-4 shrink-0"></i>
             <span class="whitespace-nowrap">Alle Pegel</span>
           </button>
         </nav>
 
-        <div class="flex items-center space-x-3 shrink-0">
+        <div class="flex items-center space-x-3">
           <div class="flex flex-col text-right">
             <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Stand</span>
             <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--</span>
@@ -82,7 +81,7 @@
 
     <div class="flex md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 justify-around">
       <button id="mobile-nav-dashboard" onclick="switchTab('dashboard')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">Dashboard</button>
-      <button id="mobile-nav-chart" onclick="switchTab('chart')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Diagramm</button>
+      <button id="mobile-nav-chart" onclick="switchTab('chart')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Verlaufsdiagramm</button>
       <button id="mobile-nav-all" onclick="switchTab('all')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Alle Pegel</button>
     </div>
   </header>
@@ -107,14 +106,14 @@
             <p class="text-xs text-gray-500 dark:text-gray-400">Wählen Sie die gewünschten Stationen aus</p>
           </div>
           <div class="flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
-            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="2">2h</button>
-            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="4">4h</button>
-            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="8">8h</button>
-            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap" data-hours="12">12h</button>
-            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="24">24h</button>
-            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="48">48h</button>
-            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="72">72h</button>
-            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap" data-hours="0">Alle</button>
+            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="2">2h</button>
+            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="4">4h</button>
+            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="8">8h</button>
+            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="12">12h</button>
+            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="24">24h</button>
+            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="48">48h</button>
+            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="72">72h</button>
+            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="0">Alle</button>
           </div>
         </div>
         
@@ -137,10 +136,10 @@
         <canvas id="mainChart" class="w-full h-[400px]"></canvas>
       </div>
 
-      <!-- Other Stations Below Chart -->
+      <!-- All Stations Below Chart -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-2">
-        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Weitere Stationen:</span>
-        <div id="other-stations-selector" class="flex flex-wrap gap-2"></div>
+        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Alle Stationen:</span>
+        <div id="all-stations-selector" class="flex flex-wrap gap-2"></div>
       </div>
     </section>
 
@@ -158,11 +157,22 @@
           </div>
         </div>
 
-        <!-- River Filter Pills & Count -->
+        <!-- River Filter Pills (Desktop) / Dropdown (Mobile) & Count -->
         <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
-          <div class="flex flex-wrap gap-1.5" id="river-filter-container">
-            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all whitespace-nowrap" data-river="all">Alle Flüsse</button>
+          
+          <!-- Mobile Dropdown Select -->
+          <div class="block sm:hidden">
+            <label for="river-select-mobile" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Gewässer auswählen:</label>
+            <select id="river-select-mobile" onchange="filterByRiver(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all">Alle Flüsse</option>
+            </select>
           </div>
+
+          <!-- Desktop Filter Pills -->
+          <div class="hidden sm:flex sm:flex-wrap gap-1.5" id="river-filter-container">
+            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+          </div>
+
           <div id="river-count-display" class="text-[11px] text-gray-500 dark:text-gray-400 font-medium"></div>
         </div>
 
@@ -244,7 +254,7 @@
       'Mosel': ['Perl', 'Remich', 'Stadtbredimus', 'Grevenmacher', 'Wasserbillig'],
       'Our': ['Dasbourg', 'Gemünd Our', 'Gemünd', 'Vianden'],
       'Sauer': ['Bigonville', 'Barrage Esch-Sauer', 'Heiderscheidergrund', 'Michelau', 'Diekirch', 'Bollendorf', 'Rosport'],
-      'Syre': ['Ubersyren', 'Roodt-sur-Syre', 'Mertert'],
+      'Syre': ['Ubersysren', 'Uebersyren', 'Roodt-sur-Syre', 'Roodt sur Syre', 'Mertert'],
       'Wark': ['Niederfeulen', 'Welscheid', 'Welscheid-Village', 'Ettelbrück / Wark'],
       'Wiltz': ['Wiltz', 'Kautenbach']
     };
@@ -304,9 +314,9 @@
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
       // Update Desktop Nav Buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 whitespace-nowrap shrink-0');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap');
       const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = 'tab-btn px-3 lg:px-4 py-1.5 rounded-md text-sm font-medium inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap shrink-0';
+      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
 
       // Update Mobile Nav Buttons
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap');
@@ -401,6 +411,9 @@
         } else if (lowerName.includes('schoenfels')) {
           stationName = 'Schoenfels';
           riverName = 'Mamer';
+        } else if (lowerName.includes('eischen')) {
+          stationName = 'Eischen';
+          riverName = 'Eisch';
         } else if (lowerName.includes('hunnebuer') || lowerName.includes('hunnebour')) {
           stationName = 'Hunnebuer';
           riverName = 'Eisch';
@@ -437,9 +450,6 @@
         } else if (lowerName.includes('ubersyren') || lowerName.includes('uebersyren')) {
           stationName = 'Ubersyren';
           riverName = 'Syre';
-        } else if (lowerName.includes('eischen')) {
-          stationName = 'Eischen';
-          riverName = 'Eisch';
         } else if (lowerName.includes('mertert')) {
           stationName = 'Mertert';
           riverName = 'Syre';
@@ -506,7 +516,15 @@
         }
 
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
-        const prevText = previous ? `${previous.value} cm (${previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })} Uhr)` : '--';
+
+        let prevInfoStr = '--';
+        if (previous && typeof latest.value === 'number' && typeof previous.value === 'number') {
+          const prevTimeStr = previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+          const diffVal = latest.value - previous.value;
+          const diffSign = diffVal > 0 ? '+' : '';
+          const formattedDiff = Math.round(diffVal * 100) / 100;
+          prevInfoStr = `${previous.value} cm (${prevTimeStr}) | Differenz: ${diffSign}${formattedDiff} cm`;
+        }
 
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
@@ -514,11 +532,13 @@
         
         card.innerHTML = `
           <div class="space-y-1">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
               <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
-              <span class="text-xs text-gray-400 font-mono ml-2">${timeStr} Uhr</span>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">${displayName}</h3>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+              <span>${displayName}</span>
+              <span class="text-xs font-mono font-normal text-gray-400">(${timeStr})</span>
+            </h3>
             <div class="flex items-baseline space-x-2 pt-1">
               <span class="text-3xl font-extrabold text-gray-900 dark:text-white">${latest.value}</span>
               <span class="text-xs text-gray-500 dark:text-gray-400">cm</span>
@@ -526,7 +546,7 @@
                 <i data-lucide="${trendIcon}" class="w-4 h-4 mr-0.5"></i>
               </div>
             </div>
-            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">Davor: ${prevText}</div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">${prevInfoStr}</div>
           </div>
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
@@ -570,11 +590,17 @@
       });
     }
 
+    function getStationSortRank(river, name) {
+      const orderList = RIVER_STATION_ORDERS[river] || [];
+      const idx = orderList.findIndex(s => name.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(name.toLowerCase()));
+      return idx !== -1 ? idx : 999;
+    }
+
     function initChartControls() {
       const primaryContainer = document.getElementById('primary-stations-selector');
-      const otherContainer = document.getElementById('other-stations-selector');
+      const allContainer = document.getElementById('all-stations-selector');
       primaryContainer.innerHTML = '';
-      otherContainer.innerHTML = '';
+      allContainer.innerHTML = '';
 
       const primaryKeys = [];
       PRIMARY_STATIONS.forEach(st => {
@@ -585,8 +611,9 @@
       const sortedKeys = Object.keys(parsedData).sort((a, b) => {
         const stA = parsedData[a];
         const stB = parsedData[b];
-        if (stA.river !== stB.river) return stA.river.localeCompare(stB.river);
-        
+        if (stA.river !== stB.river) {
+          return stA.river.localeCompare(stB.river);
+        }
         const rankA = getStationSortRank(stA.river, stA.name);
         const rankB = getStationSortRank(stB.river, stB.name);
         if (rankA !== rankB) return rankA - rankB;
@@ -598,19 +625,22 @@
         const isPrimary = primaryKeys.includes(id);
         const isChecked = selectedChartStations.includes(id);
 
-        const btn = document.createElement('label');
-        btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
-          isChecked 
-            ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
-            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
-        }`;
-        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] text-gray-400">(${st.river})</span></span>`;
+        const createButton = () => {
+          const btn = document.createElement('label');
+          btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
+            isChecked 
+              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
+              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+          }`;
+          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name}</span>`;
+          return btn;
+        };
 
         if (isPrimary) {
-          primaryContainer.appendChild(btn);
-        } else {
-          otherContainer.appendChild(btn);
+          primaryContainer.appendChild(createButton());
         }
+        
+        allContainer.appendChild(createButton());
       });
     }
 
@@ -645,9 +675,9 @@
       document.querySelectorAll('.time-filter-btn').forEach(btn => {
         const btnHours = parseInt(btn.getAttribute('data-hours'));
         if (btnHours === hours) {
-          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
         } else {
-          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap';
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
         }
       });
       renderMainChart();
@@ -716,7 +746,8 @@
 
     function initRiverFilters() {
       const container = document.getElementById('river-filter-container');
-      if (!container) return;
+      const mobileSelect = document.getElementById('river-select-mobile');
+      if (!container || !mobileSelect) return;
 
       const riversSet = new Set();
       Object.values(parsedData).forEach(st => {
@@ -725,15 +756,28 @@
 
       const sortedRivers = Array.from(riversSet).sort();
       
-      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all whitespace-nowrap" data-river="all">Alle Flüsse</button>`;
+      // Build Desktop Filter Pills
+      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all" data-river="all">Alle Flüsse</button>`;
+
+      // Build Mobile Dropdown
+      mobileSelect.innerHTML = `<option value="all" ${selectedRiverFilter === 'all' ? 'selected' : ''}>Alle Flüsse</option>`;
 
       sortedRivers.forEach(river => {
         const isActive = selectedRiverFilter === river;
+        
+        // Add to desktop pills
         const btn = document.createElement('button');
-        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all whitespace-nowrap`;
+        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all`;
         btn.onclick = () => filterByRiver(river);
         btn.innerText = river;
         container.appendChild(btn);
+
+        // Add to mobile select
+        const opt = document.createElement('option');
+        opt.value = river;
+        opt.innerText = river;
+        if (isActive) opt.selected = true;
+        mobileSelect.appendChild(opt);
       });
     }
 
@@ -741,12 +785,6 @@
       selectedRiverFilter = river;
       initRiverFilters();
       renderAllStationsTable();
-    }
-
-    function getStationSortRank(river, name) {
-      const orderList = RIVER_STATION_ORDERS[river] || [];
-      const idx = orderList.findIndex(s => name.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(name.toLowerCase()));
-      return idx !== -1 ? idx : 999;
     }
 
     function renderAllStationsTable() {
@@ -777,6 +815,12 @@
           return stA.name.localeCompare(stB.name);
         }
       });
+
+      // Update station count label
+      const countEl = document.getElementById('river-count-display');
+      if (countEl) {
+        countEl.innerText = `Messstationen: ${stationKeys.length}`;
+      }
 
       stationKeys.forEach(id => {
         const st = parsedData[id];
@@ -817,19 +861,10 @@
 
     function filterAllStationsTable() {
       const input = document.getElementById('table-search-input').value.toLowerCase();
-      let visibleCount = 0;
-
       document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
         const text = row.innerText.toLowerCase();
-        const isMatch = text.includes(input);
-        row.style.display = isMatch ? '' : 'none';
-        if (isMatch) visibleCount++;
+        row.style.display = text.includes(input) ? '' : 'none';
       });
-
-      const countEl = document.getElementById('river-count-display');
-      if (countEl) {
-        countEl.innerText = `Messstationen: ${visibleCount}`;
-      }
     }
   </script>
 </body>
