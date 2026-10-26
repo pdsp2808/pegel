@@ -314,9 +314,9 @@
       document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
 
       // Update Desktop Nav Buttons
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap inline-flex flex-row items-center space-x-2');
       const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
+      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap inline-flex flex-row items-center space-x-2';
 
       // Update Mobile Nav Buttons
       document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap');
@@ -517,13 +517,20 @@
 
         const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
 
-        let prevInfoStr = '--';
+        let prevInfoHtml = '<span class="text-gray-400">--</span>';
         if (previous && typeof latest.value === 'number' && typeof previous.value === 'number') {
           const prevTimeStr = previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
           const diffVal = latest.value - previous.value;
           const diffSign = diffVal > 0 ? '+' : '';
           const formattedDiff = Math.round(diffVal * 100) / 100;
-          prevInfoStr = `${previous.value} cm (${prevTimeStr}) | Differenz: ${diffSign}${formattedDiff} cm`;
+          
+          prevInfoHtml = `
+            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
+              <span>${previous.value} cm (${prevTimeStr})</span>
+              <span class="hidden sm:inline text-gray-300 dark:text-gray-600">|</span>
+              <span>Differenz: ${diffSign}${formattedDiff} cm</span>
+            </div>
+          `;
         }
 
         const card = document.createElement('div');
@@ -546,7 +553,7 @@
                 <i data-lucide="${trendIcon}" class="w-4 h-4 mr-0.5"></i>
               </div>
             </div>
-            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">${prevInfoStr}</div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">${prevInfoHtml}</div>
           </div>
           <div class="flex flex-col items-end">
             <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
@@ -632,7 +639,7 @@
               ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
               : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
           }`;
-          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name}</span>`;
+          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] opacity-70 font-normal">(${st.river})</span></span>`;
           return btn;
         };
 
@@ -707,6 +714,7 @@
           label: st.name,
           data: filtered.map(d => d.value),
           borderColor: colors[idx % colors.length],
+          backgroundColor: colors[idx % colors.length],
           borderWidth: 2,
           pointRadius: 0,
           hoverRadius: 5,
@@ -734,7 +742,15 @@
                 }
               }
             },
-            legend: { labels: { color: isDark ? '#9ca3af' : '#4b5563' } }
+            legend: { 
+              labels: { 
+                color: isDark ? '#9ca3af' : '#4b5563',
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                boxHeight: 8
+              } 
+            }
           },
           scales: {
             x: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' } },
