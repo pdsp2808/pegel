@@ -609,10 +609,23 @@
       primaryContainer.innerHTML = '';
       allContainer.innerHTML = '';
 
-      const primaryKeys = [];
+      // Render primary stations in the exact order: Diekirch, Bollendorf, Vianden, Larochette
       PRIMARY_STATIONS.forEach(st => {
         const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
-        if (matchKey) primaryKeys.push(matchKey);
+        if (matchKey && parsedData[matchKey]) {
+          const id = matchKey;
+          const stObj = parsedData[id];
+          const isChecked = selectedChartStations.includes(id);
+
+          const btn = document.createElement('label');
+          btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
+            isChecked 
+              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
+              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+          }`;
+          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${stObj.name} <span class="text-[10px] opacity-70 font-normal">(${stObj.river})</span></span>`;
+          primaryContainer.appendChild(btn);
+        }
       });
 
       const sortedKeys = Object.keys(parsedData).sort((a, b) => {
@@ -629,25 +642,17 @@
 
       sortedKeys.forEach(id => {
         const st = parsedData[id];
-        const isPrimary = primaryKeys.includes(id);
         const isChecked = selectedChartStations.includes(id);
 
-        const createButton = () => {
-          const btn = document.createElement('label');
-          btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
-            isChecked 
-              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
-              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
-          }`;
-          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] opacity-70 font-normal">(${st.river})</span></span>`;
-          return btn;
-        };
-
-        if (isPrimary) {
-          primaryContainer.appendChild(createButton());
-        }
+        const btn = document.createElement('label');
+        btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
+          isChecked 
+            ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
+            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+        }`;
+        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] opacity-70 font-normal">(${st.river})</span></span>`;
         
-        allContainer.appendChild(createButton());
+        allContainer.appendChild(btn);
       });
     }
 
@@ -754,7 +759,7 @@
           },
           scales: {
             x: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' } },
-            y: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' }, title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' } }
+            y: { ticks: { color: isDark ? '#9ca3af' : '#9ca3af' }, title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' } }
           }
         }
       });
