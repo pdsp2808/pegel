@@ -43,8 +43,6 @@
           <div>
             <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegel Monitor</h1>
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
-              <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
-              <span class="hidden sm:inline">&bull;</span>
               <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
             </div>
           </div>
@@ -105,7 +103,7 @@
           <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
         </div>
 
-        <!-- Kompaktes Wetter-Widget (rechts platziert) -->
+        <!-- Kompaktes Wetter-Widget -->
         <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2">
           <div class="flex items-center justify-between space-x-3">
             <div class="flex items-center space-x-2">
@@ -145,7 +143,7 @@
       <!-- Pegelstand-Karten -->
       <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
 
-      <!-- LU-ALERT ZIVILSCHUTZ & UNWETTER-WARNBANK (Direkt unter den Messstationen) -->
+      <!-- LU-ALERT ZIVILSCHUTZ & UNWETTER-WARNBANK -->
       <div id="lu-alert-section" class="space-y-2 pt-2">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center space-x-1.5">
@@ -272,6 +270,13 @@
 
   </main>
 
+  <!-- Footer -->
+  <footer class="mt-auto py-6 border-t border-gray-200 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
+    <p class="font-semibold text-gray-700 dark:text-gray-300">&copy; Patrick Pinto (2026)</p>
+    <p>Rohdaten: <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">inondations.lu</a> &bull; <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">lu-alert.lu</a> &bull; Wetter: <a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">Open-Meteo.com</a></p>
+    <p class="text-[11px] italic opacity-75">Alle Angaben ohne Gewähr.</p>
+  </footer>
+
   <script>
     const PRIMARY_STATIONS = [
       { name: 'Diekirch', river: 'Sauer', search: 'diekirch' },
@@ -375,6 +380,11 @@
       lucide.createIcons();
       fetchData();
       loadWeather(currentLat, currentLon);
+
+      // Automatisches Update alle 5 Minuten (300.000 ms)
+      setInterval(() => {
+        fetchData();
+      }, 300000);
     });
 
     function initTheme() {
@@ -573,7 +583,6 @@
           }
         }
         
-        // Produktrückrufe separat zählen & aus den Hauptmeldungen herausfiltern
         if (isFoodRecall) {
           foodRecallCount++;
           continue;
@@ -638,7 +647,6 @@
         primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
       }
       
-      // Update des informativen Rückruf-Zählers
       if (foodRecallInfo && foodRecallCountEl) {
         foodRecallCountEl.textContent = foodRecallCount;
         foodRecallInfo.classList.remove('hidden');
