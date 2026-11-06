@@ -96,15 +96,15 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       
-      <!-- Top Row: Title + Kompaktes Wetter-Widget -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <!-- Top Row: Title + Kompaktes Wetter-Widget (jetzt items-start für saubere obere Ausrichtung) -->
+      <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hauptmessstationen</h2>
           <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
         </div>
 
-        <!-- Kompaktes Wetter-Widget -->
-        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2">
+        <!-- Kompaktes Wetter-Widget mit fester Mindestbreite (lg:w-[410px]), damit es nicht springt -->
+        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2 w-full lg:w-[410px] shrink-0">
           <div class="flex items-center justify-between space-x-3">
             <div class="flex items-center space-x-2">
               <span id="w-icon" class="text-2xl leading-none">☀️</span>
@@ -118,14 +118,15 @@
               </div>
             </div>
 
+            <!-- Feste Spaltenbreiten für Wind & Luftfeuchtigkeit, damit Größenunterschiede (z.B. 4 vs 0.7) nicht springen -->
             <div class="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-3">
-              <div>
+              <div class="w-14 text-right">
                 <span class="text-[9px] uppercase text-gray-400 font-semibold block">Wind</span>
-                <strong id="w-wind" class="text-gray-900 dark:text-white text-xs">-- km/h</strong>
+                <strong id="w-wind" class="text-gray-900 dark:text-white text-xs truncate block">-- km/h</strong>
               </div>
-              <div>
+              <div class="w-10 text-right">
                 <span class="text-[9px] uppercase text-gray-400 font-semibold block">Luftf.</span>
-                <strong id="w-hum" class="text-gray-900 dark:text-white text-xs">--%</strong>
+                <strong id="w-hum" class="text-gray-900 dark:text-white text-xs truncate block">--%</strong>
               </div>
             </div>
 
@@ -381,7 +382,6 @@
       fetchData();
       loadWeather(currentLat, currentLon);
 
-      // Automatisches Update alle 5 Minuten (300.000 ms)
       setInterval(() => {
         fetchData();
       }, 300000);
@@ -1207,6 +1207,7 @@
 
     function filterAllStationsTable() {
       const input = document.getElementById('table-search-input').value.toLowerCase();
+      document.querySelectorAll('#all-stations-table-body tr').exercises; // ignore or query selector
       document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(input) ? '' : 'none';
