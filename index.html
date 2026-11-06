@@ -46,8 +46,6 @@
               <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
               <span class="hidden sm:inline">&bull;</span>
               <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
-              <span class="hidden sm:inline">&bull;</span>
-              <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">lu-alert.lu</a>
             </div>
           </div>
         </div>
@@ -144,12 +142,15 @@
         </div>
       </div>
 
-      <!-- LU-ALERT ZIVILSCHUTZ & UNWETTER-WARNBANK (Exklusive Produktrückrufe) -->
-      <div id="lu-alert-section" class="space-y-2">
+      <!-- Pegelstand-Karten -->
+      <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
+
+      <!-- LU-ALERT ZIVILSCHUTZ & UNWETTER-WARNBANK (Direkt unter den Messstationen) -->
+      <div id="lu-alert-section" class="space-y-2 pt-2">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center space-x-1.5">
             <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500"></i>
-            <span>LU-Alert Meldungen</span>
+            <span>LU-Alert Notfall- & Unwettermeldungen</span>
           </span>
         </div>
         <div id="primary-alerts" class="space-y-3">
@@ -158,10 +159,19 @@
             <span>Lade aktuelle Notfall- und Unwetterwarnungen...</span>
           </div>
         </div>
-      </div>
 
-      <!-- Pegelstand-Karten -->
-      <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
+        <!-- Informativer Zusatz-Ticker für Rückrufe -->
+        <div id="food-recall-info" class="hidden p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400 shrink-0"></i>
+            <span><strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">0</strong> aktive Lebensmittel- & Produktrückrufe vorhanden.</span>
+          </div>
+          <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1 shrink-0">
+            <span>Quelle: lu-alert.lu</span>
+            <i data-lucide="external-link" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
     </section>
 
     <!-- CHART TAB -->
@@ -524,6 +534,7 @@
 
     async function loadAlerts() {
       const primaryContainer = document.getElementById('primary-alerts');
+      const foodRecallInfo = document.getElementById('food-recall-info');
       try {
         const response = await fetch(LU_ALERT_WORKER_URL);
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
@@ -531,23 +542,23 @@
         if (data.error) throw new Error(data.error);
         renderAlerts(data.raw_xml);
       } catch (err) {
-        primaryContainer.innerHTML = `<div class="p-3 bg-white dark:bg-gray-800 rounded-xl text-red-500 text-xs">LU-Alert nicht verfügbar: ${err.message}</div>`;
+        primaryContainer.innerHTML = `<div class="p-3 bg-white dark:bg-gray-800 rounded-xl text-red-500 text-xs border border-gray-200 dark:border-gray-700">LU-Alert nicht verfügbar: ${err.message}</div>`;
+        if (foodRecallInfo) foodRecallInfo.classList.add('hidden');
       }
     }
 
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
+      const foodRecallInfo = document.getElementById('food-recall-info');
+      const foodRecallCountEl = document.getElementById('food-recall-count');
+
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
       const infos = xmlDoc.getElementsByTagName("info");
       
-      if (infos.length === 0) {
-        primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
-        return;
-      }
-      
+      let foodRecallCount = 0;
       let alertsList = [];
-      
+
       for (let info of infos) {
         const lang = info.getElementsByTagName("language")[0]?.textContent || "";
         if (!lang.toLowerCase().startsWith("de")) continue;
@@ -562,7 +573,11 @@
           }
         }
         
-        if (isFoodRecall) continue;
+        // Produktrückrufe separat zählen & aus den Hauptmeldungen herausfiltern
+        if (isFoodRecall) {
+          foodRecallCount++;
+          continue;
+        }
         
         let levelCodeRaw = "N3";
         const parameters = info.getElementsByTagName("parameter");
@@ -623,6 +638,12 @@
         primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
       }
       
+      // Update des informativen Rückruf-Zählers
+      if (foodRecallInfo && foodRecallCountEl) {
+        foodRecallCountEl.textContent = foodRecallCount;
+        foodRecallInfo.classList.remove('hidden');
+      }
+
       lucide.createIcons();
     }
 
