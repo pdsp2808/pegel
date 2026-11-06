@@ -100,7 +100,7 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       
-      <!-- Top Row: Title + Dezent integriertes Wetter-Widget -->
+      <!-- Top Row: Title + Kompaktes Wetter-Widget -->
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hauptmessstationen</h2>
@@ -365,7 +365,6 @@
       lucide.createIcons();
       fetchData();
       loadWeather(currentLat, currentLon);
-      loadAlerts();
     });
 
     function initTheme() {
@@ -563,7 +562,6 @@
           }
         }
         
-        // Lebensmittel & Produktrückrufe komplett herausfiltern!
         if (isFoodRecall) continue;
         
         let levelCodeRaw = "N3";
@@ -646,8 +644,8 @@
         console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
       }
 
-      await loadAlerts();
-      await loadWeather(currentLat, currentLon);
+      loadAlerts();
+      loadWeather(currentLat, currentLon);
 
       if (latestDataTime) {
         document.getElementById('last-update-time').innerText = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -668,9 +666,7 @@
 
     function parseMatrixCSV(csvText) {
       parsedData = {};
-      const lines = csvText.split(/
-|
-/).filter(line => line.trim().length > 0);
+      const lines = csvText.split(/\r\n|\n/).filter(line => line.trim().length > 0);
       if (lines.length < 2) return null;
 
       const delimiter = lines[0].includes(';') ? ';' : ',';
