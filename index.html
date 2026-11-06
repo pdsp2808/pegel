@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="de" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pegel Monitor</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { 
+        extend: { 
+          colors: { 
+            brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' },
+            gray: { 750: '#2d3748' }
+          } 
+        } 
+      }
+    }
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 3px; }
+    .sparkline-container { height: 50px; width: 130px; }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <!-- Header & Navigation -->
+  <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <div class="flex items-center space-x-3">
+          <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors" title="Zum Dashboard">
+            <i data-lucide="waves" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegel Monitor</h1>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
+              <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-gray-700 dark:text-gray-300">CIS Reisdorf</a>
+              <span class="hidden sm:inline">&bull;</span>
+              <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
+              <span class="hidden sm:inline">&bull;</span>
+              <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">lu-alert.lu</a>
+            </div>
+          </div>
+        </div>
+
+        <nav class="hidden md:flex space-x-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800 max-w-max shrink-0">
+          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">
+            <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
+            <span class="whitespace-nowrap">Dashboard</span>
+          </button>
+          <button id="nav-chart" onclick="switchTab('chart')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
+            <i data-lucide="line-chart" class="w-4 h-4 shrink-0"></i>
+            <span class="whitespace-nowrap">Verlaufsdiagramm</span>
+          </button>
+          <button id="nav-all" onclick="switchTab('all')" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all inline-flex flex-row items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white whitespace-nowrap">
+            <i data-lucide="list" class="w-4 h-4 shrink-0"></i>
+            <span class="whitespace-nowrap">Alle Pegel</span>
+          </button>
+        </nav>
+
+        <div class="flex items-center space-x-3">
+          <div class="flex flex-col text-right">
+            <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Stand</span>
+            <span id="last-update-time" class="text-xs font-mono font-medium text-gray-700 dark:text-gray-300">--:--</span>
+          </div>
+
+          <button onclick="fetchData()" title="Daten jetzt aktualisieren" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <span id="refresh-wrapper" class="inline-flex items-center justify-center">
+              <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            </span>
+          </button>
+
+          <button id="theme-toggle" onclick="toggleTheme()" title="Design umschalten" class="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <i id="theme-icon-sun" data-lucide="sun" class="w-5 h-5 hidden"></i>
+            <i id="theme-icon-moon" data-lucide="moon" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="flex md:hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1.5 justify-around">
+      <button id="mobile-nav-dashboard" onclick="switchTab('dashboard')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm whitespace-nowrap">Dashboard</button>
+      <button id="mobile-nav-chart" onclick="switchTab('chart')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Verlaufsdiagramm</button>
+      <button id="mobile-nav-all" onclick="switchTab('all')" class="mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">Alle Pegel</button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- DASHBOARD TAB -->
+    <section id="tab-content-dashboard" class="space-y-6">
+      
+      <!-- Top Row: Title + Dezent integriertes Wetter-Widget -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hauptmessstationen</h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
+        </div>
+
+        <!-- Kompaktes Wetter-Widget (rechts platziert) -->
+        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2">
+          <div class="flex items-center justify-between space-x-3">
+            <div class="flex items-center space-x-2">
+              <span id="w-icon" class="text-2xl leading-none">☀️</span>
+              <div class="flex flex-col">
+                <div class="flex items-baseline space-x-1.5">
+                  <span id="w-temp" class="text-base font-extrabold text-gray-900 dark:text-white">-- °C</span>
+                  <span id="w-status" class="text-xs font-medium text-gray-500 dark:text-gray-400">Lade...</span>
+                </div>
+                <select id="location-select" onchange="handleLocationChange()" class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 text-[11px] font-semibold focus:outline-none mt-0.5">
+                </select>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-3">
+              <div>
+                <span class="text-[9px] uppercase text-gray-400 font-semibold block">Wind</span>
+                <strong id="w-wind" class="text-gray-900 dark:text-white text-xs">-- km/h</strong>
+              </div>
+              <div>
+                <span class="text-[9px] uppercase text-gray-400 font-semibold block">Luftf.</span>
+                <strong id="w-hum" class="text-gray-900 dark:text-white text-xs">--%</strong>
+              </div>
+            </div>
+
+            <div class="flex space-x-1 pl-1">
+              <button id="btn-hourly" onclick="toggleForecast('hourly')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500">Stunden</button>
+              <button id="btn-daily" onclick="toggleForecast('daily')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500">Tage</button>
+            </div>
+          </div>
+
+          <!-- Ausklappbarer Prognose-Bereich -->
+          <div id="forecast-container" class="hidden pt-2 border-t border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto"></div>
+        </div>
+      </div>
+
+      <!-- LU-ALERT ZIVILSCHUTZ & UNWETTER-WARNBANK (Exklusive Produktrückrufe) -->
+      <div id="lu-alert-section" class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center space-x-1.5">
+            <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500"></i>
+            <span>LU-Alert Meldungen</span>
+          </span>
+        </div>
+        <div id="primary-alerts" class="space-y-3">
+          <div class="p-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 dark:text-gray-400 text-xs flex items-center space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0"></i>
+            <span>Lade aktuelle Notfall- und Unwetterwarnungen...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pegelstand-Karten -->
+      <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- CHART TAB -->
+    <section id="tab-content-chart" class="hidden space-y-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 space-y-4 shadow-sm">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Interaktiver Pegelverlauf</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Wählen Sie die gewünschten Stationen aus</p>
+          </div>
+          <div class="flex flex-wrap gap-1 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
+            <button onclick="setTimeFilter(2)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="2">2h</button>
+            <button onclick="setTimeFilter(4)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="4">4h</button>
+            <button onclick="setTimeFilter(8)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="8">8h</button>
+            <button onclick="setTimeFilter(12)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm" data-hours="12">12h</button>
+            <button onclick="setTimeFilter(24)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="24">24h</button>
+            <button onclick="setTimeFilter(48)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="48">48h</button>
+            <button onclick="setTimeFilter(72)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="72">72h</button>
+            <button onclick="setTimeFilter(0)" class="time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" data-hours="0">Alle</button>
+          </div>
+        </div>
+        
+        <!-- Primary Station Selectors with Quick Actions -->
+        <div class="pt-3 border-t border-gray-100 dark:border-gray-700/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Hauptstationen (Vorausgewählt):</span>
+            <div class="space-x-2">
+              <button onclick="selectPrimaryStations()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline">Hauptstationen anzeigen</button>
+              <span class="text-gray-300 dark:text-gray-600">|</span>
+              <button onclick="selectAllStations(false)" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline">Alle entfernen</button>
+            </div>
+          </div>
+          <div id="primary-stations-selector" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- Main Chart Container -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm relative min-h-[380px]">
+        <canvas id="mainChart" class="w-full h-[400px]"></canvas>
+      </div>
+
+      <!-- All Stations Below Chart -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-2">
+        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Alle Stationen:</span>
+        <div id="all-stations-selector" class="flex flex-wrap gap-2"></div>
+      </div>
+    </section>
+
+    <!-- ALL STATIONS TABLE TAB -->
+    <section id="tab-content-all" class="hidden space-y-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden p-4 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Alle Messstationen</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Vollständige Übersicht aller luxemburgischen Pegel (Klick auf Station öffnet Diagramm)</p>
+          </div>
+          <div class="relative w-full sm:w-72">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station oder Gewässer suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <!-- River Filter Pills (Desktop) / Dropdown (Mobile) & Count -->
+        <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          
+          <!-- Mobile Dropdown Select -->
+          <div class="block sm:hidden">
+            <label for="river-select-mobile" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Gewässer auswählen:</label>
+            <select id="river-select-mobile" onchange="filterByRiver(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="all">Alle Flüsse</option>
+            </select>
+          </div>
+
+          <!-- Desktop Filter Pills -->
+          <div class="hidden sm:flex sm:flex-wrap gap-1.5" id="river-filter-container">
+            <button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white transition-all" data-river="all">Alle Flüsse</button>
+          </div>
+
+          <div id="river-count-display" class="text-[11px] text-gray-500 dark:text-gray-400 font-medium"></div>
+        </div>
+
+        <div class="overflow-x-auto pt-2">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 uppercase font-semibold border-b border-gray-200 dark:border-gray-700">
+              <tr>
+                <th class="px-4 py-3">Station</th>
+                <th class="px-4 py-3">Gewässer</th>
+                <th class="px-4 py-3 text-right">Aktueller Pegel</th>
+                <th class="px-4 py-3 text-center">Trend</th>
+                <th class="px-4 py-3 text-right">Messung</th>
+              </tr>
+            </thead>
+            <tbody id="all-stations-table-body" class="divide-y divide-gray-200 dark:divide-gray-700/50"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const PRIMARY_STATIONS = [
+      { name: 'Diekirch', river: 'Sauer', search: 'diekirch' },
+      { name: 'Bollendorf', river: 'Sauer', search: 'bollendorf' },
+      { name: 'Vianden', river: 'Our', search: 'vianden' },
+      { name: 'Larochette', river: 'Weiße Ernz', search: 'larochette' }
+    ];
+
+    const RIVER_KNOWN_MAP = {
+      'diekirch': 'Sauer',
+      'vianden': 'Our',
+      'bollendorf': 'Sauer',
+      'larochette': 'Weiße Ernz',
+      'reisdorf': 'Sauer',
+      'lintgen': 'Alzette',
+      'echternach': 'Sauer',
+      'rosport': 'Sauer',
+      'wallendorf': 'Sauer',
+      'goebelsmuehle': 'Sauer',
+      'michelau': 'Sauer',
+      'mersch': 'Alzette',
+      'walferdange': 'Alzette',
+      'steinsel': 'Alzette',
+      'eschsuralzette': 'Alzette',
+      'schifflange': 'Alzette',
+      'pfaffenthal': 'Alzette',
+      'hesperange': 'Alzette',
+      'livange': 'Alzette',
+      'clervaux': 'Clerve',
+      'kautenbach': 'Wiltz',
+      'wiltz': 'Wiltz',
+      'troisvierges': 'Wiltz',
+      'atanas': 'Attert',
+      'bissen': 'Attert',
+      'colmarberg': 'Attert',
+      'bertrange': 'Mamer',
+      'mamer': 'Mamer',
+      'eischen': 'Eisch',
+      'koerich': 'Eisch',
+      'helldange': 'Gander',
+      'mondorf': 'Gander',
+      'welscheid': 'Wark',
+      'heiderscheidergrund': 'Sauer',
+      'niederfeulen': 'Wark',
+      'perl': 'Mosel',
+      'welscheidvillage': 'Wark',
+      'roodt': 'Syre',
+      'ubersyren': 'Syre',
+      'uebersyren': 'Syre'
+    };
+
+    const RIVER_STATION_ORDERS = {
+      'Alzette': ['Livange', 'Hesperange', 'Pfaffenthal', 'Walferdange', 'Steinsel', 'Mersch', 'Ettelbrück / Alzette'],
+      'Attert': ['Reichlange', 'Bissen'],
+      'Clerve': ['Troisvierges', 'Clervaux'],
+      'Eisch': ['Eischen', 'Hunnebuer', 'Hunnebour'],
+      'Mosel': ['Perl', 'Remich', 'Stadtbredimus', 'Grevenmacher', 'Wasserbillig'],
+      'Our': ['Dasbourg', 'Gemünd Our', 'Gemünd', 'Vianden'],
+      'Sauer': ['Bigonville', 'Barrage Esch-Sauer', 'Heiderscheidergrund', 'Michelau', 'Diekirch', 'Bollendorf', 'Rosport'],
+      'Syre': ['Ubersysren', 'Uebersyren', 'Roodt-sur-Syre', 'Roodt sur Syre', 'Mertert'],
+      'Wark': ['Niederfeulen', 'Welscheid', 'Welscheid-Village', 'Ettelbrück / Wark'],
+      'Wiltz': ['Wiltz', 'Kautenbach']
+    };
+
+    const COMMUNE_DATA = {
+      "Reisdorf": { lat: 49.85, lon: 6.27 },
+      "Luxemburg": { lat: 49.61, lon: 6.13 },
+      "Esch-sur-Alzette": { lat: 49.49, lon: 5.98 },
+      "Differdange": { lat: 49.52, lon: 5.89 },
+      "Dudelange": { lat: 49.48, lon: 6.08 },
+      "Ettelbruck": { lat: 49.84, lon: 6.09 },
+      "Diekirch": { lat: 49.86, lon: 6.15 },
+      "Echternach": { lat: 49.80, lon: 6.34 },
+      "Grevenmacher": { lat: 49.68, lon: 6.44 },
+      "Remich": { lat: 49.54, lon: 6.36 },
+      "Wiltz": { lat: 49.96, lon: 5.93 },
+      "Clervaux": { lat: 50.05, lon: 6.03 },
+      "Vianden": { lat: 49.93, lon: 6.20 },
+      "Mersch": { lat: 49.75, lon: 6.10 },
+      "Redange": { lat: 49.75, lon: 5.89 },
+      "Capellen": { lat: 49.64, lon: 6.00 }
+    };
+
+    const LU_ALERT_WORKER_URL = "https://lu-alert-proxy.patrick95tuga.workers.dev/";
+
+    let parsedData = {};
+    let selectedHours = 12;
+    let selectedChartStations = [];
+    let selectedRiverFilter = 'all';
+    let mainChartInstance = null;
+    let sparklineInstances = {};
+
+    let currentLat = 49.85;
+    let currentLon = 6.27;
+    let activeForecastMode = null;
+    let cachedWeatherData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initLocationSelect();
+      lucide.createIcons();
+      fetchData();
+      loadWeather(currentLat, currentLon);
+      loadAlerts();
+    });
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      let isDark = false;
+      if (savedTheme) {
+        isDark = (savedTheme === 'dark');
+      } else {
+        const currentHour = new Date().getHours();
+        isDark = (currentHour >= 22 || currentHour < 6);
+      }
+      applyTheme(isDark);
+    }
+
+    function applyTheme(isDark) {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        document.getElementById('theme-icon-sun').classList.remove('hidden');
+        document.getElementById('theme-icon-moon').classList.add('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        document.getElementById('theme-icon-sun').classList.add('hidden');
+        document.getElementById('theme-icon-moon').classList.remove('hidden');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = !document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      applyTheme(isDark);
+      if (mainChartInstance) renderMainChart();
+      renderDashboard();
+    }
+
+    function switchTab(tabId) {
+      document.getElementById('tab-content-dashboard').classList.toggle('hidden', tabId !== 'dashboard');
+      document.getElementById('tab-content-chart').classList.toggle('hidden', tabId !== 'chart');
+      document.getElementById('tab-content-all').classList.toggle('hidden', tabId !== 'all');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap inline-flex flex-row items-center space-x-2');
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) activeNav.className = 'tab-btn px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm whitespace-nowrap inline-flex flex-row items-center space-x-2';
+
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => btn.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center text-gray-500 dark:text-gray-400 whitespace-nowrap');
+      const activeMobileNav = document.getElementById(`mobile-nav-${tabId}`);
+      if (activeMobileNav) activeMobileNav.className = 'mobile-tab-btn flex-1 py-1 text-xs font-medium text-center rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm whitespace-nowrap';
+
+      if (tabId === 'chart') setTimeout(() => renderMainChart(), 50);
+    }
+
+    function initLocationSelect() {
+      const select = document.getElementById("location-select");
+      if (!select) return;
+      select.innerHTML = "";
+      for (const [name, coords] of Object.entries(COMMUNE_DATA)) {
+        const option = document.createElement("option");
+        option.value = `${coords.lat},${coords.lon}`;
+        option.textContent = name;
+        if (name === "Reisdorf") option.selected = true;
+        select.appendChild(option);
+      }
+    }
+
+    function handleLocationChange() {
+      const select = document.getElementById("location-select");
+      const [lat, lon] = select.value.split(',');
+      currentLat = parseFloat(lat);
+      currentLon = parseFloat(lon);
+      loadWeather(currentLat, currentLon);
+    }
+
+    function getWeatherDetails(code) {
+      let desc = "Klar";
+      let icon = "☀️";
+      if (code >= 1 && code <= 3) { desc = 'Bewölkt'; icon = "☁️"; }
+      else if (code >= 45 && code <= 48) { desc = 'Nebel'; icon = "🌫️"; }
+      else if (code >= 51 && code <= 67) { desc = 'Regen'; icon = "🌧️"; }
+      else if (code >= 71 && code <= 77) { desc = 'Schnee'; icon = "❄️"; }
+      else if (code >= 95) { desc = 'Gewitter'; icon = "⛈️"; }
+      return { desc, icon };
+    }
+
+    async function loadWeather(lat, lon) {
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`);
+        cachedWeatherData = await res.json();
+        const current = cachedWeatherData.current;
+        document.getElementById("w-temp").textContent = current.temperature_2m + " °C";
+        document.getElementById("w-wind").textContent = current.wind_speed_10m + " km/h";
+        document.getElementById("w-hum").textContent = current.relative_humidity_2m + "%";
+        const details = getWeatherDetails(current.weather_code);
+        document.getElementById("w-status").textContent = details.desc;
+        document.getElementById("w-icon").textContent = details.icon;
+        if (activeForecastMode) renderForecast();
+      } catch (e) {
+        document.getElementById("w-status").textContent = "N/A";
+      }
+    }
+
+    function toggleForecast(mode) {
+      const container = document.getElementById("forecast-container");
+      const btnHourly = document.getElementById("btn-hourly");
+      const btnDaily = document.getElementById("btn-daily");
+      if (activeForecastMode === mode) {
+        activeForecastMode = null;
+        container.classList.add("hidden");
+        btnHourly.classList.remove("border-blue-500", "text-blue-600");
+        btnDaily.classList.remove("border-blue-500", "text-blue-600");
+      } else {
+        activeForecastMode = mode;
+        container.classList.remove("hidden");
+        btnHourly.classList.toggle("border-blue-500", mode === 'hourly');
+        btnDaily.classList.toggle("border-blue-500", mode === 'daily');
+        renderForecast();
+      }
+    }
+
+    function renderForecast() {
+      if (!cachedWeatherData) return;
+      const container = document.getElementById("forecast-container");
+      container.innerHTML = "";
+      if (activeForecastMode === 'hourly') {
+        const hourly = cachedWeatherData.hourly;
+        const currentHour = new Date().getHours();
+        for (let i = currentHour + 1; i <= currentHour + 6; i++) {
+          if (!hourly.time[i]) break;
+          const timeStr = hourly.time[i].split("T")[1].substring(0, 5);
+          const temp = Math.round(hourly.temperature_2m[i]);
+          const details = getWeatherDetails(hourly.weather_code[i]);
+          container.innerHTML += `
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-1.5 text-center min-w-[65px] shrink-0 text-[11px]">
+              <div class="font-bold text-gray-400">${timeStr}</div>
+              <div class="text-base my-0.5">${details.icon}</div>
+              <div class="font-bold text-gray-900 dark:text-white">${temp}°C</div>
+            </div>`;
+        }
+      } else if (activeForecastMode === 'daily') {
+        const daily = cachedWeatherData.daily;
+        for (let i = 1; i <= 3; i++) {
+          if (!daily.time[i]) break;
+          const dateObj = new Date(daily.time[i]);
+          const dayName = dateObj.toLocaleDateString('de-DE', { weekday: 'short' });
+          const maxTemp = Math.round(daily.temperature_2m_max[i]);
+          const minTemp = Math.round(daily.temperature_2m_min[i]);
+          const details = getWeatherDetails(daily.weather_code[i]);
+          container.innerHTML += `
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-1.5 text-center min-w-[65px] shrink-0 text-[11px]">
+              <div class="font-bold text-gray-400">${dayName}</div>
+              <div class="text-base my-0.5">${details.icon}</div>
+              <div class="font-bold text-gray-900 dark:text-white">${maxTemp}° / ${minTemp}°</div>
+            </div>`;
+        }
+      }
+    }
+
+    async function loadAlerts() {
+      const primaryContainer = document.getElementById('primary-alerts');
+      try {
+        const response = await fetch(LU_ALERT_WORKER_URL);
+        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        renderAlerts(data.raw_xml);
+      } catch (err) {
+        primaryContainer.innerHTML = `<div class="p-3 bg-white dark:bg-gray-800 rounded-xl text-red-500 text-xs">LU-Alert nicht verfügbar: ${err.message}</div>`;
+      }
+    }
+
+    function renderAlerts(xmlText) {
+      const primaryContainer = document.getElementById('primary-alerts');
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+      const infos = xmlDoc.getElementsByTagName("info");
+      
+      if (infos.length === 0) {
+        primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
+        return;
+      }
+      
+      let alertsList = [];
+      
+      for (let info of infos) {
+        const lang = info.getElementsByTagName("language")[0]?.textContent || "";
+        if (!lang.toLowerCase().startsWith("de")) continue;
+        
+        const category = info.getElementsByTagName("category")[0]?.textContent || "";
+        let isFoodRecall = category.toLowerCase() === "health";
+        const eventCodes = info.getElementsByTagName("eventCode");
+        for (let code of eventCodes) {
+          if (code.getElementsByTagName("value")[0]?.textContent === "FOOD_RECALL") {
+            isFoodRecall = true;
+            break;
+          }
+        }
+        
+        // Lebensmittel & Produktrückrufe komplett herausfiltern!
+        if (isFoodRecall) continue;
+        
+        let levelCodeRaw = "N3";
+        const parameters = info.getElementsByTagName("parameter");
+        for (let param of parameters) {
+          const valName = param.getElementsByTagName("valueName")[0]?.textContent || "";
+          const val = param.getElementsByTagName("value")[0]?.textContent || "";
+          if (valName.includes("cb-eu-level")) {
+            if (val === "ALERT_LVL_1") levelCodeRaw = "N1";
+            else if (val === "ALERT_LVL_2") levelCodeRaw = "N2";
+            else if (val === "ALERT_LVL_3") levelCodeRaw = "N3";
+          }
+        }
+        
+        let displayLevel = levelCodeRaw.replace("N", "S");
+        const headline = info.getElementsByTagName("headline")[0]?.textContent || "Warnmeldung";
+        const description = info.getElementsByTagName("description")[0]?.textContent || "";
+        const effective = info.getElementsByTagName("effective")[0]?.textContent || "";
+        const expires = info.getElementsByTagName("expires")[0]?.textContent || "";
+        const sender = xmlDoc.getElementsByTagName("sender")[0]?.textContent || "LU-Alert";
+        
+        let effectiveDate = new Date(effective);
+        let effectiveTime = isNaN(effectiveDate.getTime()) ? 0 : effectiveDate.getTime();
+        
+        let effectiveStr = effective;
+        try { effectiveStr = effectiveDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch(e) {}
+        
+        let expiresStr = expires;
+        try { expiresStr = new Date(expires).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch(e) {}
+        
+        let borderColorHex = '#ca8a04';
+        let badgeColor = 'bg-yellow-600';
+        if (levelCodeRaw === 'N1') { borderColorHex = '#dc2626'; badgeColor = 'bg-red-600'; }
+        else if (levelCodeRaw === 'N2') { borderColorHex = '#ea580c'; badgeColor = 'bg-orange-600'; }
+        else if (levelCodeRaw === 'D') { borderColorHex = '#9333ea'; badgeColor = 'bg-purple-600'; }
+        else if (levelCodeRaw === 'A') { borderColorHex = '#f97316'; badgeColor = 'bg-orange-500'; }
+        else if (levelCodeRaw === 'I') { borderColorHex = '#16a34a'; badgeColor = 'bg-lime-600'; }
+        else if (levelCodeRaw === 'T') { borderColorHex = '#4b5563'; badgeColor = 'bg-gray-600'; }
+
+        const cardHtml = `
+          <article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2" style="border-left-color: ${borderColorHex};">
+            <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+              <span class="px-2 py-0.5 rounded font-bold text-white ${badgeColor}">Stufe: ${displayLevel}</span>
+              <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
+              <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${sender}</span>
+            </div>
+            <div class="text-sm font-bold text-gray-900 dark:text-white">${headline}</div>
+            <div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed space-y-1">${description}</div>
+          </article>`;
+          
+        alertsList.push({ effectiveTime, cardHtml });
+      }
+
+      alertsList.sort((a, b) => b.effectiveTime - a.effectiveTime);
+
+      if (alertsList.length > 0) {
+        primaryContainer.innerHTML = alertsList.map(item => item.cardHtml).join('');
+      } else {
+        primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
+      }
+      
+      lucide.createIcons();
+    }
+
+    async function fetchData() {
+      const refreshWrapper = document.getElementById('refresh-wrapper');
+      if (refreshWrapper) refreshWrapper.classList.add('animate-spin');
+
+      let latestDataTime = null;
+
+      try {
+        const response = await fetch(`https://pegel-proxy.patrick95tuga.workers.dev?t=${Date.now()}`);
+        if (response.ok) {
+          const csvText = await response.text();
+          latestDataTime = parseMatrixCSV(csvText);
+        } else {
+          console.error('HTTP Fehler:', response.status);
+        }
+      } catch (err) {
+        console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
+      }
+
+      await loadAlerts();
+      await loadWeather(currentLat, currentLon);
+
+      if (latestDataTime) {
+        document.getElementById('last-update-time').innerText = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+      } else {
+        document.getElementById('last-update-time').innerText = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+      }
+
+      if (refreshWrapper) {
+        setTimeout(() => refreshWrapper.classList.remove('animate-spin'), 600);
+      }
+
+      renderDashboard();
+      initChartControls();
+      renderMainChart();
+      renderAllStationsTable();
+      initRiverFilters();
+    }
+
+    function parseMatrixCSV(csvText) {
+      parsedData = {};
+      const lines = csvText.split(/
+|
+/).filter(line => line.trim().length > 0);
+      if (lines.length < 2) return null;
+
+      const delimiter = lines[0].includes(';') ? ';' : ',';
+      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+
+      const timeStamps = [];
+      for (let i = 3; i < headers.length; i++) {
+        const rawT = headers[i];
+        let timeObj = null;
+        if (rawT.includes('.')) {
+          const parts = rawT.split(' ');
+          const dParts = parts[0].split('.');
+          const tParts = parts[1] ? parts[1].split(':') : [0,0];
+          timeObj = new Date(dParts[2], dParts[1] - 1, dParts[0], tParts[0], tParts[1]);
+        } else {
+          timeObj = new Date(rawT);
+        }
+        if (!isNaN(timeObj.getTime())) {
+          timeStamps.push({ index: i, time: timeObj });
+        }
+      }
+
+      let globalLatestTime = null;
+
+      for (let r = 1; r < lines.length; r++) {
+        const cols = lines[r].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+        let stationName = cols[0];
+        if (!stationName) continue;
+
+        const lowerName = stationName.toLowerCase();
+        let riverName = 'Sonstige';
+
+        if ((lowerName.includes('gemünd') && lowerName.includes('our')) || lowerName.includes('gemünd_our') || lowerName.includes('gemund_our')) {
+          stationName = 'Gemünd Our';
+          riverName = 'Our';
+        } else if (lowerName.includes('müllerthal') || lowerName.includes('mullerthal')) {
+          stationName = 'Müllerthal';
+          riverName = 'Schwarze Ernz';
+        } else if (lowerName.includes('ettelbrück / wark') || lowerName.includes('ettelbruck / wark')) {
+          stationName = 'Ettelbrück / Wark';
+          riverName = 'Wark';
+        } else if (lowerName.includes('ettelbrück / alzette') || lowerName.includes('ettelbruck / alzette')) {
+          stationName = 'Ettelbrück / Alzette';
+          riverName = 'Alzette';
+        } else if (lowerName.includes('schoenfels')) {
+          stationName = 'Schoenfels';
+          riverName = 'Mamer';
+        } else if (lowerName.includes('eischen')) {
+          stationName = 'Eischen';
+          riverName = 'Eisch';
+        } else if (lowerName.includes('hunnebuer') || lowerName.includes('hunnebour')) {
+          stationName = 'Hunnebuer';
+          riverName = 'Eisch';
+        } else if (lowerName.includes('reichlange')) {
+          stationName = 'Reichlange';
+          riverName = 'Attert';
+        } else if (lowerName.includes('dasbourg')) {
+          stationName = 'Dasbourg';
+          riverName = 'Our';
+        } else if (lowerName.includes('bigonville')) {
+          stationName = 'Bigonville';
+          riverName = 'Sauer';
+        } else if (lowerName.includes('pétange') || lowerName.includes('petange')) {
+          stationName = 'Pétange';
+          riverName = 'Korn';
+        } else if (lowerName.includes('esch-sure') || lowerName.includes('eschsure')) {
+          stationName = 'Barrage Esch-Sauer';
+          riverName = 'Sauer';
+        } else if (lowerName === 'sn_remich' || lowerName === 'snremich') {
+          stationName = 'Remich';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_stadtbredimus' || lowerName === 'snstadtbredimus') {
+          stationName = 'Stadtbredimus';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_grevenmacher' || lowerName === 'sngrevenmacher') {
+          stationName = 'Grevenmacher';
+          riverName = 'Mosel';
+        } else if (lowerName === 'sn_wasserbillig' || lowerName === 'snwasserbillig') {
+          stationName = 'Wasserbillig';
+          riverName = 'Mosel';
+        } else if (lowerName.includes('roodt')) {
+          stationName = 'Roodt-sur-Syre';
+          riverName = 'Syre';
+        } else if (lowerName.includes('ubersyren') || lowerName.includes('uebersyren')) {
+          stationName = 'Ubersyren';
+          riverName = 'Syre';
+        } else if (lowerName.includes('mertert')) {
+          stationName = 'Mertert';
+          riverName = 'Syre';
+        } else {
+          const cleanKey = lowerName.replace(/[^a-z0-9]/g, '');
+          for (const [k, rName] of Object.entries(RIVER_KNOWN_MAP)) {
+            if (cleanKey.includes(k)) {
+              riverName = rName;
+              break;
+            }
+          }
+        }
+
+        const key = stationName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const points = [];
+
+        timeStamps.forEach(ts => {
+          const valStr = cols[ts.index];
+          if (valStr !== undefined && valStr !== '') {
+            const val = parseFloat(valStr.replace(',', '.'));
+            if (!isNaN(val)) {
+              points.push({ time: ts.time, value: val });
+              if (!globalLatestTime || ts.time > globalLatestTime) {
+                globalLatestTime = ts.time;
+              }
+            }
+          }
+        });
+
+        points.sort((a, b) => a.time - b.time);
+        parsedData[key] = { name: stationName, river: riverName, points: points };
+      }
+
+      if (selectedChartStations.length === 0) {
+        PRIMARY_STATIONS.forEach(st => {
+          const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
+          if (matchKey) selectedChartStations.push(matchKey);
+        });
+      }
+
+      return globalLatestTime;
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById('dashboard-grid');
+      grid.innerHTML = '';
+
+      PRIMARY_STATIONS.forEach(st => {
+        const matchedKey = Object.keys(parsedData).find(k => k.includes(st.search));
+        const stObj = matchedKey ? parsedData[matchedKey] : null;
+        const series = stObj ? stObj.points : [];
+        const latest = series.length > 0 ? series[series.length - 1] : { value: '--', time: new Date() };
+        const previous = series.length > 1 ? series[series.length - 2] : null;
+        const displayName = stObj ? stObj.name : st.name;
+        
+        let trendIcon = 'minus';
+        let trendColor = 'text-gray-400';
+        
+        if (series.length >= 4) {
+          const prev = series[series.length - 5] || series[0];
+          const diff = latest.value - prev.value;
+          if (diff > 1) { trendIcon = 'trending-up'; trendColor = 'text-red-500'; }
+          else if (diff < -1) { trendIcon = 'trending-down'; trendColor = 'text-green-500'; }
+        }
+
+        const timeStr = latest.time instanceof Date ? latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }) : '--:--';
+
+        let prevInfoHtml = '<span class="text-gray-400">--</span>';
+        if (previous && typeof latest.value === 'number' && typeof previous.value === 'number') {
+          const prevTimeStr = previous.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+          const diffVal = latest.value - previous.value;
+          const diffSign = diffVal > 0 ? '+' : '';
+          const formattedDiff = Math.round(diffVal * 100) / 100;
+          
+          prevInfoHtml = `
+            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
+              <span>${previous.value} cm (${prevTimeStr})</span>
+              <span class="hidden sm:inline text-gray-300 dark:text-gray-600">|</span>
+              <span>Diff: ${diffSign}${formattedDiff} cm</span>
+            </div>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
+        card.setAttribute('onclick', `focusSingleStationInChart('${matchedKey || st.search}')`);
+        
+        card.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+              <span>${displayName}</span>
+              <span class="text-xs font-mono font-normal text-gray-400">(${timeStr})</span>
+            </h3>
+            <div class="flex items-baseline space-x-2 pt-1">
+              <span class="text-3xl font-extrabold text-gray-900 dark:text-white">${latest.value}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">cm</span>
+              <div class="flex items-center text-xs font-bold ${trendColor} ml-2">
+                <i data-lucide="${trendIcon}" class="w-4 h-4 mr-0.5"></i>
+              </div>
+            </div>
+            <div class="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5 font-mono">${prevInfoHtml}</div>
+          </div>
+          <div class="flex flex-col items-end">
+            <span class="text-[10px] text-gray-400 font-semibold mb-1">12h-Verlauf</span>
+            <div class="sparkline-container"><canvas id="sparkline-${st.search}"></canvas></div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+        if (matchedKey) setTimeout(() => createSparkline(st.search, series), 20);
+      });
+
+      lucide.createIcons();
+    }
+
+    function focusSingleStationInChart(key) {
+      const matchedKey = Object.keys(parsedData).find(k => k.includes(key));
+      if (matchedKey) {
+        selectedChartStations = [matchedKey];
+        switchTab('chart');
+        initChartControls();
+        renderMainChart();
+      }
+    }
+
+    function createSparkline(key, series) {
+      const ctx = document.getElementById(`sparkline-${key}`);
+      if (!ctx) return;
+
+      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+      const filtered = series.filter(d => d.time >= twelveHoursAgo);
+
+      if (sparklineInstances[key]) sparklineInstances[key].destroy();
+
+      sparklineInstances[key] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: filtered.map(d => d.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })),
+          datasets: [{ data: filtered.map(d => d.value), borderColor: document.documentElement.classList.contains('dark') ? '#60a5fa' : '#2563eb', borderWidth: 2, pointRadius: 0, tension: 0.3 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+      });
+    }
+
+    function getStationSortRank(river, name) {
+      const orderList = RIVER_STATION_ORDERS[river] || [];
+      const idx = orderList.findIndex(s => name.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(name.toLowerCase()));
+      return idx !== -1 ? idx : 999;
+    }
+
+    function initChartControls() {
+      const primaryContainer = document.getElementById('primary-stations-selector');
+      const allContainer = document.getElementById('all-stations-selector');
+      primaryContainer.innerHTML = '';
+      allContainer.innerHTML = '';
+
+      PRIMARY_STATIONS.forEach(st => {
+        const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
+        if (matchKey && parsedData[matchKey]) {
+          const id = matchKey;
+          const stObj = parsedData[id];
+          const isChecked = selectedChartStations.includes(id);
+
+          const btn = document.createElement('label');
+          btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
+            isChecked 
+              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
+              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+          }`;
+          btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${stObj.name} <span class="text-[10px] opacity-70 font-normal">(${stObj.river})</span></span>`;
+          primaryContainer.appendChild(btn);
+        }
+      });
+
+      const sortedKeys = Object.keys(parsedData).sort((a, b) => {
+        const stA = parsedData[a];
+        const stB = parsedData[b];
+        if (stA.river !== stB.river) {
+          return stA.river.localeCompare(stB.river);
+        }
+        const rankA = getStationSortRank(stA.river, stA.name);
+        const rankB = getStationSortRank(stB.river, stB.name);
+        if (rankA !== rankB) return rankA - rankB;
+        return stA.name.localeCompare(stB.name);
+      });
+
+      sortedKeys.forEach(id => {
+        const st = parsedData[id];
+        const isChecked = selectedChartStations.includes(id);
+
+        const btn = document.createElement('label');
+        btn.className = `cursor-pointer text-xs px-3 py-1.5 rounded-lg border flex items-center space-x-1.5 ${
+          isChecked 
+            ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold' 
+            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+        }`;
+        btn.innerHTML = `<input type="checkbox" value="${id}" ${isChecked ? 'checked' : ''} onchange="toggleChartStation('${id}')" class="hidden"><span>${st.name} <span class="text-[10px] opacity-70 font-normal">(${st.river})</span></span>`;
+        
+        allContainer.appendChild(btn);
+      });
+    }
+
+    function selectPrimaryStations() {
+      selectedChartStations = [];
+      PRIMARY_STATIONS.forEach(st => {
+        const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
+        if (matchKey) selectedChartStations.push(matchKey);
+      });
+      initChartControls();
+      renderMainChart();
+    }
+
+    function selectAllStations(select) {
+      if (select) {
+        selectedChartStations = Object.keys(parsedData);
+      } else {
+        selectedChartStations = [];
+      }
+      initChartControls();
+      renderMainChart();
+    }
+
+    function toggleChartStation(id) {
+      selectedChartStations = selectedChartStations.includes(id) ? selectedChartStations.filter(k => k !== id) : [...selectedChartStations, id];
+      initChartControls();
+      renderMainChart();
+    }
+
+    function setTimeFilter(hours) {
+      selectedHours = hours;
+      document.querySelectorAll('.time-filter-btn').forEach(btn => {
+        const btnHours = parseInt(btn.getAttribute('data-hours'));
+        if (btnHours === hours) {
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+        } else {
+          btn.className = 'time-filter-btn px-2.5 py-1 text-xs font-semibold rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+        }
+      });
+      renderMainChart();
+    }
+
+    function renderMainChart() {
+      const ctx = document.getElementById('mainChart');
+      if (!ctx) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48', '#84cc16'];
+      const cutoff = selectedHours > 0 ? new Date(Date.now() - selectedHours * 60 * 60 * 1000) : null;
+
+      const datasets = [];
+      let labelTimestamps = [];
+
+      selectedChartStations.forEach((id, idx) => {
+        const st = parsedData[id];
+        if (!st) return;
+        const filtered = cutoff ? st.points.filter(d => d.time >= cutoff) : st.points;
+
+        if (filtered.length > labelTimestamps.length) {
+          labelTimestamps = filtered.map(d => d.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }));
+        }
+
+        datasets.push({
+          label: st.name,
+          data: filtered.map(d => d.value),
+          borderColor: colors[idx % colors.length],
+          backgroundColor: colors[idx % colors.length],
+          borderWidth: 2,
+          pointRadius: 0,
+          hoverRadius: 5,
+          tension: 0.2
+        });
+      });
+
+      if (mainChartInstance) mainChartInstance.destroy();
+
+      mainChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels: labelTimestamps, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.dataset.label}: ${context.parsed.y} cm`;
+                }
+              }
+            },
+            legend: { 
+              labels: { 
+                color: isDark ? '#9ca3af' : '#4b5563',
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                boxHeight: 8
+              } 
+            }
+          },
+          scales: {
+            x: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' } },
+            y: { ticks: { color: isDark ? '#9ca3af' : '#9ca3af' }, title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' } }
+          }
+        }
+      });
+    }
+
+    function initRiverFilters() {
+      const container = document.getElementById('river-filter-container');
+      const mobileSelect = document.getElementById('river-select-mobile');
+      if (!container || !mobileSelect) return;
+
+      const riversSet = new Set();
+      Object.values(parsedData).forEach(st => {
+        if (st.river) riversSet.add(st.river);
+      });
+
+      const sortedRivers = Array.from(riversSet).sort();
+      
+      container.innerHTML = `<button onclick="filterByRiver('all')" class="river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${selectedRiverFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all" data-river="all">Alle Flüsse</button>`;
+      mobileSelect.innerHTML = `<option value="all" ${selectedRiverFilter === 'all' ? 'selected' : ''}>Alle Flüsse</option>`;
+
+      sortedRivers.forEach(river => {
+        const isActive = selectedRiverFilter === river;
+        
+        const btn = document.createElement('button');
+        btn.className = `river-filter-pill px-3 py-1 text-xs font-semibold rounded-full ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'} transition-all`;
+        btn.onclick = () => filterByRiver(river);
+        btn.innerText = river;
+        container.appendChild(btn);
+
+        const opt = document.createElement('option');
+        opt.value = river;
+        opt.innerText = river;
+        if (isActive) opt.selected = true;
+        mobileSelect.appendChild(opt);
+      });
+    }
+
+    function filterByRiver(river) {
+      selectedRiverFilter = river;
+      initRiverFilters();
+      renderAllStationsTable();
+    }
+
+    function renderAllStationsTable() {
+      const tbody = document.getElementById('all-stations-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const stationKeys = Object.keys(parsedData).filter(id => {
+        const st = parsedData[id];
+        if (!st.points || st.points.length === 0) return false;
+        if (selectedRiverFilter !== 'all' && st.river !== selectedRiverFilter) return false;
+        return true;
+      });
+
+      stationKeys.sort((a, b) => {
+        const stA = parsedData[a];
+        const stB = parsedData[b];
+        
+        if (selectedRiverFilter === 'all') {
+          return stA.name.localeCompare(stB.name);
+        } else {
+          if (stA.river !== stB.river) {
+            return stA.river.localeCompare(stB.river);
+          }
+          const rankA = getStationSortRank(stA.river, stA.name);
+          const rankB = getStationSortRank(stB.river, stB.name);
+          if (rankA !== rankB) return rankA - rankB;
+          return stA.name.localeCompare(stB.name);
+        }
+      });
+
+      const countEl = document.getElementById('river-count-display');
+      if (countEl) {
+        countEl.innerText = `Messstationen: ${stationKeys.length}`;
+      }
+
+      stationKeys.forEach(id => {
+        const st = parsedData[id];
+        const latest = st.points[st.points.length - 1];
+        
+        let trendIcon = 'minus';
+        let trendColor = 'text-gray-400';
+        
+        if (st.points.length >= 4) {
+          const prev = st.points[st.points.length - 5] || st.points[0];
+          const diff = latest.value - prev.value;
+          if (diff > 1) { trendIcon = 'trending-up'; trendColor = 'text-red-500'; }
+          else if (diff < -1) { trendIcon = 'trending-down'; trendColor = 'text-green-500'; }
+        }
+
+        const timeStr = latest.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 dark:hover:bg-gray-700/35 transition-colors cursor-pointer';
+        tr.setAttribute('onclick', `focusSingleStationInChart('${id}')`);
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">${st.name}</td>
+          <td class="px-4 py-3 text-gray-500 dark:text-gray-400">${st.river}</td>
+          <td class="px-4 py-3 font-bold text-right text-blue-600 dark:text-blue-400">${latest.value} cm</td>
+          <td class="px-4 py-3 text-center">
+            <div class="inline-flex items-center justify-center ${trendColor}">
+              <i data-lucide="${trendIcon}" class="w-4 h-4"></i>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-right text-gray-500 font-mono">${timeStr}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+      filterAllStationsTable();
+    }
+
+    function filterAllStationsTable() {
+      const input = document.getElementById('table-search-input').value.toLowerCase();
+      document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
