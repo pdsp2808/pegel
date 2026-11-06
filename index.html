@@ -96,16 +96,17 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       
-      <!-- Top Row: Title + Kompaktes Wetter-Widget (jetzt items-start für saubere obere Ausrichtung) -->
-      <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div>
+      <!-- Top Row: Title unten ausgerichtet + Wetter-Widget -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div class="lg:pb-1">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">Hauptmessstationen</h2>
           <p class="text-xs text-gray-500 dark:text-gray-400">Aktuelle Pegelstände und 12-Stunden-Trend</p>
         </div>
 
-        <!-- Kompaktes Wetter-Widget mit fester Mindestbreite (lg:w-[410px]), damit es nicht springt -->
-        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2 w-full lg:w-[410px] shrink-0">
-          <div class="flex items-center justify-between space-x-3">
+        <!-- Kompaktes Wetter-Widget mit fester Breite & optimiertem Layout für Smartphone & Desktop -->
+        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2.5 w-full lg:w-[380px] shrink-0">
+          
+          <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
               <span id="w-icon" class="text-2xl leading-none">☀️</span>
               <div class="flex flex-col">
@@ -118,7 +119,7 @@
               </div>
             </div>
 
-            <!-- Feste Spaltenbreiten für Wind & Luftfeuchtigkeit, damit Größenunterschiede (z.B. 4 vs 0.7) nicht springen -->
+            <!-- Feste Spalten für Wind & Luftfeuchtigkeit, damit nichts springt -->
             <div class="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-3">
               <div class="w-14 text-right">
                 <span class="text-[9px] uppercase text-gray-400 font-semibold block">Wind</span>
@@ -129,10 +130,14 @@
                 <strong id="w-hum" class="text-gray-900 dark:text-white text-xs truncate block">--%</strong>
               </div>
             </div>
+          </div>
 
-            <div class="flex space-x-1 pl-1">
-              <button id="btn-hourly" onclick="toggleForecast('hourly')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500">Stunden</button>
-              <button id="btn-daily" onclick="toggleForecast('daily')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500">Tage</button>
+          <!-- Untere Widget-Zeile: Stunden- & Tage-Buttons sauber integriert -->
+          <div class="flex items-center justify-between pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
+            <span class="text-[11px] text-gray-400 font-medium">Prognose anzeigen:</span>
+            <div class="flex space-x-1.5">
+              <button id="btn-hourly" onclick="toggleForecast('hourly')" class="px-2.5 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Stunden</button>
+              <button id="btn-daily" onclick="toggleForecast('daily')" class="px-2.5 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Tage</button>
             </div>
           </div>
 
@@ -493,13 +498,20 @@
       if (activeForecastMode === mode) {
         activeForecastMode = null;
         container.classList.add("hidden");
-        btnHourly.classList.remove("border-blue-500", "text-blue-600");
-        btnDaily.classList.remove("border-blue-500", "text-blue-600");
+        btnHourly.classList.remove("border-blue-500", "text-blue-600", "bg-blue-50", "dark:bg-blue-900/30");
+        btnDaily.classList.remove("border-blue-500", "text-blue-600", "bg-blue-50", "dark:bg-blue-900/30");
       } else {
         activeForecastMode = mode;
         container.classList.remove("hidden");
+        
         btnHourly.classList.toggle("border-blue-500", mode === 'hourly');
+        btnHourly.classList.toggle("text-blue-600", mode === 'hourly');
+        btnHourly.classList.toggle("bg-blue-50", mode === 'hourly');
+        
         btnDaily.classList.toggle("border-blue-500", mode === 'daily');
+        btnDaily.classList.toggle("text-blue-600", mode === 'daily');
+        btnDaily.classList.toggle("bg-blue-50", mode === 'daily');
+
         renderForecast();
       }
     }
@@ -1207,7 +1219,6 @@
 
     function filterAllStationsTable() {
       const input = document.getElementById('table-search-input').value.toLowerCase();
-      document.querySelectorAll('#all-stations-table-body tr').exercises; // ignore or query selector
       document.querySelectorAll('#all-stations-table-body tr').forEach(row => {
         const text = row.innerText.toLowerCase();
         row.style.display = text.includes(input) ? '' : 'none';
