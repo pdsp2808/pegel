@@ -100,7 +100,7 @@
       <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         
         <div class="flex-1 space-y-2">
-          <!-- Dynamischer Fehler-Hinweis (im Normalfall komplett unsichtbar) -->
+          <!-- Dynamischer Fehler-Hinweis -->
           <div id="inondations-error-box" class="hidden p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-center space-x-2">
             <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
             <span><strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.</span>
@@ -163,8 +163,13 @@
           <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center space-x-1.5">
             <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500"></i>
             <span>LU-Alert Notfall- & Unwettermeldungen</span>
+            <!-- Info-Button zur Steuerung der Stufen-Legende -->
+            <button onclick="openAlertLegendModal()" title="Legende der Warnstufen anzeigen" class="inline-flex items-center text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors ml-1 p-0.5">
+              <i data-lucide="info" class="w-4 h-4"></i>
+            </button>
           </span>
         </div>
+        
         <div id="primary-alerts" class="space-y-3">
           <div class="p-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-500 dark:text-gray-400 text-xs flex items-center space-x-2">
             <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0"></i>
@@ -186,7 +191,7 @@
             </a>
           </div>
 
-          <!-- Ausgeklappte Liste der Rückrufe (jetzt mit einzeln aufklappbaren Details) -->
+          <!-- Ausgeklappte Liste der Rückrufe -->
           <div id="food-recall-list" class="hidden space-y-2 pl-2 sm:pl-4"></div>
         </div>
       </div>
@@ -289,6 +294,90 @@
     </section>
 
   </main>
+
+  <!-- MODAL: LEGENDE DER LU-ALERT STUFEN -->
+  <div id="alert-legend-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
+      
+      <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500"></i>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">LU-Alert Warnstufen</h3>
+        </div>
+        <button onclick="closeAlertLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Tabelle der Warnstufen laut Bild -->
+      <div class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs">
+        
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-purple-600 shrink-0 mt-0.5">D</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Akute Gefahr / Sofortiges Handeln</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Warnung die sofortiges Handeln erfordert</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-red-600 shrink-0 mt-0.5">S1</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe rot / Äußerste Vorsicht</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die höchste Warnstufe</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-orange-600 shrink-0 mt-0.5">S2</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe orange / Seien Sie vorsichtig</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die mittlere Warnstufe</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-yellow-600 shrink-0 mt-0.5">S3</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe gelb / Seien Sie aufmerksam</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die niedrigste Warnstufe</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-orange-500 shrink-0 mt-0.5">A</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Vermissten- / Entführungsmeldung</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Warnung bei Vermissten-/Entführungssituationen</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-lime-600 shrink-0 mt-0.5">I</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Information (kein Risiko)</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Für Informationsmeldungen</div>
+          </div>
+        </div>
+
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-gray-600 shrink-0 mt-0.5">T</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">Test (kein Risiko)</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Für Test- und Übungszwecke</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-2 text-right border-t border-gray-100 dark:border-gray-700">
+        <button onclick="closeAlertLegendModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          Schließen
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="mt-auto py-6 border-t border-gray-200 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
@@ -404,7 +493,30 @@
       setInterval(() => {
         fetchData();
       }, 300000);
+
+      // Event Listener für ESC-Taste zum Schließen des Modals
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAlertLegendModal();
+      });
+
+      // Schließen bei Klick außerhalb des Modals
+      const modal = document.getElementById('alert-legend-modal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeAlertLegendModal();
+        });
+      }
     });
+
+    function openAlertLegendModal() {
+      const modal = document.getElementById('alert-legend-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeAlertLegendModal() {
+      const modal = document.getElementById('alert-legend-modal');
+      if (modal) modal.classList.add('hidden');
+    }
 
     function initTheme() {
       const savedTheme = localStorage.getItem('theme');
@@ -678,6 +790,9 @@
         else if (levelCodeRaw === 'I') { borderColorHex = '#16a34a'; badgeColor = 'bg-lime-600'; }
         else if (levelCodeRaw === 'T') { borderColorHex = '#4b5563'; badgeColor = 'bg-gray-600'; }
 
+        // Stufen-Badge als Auslöser für das Modal
+        const badgeBtnHtml = `<button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${badgeColor}">Stufe: ${displayLevel}</button>`;
+
         if (isFoodRecall) {
           foodRecallCount++;
           const idx = recallIndex++;
@@ -685,7 +800,7 @@
             <article onclick="toggleRecallDetail(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors" style="border-left-color: ${borderColorHex};">
               <div class="flex items-center justify-between">
                 <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                  <span class="px-1.5 py-0.5 rounded font-bold text-white ${badgeColor}">Stufe: ${displayLevel}</span>
+                  ${badgeBtnHtml}
                   <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
                   <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${sender}</span>
                 </div>
@@ -701,7 +816,7 @@
         const cardHtml = `
           <article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2" style="border-left-color: ${borderColorHex};">
             <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-              <span class="px-2 py-0.5 rounded font-bold text-white ${badgeColor}">Stufe: ${displayLevel}</span>
+              ${badgeBtnHtml}
               <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
               <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${sender}</span>
             </div>
