@@ -186,7 +186,7 @@
             </a>
           </div>
 
-          <!-- Ausgeklappte Liste der Rückrufe (kompakt ohne Fließtext) -->
+          <!-- Ausgeklappte Liste der Rückrufe (jetzt mit einzeln aufklappbaren Details) -->
           <div id="food-recall-list" class="hidden space-y-2 pl-2 sm:pl-4"></div>
         </div>
       </div>
@@ -593,6 +593,16 @@
       }
     }
 
+    function toggleRecallDetail(index) {
+      const descEl = document.getElementById(`recall-desc-${index}`);
+      const chevronEl = document.getElementById(`recall-chevron-${index}`);
+      if (descEl && chevronEl) {
+        const isHidden = descEl.classList.contains('hidden');
+        descEl.classList.toggle('hidden', !isHidden);
+        chevronEl.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
       const foodRecallWrapper = document.getElementById('food-recall-wrapper');
@@ -607,6 +617,8 @@
       let foodRecallCount = 0;
       let alertsList = [];
       let foodRecallsList = [];
+
+      let recallIndex = 0;
 
       for (let info of infos) {
         const lang = info.getElementsByTagName("language")[0]?.textContent || "";
@@ -668,14 +680,19 @@
 
         if (isFoodRecall) {
           foodRecallCount++;
+          const idx = recallIndex++;
           const recallHtml = `
-            <article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs" style="border-left-color: ${borderColorHex};">
-              <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                <span class="px-1.5 py-0.5 rounded font-bold text-white ${badgeColor}">Stufe: ${displayLevel}</span>
-                <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
-                <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${sender}</span>
+            <article onclick="toggleRecallDetail(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors" style="border-left-color: ${borderColorHex};">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+                  <span class="px-1.5 py-0.5 rounded font-bold text-white ${badgeColor}">Stufe: ${displayLevel}</span>
+                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
+                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${sender}</span>
+                </div>
+                <i id="recall-chevron-${idx}" data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 transition-transform shrink-0 ml-1"></i>
               </div>
               <div class="font-semibold text-gray-900 dark:text-white pt-0.5">${headline}</div>
+              ${description ? `<div id="recall-desc-${idx}" class="hidden text-[11px] text-gray-600 dark:text-gray-300 pt-1.5 border-t border-gray-100 dark:border-gray-700/60 leading-relaxed">${description}</div>` : ''}
             </article>`;
           foodRecallsList.push({ effectiveTime, recallHtml });
           continue;
@@ -735,7 +752,6 @@
         console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
       }
 
-      // Steuerung des Fehler-Kästchens links neben dem Wetter-Widget
       if (errorBox) {
         if (!isSuccess) {
           errorBox.classList.remove('hidden');
