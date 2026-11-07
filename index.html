@@ -140,7 +140,7 @@
             </div>
           </div>
 
-          <!-- Untere Widget-Zeile: "Prognose anzeigen:" steht rechts vor den Buttons -->
+          <!-- Untere Widget-Zeile -->
           <div class="flex items-center justify-end space-x-2 pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
             <span class="text-[11px] text-gray-400 font-medium">Prognose anzeigen:</span>
             <div class="flex space-x-1.5">
@@ -163,7 +163,6 @@
           <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center space-x-1.5">
             <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500"></i>
             <span>LU-Alert Notfall- & Unwettermeldungen</span>
-            <!-- Info-Button zur Steuerung der Stufen-Legende -->
             <button onclick="openAlertLegendModal()" title="Legende der Warnstufen anzeigen" class="inline-flex items-center text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors ml-1 p-0.5">
               <i data-lucide="info" class="w-4 h-4"></i>
             </button>
@@ -236,10 +235,20 @@
         <canvas id="mainChart" class="w-full h-[400px]"></canvas>
       </div>
 
-      <!-- All Stations Below Chart -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-2">
-        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Alle Stationen:</span>
-        <div id="all-stations-selector" class="flex flex-wrap gap-2"></div>
+      <!-- All Stations Below Chart mit neuen Sortier-Buttons -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Alle Stationen:</span>
+          
+          <!-- Umschalter für Sortierung -->
+          <div class="flex items-center space-x-1.5 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800 self-start sm:self-auto">
+            <span class="text-[10px] text-gray-400 font-semibold px-1">Sortierung:</span>
+            <button id="btn-sort-river" onclick="setAllStationsSortMode('river')" class="px-2 py-0.5 rounded text-[11px] font-semibold transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm">Nach Fluss</button>
+            <button id="btn-sort-alpha" onclick="setAllStationsSortMode('alpha')" class="px-2 py-0.5 rounded text-[11px] font-semibold transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Alphabetisch (A–Z)</button>
+          </div>
+        </div>
+        
+        <div id="all-stations-selector" class="flex flex-wrap gap-2 pt-1"></div>
       </div>
     </section>
 
@@ -309,7 +318,7 @@
         </button>
       </div>
 
-      <!-- Tabelle der Warnstufen laut Bild -->
+      <!-- Tabelle der Warnstufen -->
       <div class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs">
         
         <div class="py-2.5 flex items-start space-x-3">
@@ -475,6 +484,7 @@
     let selectedHours = 12;
     let selectedChartStations = [];
     let selectedRiverFilter = 'all';
+    let allStationsSortMode = 'river'; // 'river' oder 'alpha'
     let mainChartInstance = null;
     let sparklineInstances = {};
 
@@ -494,12 +504,10 @@
         fetchData();
       }, 300000);
 
-      // Event Listener für ESC-Taste zum Schließen des Modals
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeAlertLegendModal();
       });
 
-      // Schließen bei Klick außerhalb des Modals
       const modal = document.getElementById('alert-legend-modal');
       if (modal) {
         modal.addEventListener('click', (e) => {
@@ -790,7 +798,6 @@
         else if (levelCodeRaw === 'I') { borderColorHex = '#16a34a'; badgeColor = 'bg-lime-600'; }
         else if (levelCodeRaw === 'T') { borderColorHex = '#4b5563'; badgeColor = 'bg-gray-600'; }
 
-        // Stufen-Badge als Auslöser für das Modal
         const badgeBtnHtml = `<button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${badgeColor}">Stufe: ${displayLevel}</button>`;
 
         if (isFoodRecall) {
@@ -1137,6 +1144,25 @@
       return idx !== -1 ? idx : 999;
     }
 
+    function setAllStationsSortMode(mode) {
+      allStationsSortMode = mode;
+      
+      const btnRiver = document.getElementById('btn-sort-river');
+      const btnAlpha = document.getElementById('btn-sort-alpha');
+      
+      if (btnRiver && btnAlpha) {
+        if (mode === 'river') {
+          btnRiver.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+          btnAlpha.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+        } else {
+          btnAlpha.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm';
+          btnRiver.className = 'px-2 py-0.5 rounded text-[11px] font-semibold transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+        }
+      }
+
+      initChartControls();
+    }
+
     function initChartControls() {
       const primaryContainer = document.getElementById('primary-stations-selector');
       const allContainer = document.getElementById('all-stations-selector');
@@ -1164,13 +1190,18 @@
       const sortedKeys = Object.keys(parsedData).sort((a, b) => {
         const stA = parsedData[a];
         const stB = parsedData[b];
-        if (stA.river !== stB.river) {
-          return stA.river.localeCompare(stB.river);
+        
+        if (allStationsSortMode === 'alpha') {
+          return stA.name.localeCompare(stB.name);
+        } else {
+          if (stA.river !== stB.river) {
+            return stA.river.localeCompare(stB.river);
+          }
+          const rankA = getStationSortRank(stA.river, stA.name);
+          const rankB = getStationSortRank(stB.river, stB.name);
+          if (rankA !== rankB) return rankA - rankB;
+          return stA.name.localeCompare(stB.name);
         }
-        const rankA = getStationSortRank(stA.river, stA.name);
-        const rankB = getStationSortRank(stB.river, stB.name);
-        if (rankA !== rankB) return rankA - rankB;
-        return stA.name.localeCompare(stB.name);
       });
 
       sortedKeys.forEach(id => {
