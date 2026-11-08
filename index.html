@@ -65,7 +65,7 @@
         </nav>
 
         <div class="flex items-center space-x-3">
-          <!-- Neuer Header-Indikator für aktive Unwetterwarnungen (Standardmäßig unsichtbar) -->
+          <!-- Header-Indikator für aktive Unwetterwarnungen -->
           <div id="header-alert-badge" onclick="scrollToAlerts()" class="hidden cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors" title="Aktive Notfallmeldungen vorhanden - Klicken zum Anzeigen">
             <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500 animate-pulse"></i>
             <span id="header-alert-count" class="text-xs font-bold">0</span>
@@ -103,14 +103,14 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       
-      <!-- Top Row: Mobile-Layout optimiert (Wetter-Widget wandert auf Mobile nach oben) -->
+      <!-- Top Row: Mobile-Layout optimiert -->
       <div class="flex flex-col-reverse lg:flex-row lg:items-end justify-between gap-4">
         
         <div class="flex-1 space-y-2">
-          <!-- Dynamischer Fehler-Hinweis -->
+          <!-- Dynamischer Fehler- / Veraltet-Hinweis -->
           <div id="inondations-error-box" class="hidden p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-center space-x-2">
             <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
-            <span><strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.</span>
+            <span id="inondations-error-text"><strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.</span>
           </div>
 
           <div>
@@ -183,7 +183,7 @@
           </div>
         </div>
 
-        <!-- Ausklappbarer Zusatz-Ticker für Rückrufe -->
+        <!-- Ausklappbarer Zusatz-Ticker für Rückrufe (Standardmäßig hidden) -->
         <div id="food-recall-wrapper" class="hidden space-y-2">
           <div onclick="toggleFoodRecalls()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
             <div class="flex items-center space-x-2">
@@ -869,9 +869,13 @@
       }
       
       if (foodRecallWrapper && foodRecallCountEl && foodRecallListEl) {
-        foodRecallCountEl.textContent = foodRecallCount;
-        foodRecallListEl.innerHTML = foodRecallsList.map(item => item.recallHtml).join('');
-        foodRecallWrapper.classList.remove('hidden');
+        if (foodRecallCount > 0) {
+          foodRecallCountEl.textContent = foodRecallCount;
+          foodRecallListEl.innerHTML = foodRecallsList.map(item => item.recallHtml).join('');
+          foodRecallWrapper.classList.remove('hidden');
+        } else {
+          foodRecallWrapper.classList.add('hidden');
+        }
       }
 
       lucide.createIcons();
@@ -880,6 +884,7 @@
     async function fetchData() {
       const refreshWrapper = document.getElementById('refresh-wrapper');
       const errorBox = document.getElementById('inondations-error-box');
+      const errorText = document.getElementById('inondations-error-text');
       
       if (refreshWrapper) refreshWrapper.classList.add('animate-spin');
 
@@ -899,11 +904,24 @@
         console.error('Fehler beim Laden der CSV via Cloudflare Proxy:', err);
       }
 
-      if (errorBox) {
+      if (errorBox && errorText) {
         if (!isSuccess) {
+          errorText.innerHTML = `<strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.`;
           errorBox.classList.remove('hidden');
         } else {
-          errorBox.classList.add('hidden');
+          // Prüfen, ob die Daten älter als 2 Stunden sind
+          const now = new Date();
+          const diffMs = now - latestDataTime;
+          const twoHoursMs = 2 * 60 * 60 * 1000;
+
+          if (latestDataTime && diffMs > twoHoursMs) {
+            const timeStr = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+            const dateStr = latestDataTime.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            errorText.innerHTML = `<strong>Achtung:</strong> Die letzten Pegeldaten stammen von vor über 2 Stunden (${dateStr}, ${timeStr} Uhr). Die Aktualisierung scheint zu hängen. Bitte auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> prüfen.`;
+            errorBox.classList.remove('hidden');
+          } else {
+            errorBox.classList.add('hidden');
+          }
         }
       }
 
