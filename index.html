@@ -183,7 +183,7 @@
           </div>
         </div>
 
-        <!-- Ausklappbarer Zusatz-Ticker für Rückrufe (Standardmäßig hidden) -->
+        <!-- Ausklappbarer Zusatz-Ticker für Rückrufe -->
         <div id="food-recall-wrapper" class="hidden space-y-2">
           <div onclick="toggleFoodRecalls()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
             <div class="flex items-center space-x-2">
@@ -909,15 +909,15 @@
           errorText.innerHTML = `<strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.`;
           errorBox.classList.remove('hidden');
         } else {
-          // Prüfen, ob die Daten älter als 2 Stunden sind
           const now = new Date();
           const diffMs = now - latestDataTime;
           const twoHoursMs = 2 * 60 * 60 * 1000;
 
           if (latestDataTime && diffMs > twoHoursMs) {
+            const dateStr = latestDataTime.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
             const timeStr = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
-            const dateStr = latestDataTime.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-            errorText.innerHTML = `<strong>Achtung:</strong> Die letzten Pegeldaten stammen von vor über 2 Stunden (${dateStr}, ${timeStr} Uhr). Die Aktualisierung scheint zu hängen. Bitte auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> prüfen.`;
+
+            errorText.innerHTML = `<strong>Achtung:</strong> Die angezeigten Pegeldaten sind veraltet (${dateStr} &ndash; ${timeStr} Uhr). Die automatische Aktualisierung ist derzeit unterbrochen. Bitte auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> prüfen.`;
             errorBox.classList.remove('hidden');
           } else {
             errorBox.classList.add('hidden');
