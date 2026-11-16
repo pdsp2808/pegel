@@ -27,7 +27,7 @@
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 3px; }
-    .sparkline-container { height: 50px; width: 130px; }
+    .sparkline-container { height: 50px; width: width: 130px; }
     html { scroll-behavior: smooth; }
   </style>
 </head>
@@ -104,7 +104,7 @@
     <!-- DASHBOARD TAB -->
     <section id="tab-content-dashboard" class="space-y-6">
       
-      <!-- Dynamischer Fehler- / Veraltet-Hinweis (Auf Mobile & Desktop jetzt ganz oben platziert) -->
+      <!-- Dynamischer Fehler- / Veraltet-Hinweis (Auf Mobile & Desktop ganz oben platziert) -->
       <div id="inondations-error-box" class="hidden p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-center space-x-2">
         <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
         <span id="inondations-error-text"><strong>Hinweis:</strong> Aktuell können keine Pegeldaten geladen werden. Bitte direkt auf <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="underline font-semibold hover:text-amber-950 dark:hover:text-amber-100">inondations.lu ↗</a> nachsehen.</span>
@@ -184,22 +184,19 @@
           </div>
         </div>
 
-        <!-- Ausklappbarer Zusatz-Ticker für Rückrufe -->
-        <div id="food-recall-wrapper" class="hidden space-y-2">
-          <div onclick="toggleFoodRecalls()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
+        <!-- Button für Pop-up der Lebensmittel- & Produktrückrufe -->
+        <div id="food-recall-wrapper" class="hidden">
+          <div onclick="openFoodRecallsModal()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors shadow-sm">
             <div class="flex items-center space-x-2">
               <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400 shrink-0"></i>
               <span><strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">0</strong> aktive Lebensmittel- & Produktrückrufe vorhanden.</span>
-              <i id="food-recall-chevron" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+              <span class="text-blue-600 dark:text-blue-400 font-medium underline ml-1">Anzeigen</span>
             </div>
             <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1 shrink-0">
               <span>lu-alert.lu</span>
               <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-
-          <!-- Ausgeklappte Liste der Rückrufe -->
-          <div id="food-recall-list" class="hidden space-y-2 pl-2 sm:pl-4"></div>
         </div>
       </div>
     </section>
@@ -312,7 +309,7 @@
 
   </main>
 
-  <!-- MODAL: LEGENDE DER LU-ALERT STUFEN -->
+  <!-- MODAL 1: LEGENDE DER LU-ALERT STUFEN -->
   <div id="alert-legend-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
       
@@ -330,7 +327,7 @@
       <div class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs">
         
         <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-purple-600 shrink-0 mt-0.5">D</span>
+          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-purple-600 shrink-0 mt-0.5">G</span>
           <div>
             <div class="font-bold text-gray-900 dark:text-white">Akute Gefahr / Sofortiges Handeln</div>
             <div class="text-gray-500 dark:text-gray-400 text-[11px]">Warnung die sofortiges Handeln erfordert</div>
@@ -389,6 +386,64 @@
 
       <div class="pt-2 text-right border-t border-gray-100 dark:border-gray-700">
         <button onclick="closeAlertLegendModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          Schließen
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: DETAILANSICHT EINZELNE MELDUNG -->
+  <div id="alert-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+    <div id="alert-detail-card" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 border-l-4 rounded-2xl max-w-xl w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
+      
+      <div class="flex items-start justify-between gap-3 border-b border-gray-100 dark:border-gray-700 pb-3">
+        <div id="alert-detail-meta" class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"></div>
+        <button onclick="closeAlertDetailModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+        <h3 id="alert-detail-headline" class="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-snug"></h3>
+        <div id="alert-detail-description" class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line"></div>
+      </div>
+
+      <div class="pt-3 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+        <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1">
+          <span>Auf lu-alert.lu öffnen</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <button onclick="closeAlertDetailModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          Schließen
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 3: POP-UP FÜR LEBENSMITTEL- & PRODUKTRÜCKRUFE -->
+  <div id="food-recalls-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-2xl w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
+      
+      <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shopping-bag" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">Lebensmittel- & Produktrückrufe</h3>
+        </div>
+        <button onclick="closeFoodRecallsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="food-recalls-modal-list" class="space-y-3 max-h-[65vh] overflow-y-auto pr-1"></div>
+
+      <div class="pt-3 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
+        <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1">
+          <span>Alle Meldungen auf lu-alert.lu</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <button onclick="closeFoodRecallsModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
           Schließen
         </button>
       </div>
@@ -496,6 +551,9 @@
     let mainChartInstance = null;
     let sparklineInstances = {};
 
+    let currentAlertsData = [];
+    let currentFoodRecallsData = [];
+
     let currentLat = 49.85;
     let currentLon = 6.27;
     let activeForecastMode = null;
@@ -513,15 +571,23 @@
       }, 300000);
 
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeAlertLegendModal();
+        if (e.key === 'Escape') {
+          closeAlertLegendModal();
+          closeAlertDetailModal();
+          closeFoodRecallsModal();
+        }
       });
 
-      const modal = document.getElementById('alert-legend-modal');
-      if (modal) {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) closeAlertLegendModal();
-        });
-      }
+      ['alert-legend-modal', 'alert-detail-modal', 'food-recalls-modal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) {
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              modal.classList.add('hidden');
+            }
+          });
+        }
+      });
     });
 
     function scrollToAlerts() {
@@ -538,6 +604,60 @@
 
     function closeAlertLegendModal() {
       const modal = document.getElementById('alert-legend-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openAlertDetailModal(index) {
+      const item = currentAlertsData[index];
+      if (!item) return;
+
+      const modal = document.getElementById('alert-detail-modal');
+      const card = document.getElementById('alert-detail-card');
+      const meta = document.getElementById('alert-detail-meta');
+      const headlineEl = document.getElementById('alert-detail-headline');
+      const descEl = document.getElementById('alert-detail-description');
+
+      if (card) card.style.borderLeftColor = item.borderColorHex;
+      if (meta) {
+        meta.innerHTML = `
+          <span class="px-2 py-0.5 rounded font-bold text-white ${item.badgeColor}">${item.badgeText}</span>
+          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
+          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
+        `;
+      }
+      if (headlineEl) headlineEl.textContent = item.headline;
+      if (descEl) descEl.innerHTML = item.description || '<span class="italic text-gray-400">Keine weiteren Details verfügbar.</span>';
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeAlertDetailModal() {
+      const modal = document.getElementById('alert-detail-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openFoodRecallsModal() {
+      const modal = document.getElementById('food-recalls-modal');
+      const listEl = document.getElementById('food-recalls-modal-list');
+      if (!modal || !listEl) return;
+
+      listEl.innerHTML = currentFoodRecallsData.map(item => `
+        <article class="bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl p-3.5 shadow-sm border-l-4 space-y-2 text-xs" style="border-left-color: ${item.borderColorHex};">
+          <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+            <span class="px-1.5 py-0.5 rounded font-bold text-white ${item.badgeColor}">${item.badgeText}</span>
+            <span class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
+            <span class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-1.5 py-0.5 rounded">Quelle: ${item.sender}</span>
+          </div>
+          <div class="text-sm font-bold text-gray-900 dark:text-white">${item.headline}</div>
+          ${item.description ? `<div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed pt-1 border-t border-gray-200/70 dark:border-gray-700/70">${item.description}</div>` : ''}
+        </article>
+      `).join('');
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeFoodRecallsModal() {
+      const modal = document.getElementById('food-recalls-modal');
       if (modal) modal.classList.add('hidden');
     }
 
@@ -718,31 +838,10 @@
       }
     }
 
-    function toggleFoodRecalls() {
-      const listEl = document.getElementById('food-recall-list');
-      const chevron = document.getElementById('food-recall-chevron');
-      if (listEl && chevron) {
-        const isHidden = listEl.classList.contains('hidden');
-        listEl.classList.toggle('hidden', !isHidden);
-        chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
-    }
-
-    function toggleRecallDetail(index) {
-      const descEl = document.getElementById(`recall-desc-${index}`);
-      const chevronEl = document.getElementById(`recall-chevron-${index}`);
-      if (descEl && chevronEl) {
-        const isHidden = descEl.classList.contains('hidden');
-        descEl.classList.toggle('hidden', !isHidden);
-        chevronEl.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
-    }
-
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
       const foodRecallWrapper = document.getElementById('food-recall-wrapper');
       const foodRecallCountEl = document.getElementById('food-recall-count');
-      const foodRecallListEl = document.getElementById('food-recall-list');
       const headerAlertBadge = document.getElementById('header-alert-badge');
       const headerAlertCount = document.getElementById('header-alert-count');
 
@@ -751,11 +850,19 @@
       const infos = xmlDoc.getElementsByTagName("info");
       
       const now = new Date();
-      let foodRecallCount = 0;
       let alertsList = [];
       let foodRecallsList = [];
 
-      let recallIndex = 0;
+      // Feste Sortierreihenfolge: G (D) -> S1 -> S2 -> S3 -> A -> I -> T
+      const priorityMap = {
+        'G': 1,
+        'S1': 2,
+        'S2': 3,
+        'S3': 4,
+        'A': 5,
+        'I': 6,
+        'T': 7
+      };
 
       for (let info of infos) {
         const lang = info.getElementsByTagName("language")[0]?.textContent || "";
@@ -779,19 +886,28 @@
           }
         }
         
-        let levelCodeRaw = "N3";
+        let levelCode = "S3";
         const parameters = info.getElementsByTagName("parameter");
         for (let param of parameters) {
           const valName = param.getElementsByTagName("valueName")[0]?.textContent || "";
-          const val = param.getElementsByTagName("value")[0]?.textContent || "";
-          if (valName.includes("cb-eu-level")) {
-            if (val === "ALERT_LVL_1") levelCodeRaw = "N1";
-            else if (val === "ALERT_LVL_2") levelCodeRaw = "N2";
-            else if (val === "ALERT_LVL_3") levelCodeRaw = "N3";
+          const val = (param.getElementsByTagName("value")[0]?.textContent || "").toUpperCase();
+          
+          if (valName.includes("cb-eu-level") || valName.includes("level")) {
+            if (val.includes("LVL_1") || val === "N1" || val === "S1") levelCode = "S1";
+            else if (val.includes("LVL_2") || val === "N2" || val === "S2") levelCode = "S2";
+            else if (val.includes("LVL_3") || val === "N3" || val === "S3") levelCode = "S3";
+            else if (val.includes("LVL_4") || val === "I" || val === "INFO") levelCode = "I";
+            else if (val === "D" || val === "G" || val.includes("DANGER")) levelCode = "G";
+            else if (val === "A" || val.includes("AMBER") || val.includes("MISSING")) levelCode = "A";
+            else if (val === "T" || val.includes("TEST")) levelCode = "T";
           }
         }
-        
-        let displayLevel = levelCodeRaw.replace("N", "S");
+
+        // Zusätzliche Absicherung über msgType / severity
+        const msgType = (xmlDoc.getElementsByTagName("msgType")[0]?.textContent || "").toLowerCase();
+        const status = (xmlDoc.getElementsByTagName("status")[0]?.textContent || "").toLowerCase();
+        if (status === "test" || msgType === "test") levelCode = "T";
+
         const headline = info.getElementsByTagName("headline")[0]?.textContent || "Warnmeldung";
         const description = info.getElementsByTagName("description")[0]?.textContent || "";
         const effective = info.getElementsByTagName("effective")[0]?.textContent || "";
@@ -808,54 +924,89 @@
         
         let borderColorHex = '#ca8a04';
         let badgeColor = 'bg-yellow-600';
-        if (levelCodeRaw === 'N1') { borderColorHex = '#dc2626'; badgeColor = 'bg-red-600'; }
-        else if (levelCodeRaw === 'N2') { borderColorHex = '#ea580c'; badgeColor = 'bg-orange-600'; }
-        else if (levelCodeRaw === 'D') { borderColorHex = '#9333ea'; badgeColor = 'bg-purple-600'; }
-        else if (levelCodeRaw === 'A') { borderColorHex = '#f97316'; badgeColor = 'bg-orange-500'; }
-        else if (levelCodeRaw === 'I') { borderColorHex = '#16a34a'; badgeColor = 'bg-lime-600'; }
-        else if (levelCodeRaw === 'T') { borderColorHex = '#4b5563'; badgeColor = 'bg-gray-600'; }
+        let badgeText = `Stufe: ${levelCode}`;
 
-        const badgeBtnHtml = `<button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${badgeColor}">Stufe: ${displayLevel}</button>`;
-
-        if (isFoodRecall) {
-          foodRecallCount++;
-          const idx = recallIndex++;
-          const recallHtml = `
-            <article onclick="toggleRecallDetail(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors" style="border-left-color: ${borderColorHex};">
-              <div class="flex items-center justify-between">
-                <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                  ${badgeBtnHtml}
-                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
-                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${sender}</span>
-                </div>
-                <i id="recall-chevron-${idx}" data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 transition-transform shrink-0 ml-1"></i>
-              </div>
-              <div class="font-semibold text-gray-900 dark:text-white pt-0.5">${headline}</div>
-              ${description ? `<div id="recall-desc-${idx}" class="hidden text-[11px] text-gray-600 dark:text-gray-300 pt-1.5 border-t border-gray-100 dark:border-gray-700/60 leading-relaxed">${description}</div>` : ''}
-            </article>`;
-          foodRecallsList.push({ effectiveTime, recallHtml });
-          continue;
+        if (levelCode === 'G') {
+          borderColorHex = '#9333ea';
+          badgeColor = 'bg-purple-600';
+          badgeText = 'Akute Gefahr: G';
+        } else if (levelCode === 'S1') {
+          borderColorHex = '#dc2626';
+          badgeColor = 'bg-red-600';
+          badgeText = 'Stufe: S1';
+        } else if (levelCode === 'S2') {
+          borderColorHex = '#ea580c';
+          badgeColor = 'bg-orange-600';
+          badgeText = 'Stufe: S2';
+        } else if (levelCode === 'S3') {
+          borderColorHex = '#ca8a04';
+          badgeColor = 'bg-yellow-600';
+          badgeText = 'Stufe: S3';
+        } else if (levelCode === 'A') {
+          borderColorHex = '#f97316';
+          badgeColor = 'bg-orange-500';
+          badgeText = 'Vermisst: A';
+        } else if (levelCode === 'I') {
+          borderColorHex = '#16a34a';
+          badgeColor = 'bg-lime-600';
+          badgeText = 'Info: I';
+        } else if (levelCode === 'T') {
+          borderColorHex = '#4b5563';
+          badgeColor = 'bg-gray-600';
+          badgeText = 'Test: T';
         }
 
-        const cardHtml = `
-          <article class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2" style="border-left-color: ${borderColorHex};">
-            <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-              ${badgeBtnHtml}
-              <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${effectiveStr} bis ${expiresStr}</span>
-              <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${sender}</span>
-            </div>
-            <div class="text-sm font-bold text-gray-900 dark:text-white">${headline}</div>
-            <div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed space-y-1">${description}</div>
-          </article>`;
-          
-        alertsList.push({ effectiveTime, cardHtml });
+        const priority = priorityMap[levelCode] || 99;
+
+        const alertObj = {
+          priority,
+          levelCode,
+          badgeText,
+          badgeColor,
+          borderColorHex,
+          headline,
+          description,
+          effectiveStr,
+          expiresStr,
+          sender,
+          effectiveTime
+        };
+
+        if (isFoodRecall) {
+          foodRecallsList.push(alertObj);
+        } else {
+          alertsList.push(alertObj);
+        }
       }
 
-      alertsList.sort((a, b) => b.effectiveTime - a.effectiveTime);
-      foodRecallsList.sort((a, b) => b.effectiveTime - a.effectiveTime);
+      // Sortieren nach Priorität (G -> S1 -> S2 -> S3 -> A -> I -> T), bei gleicher Stufe nach Aktualität
+      const sortFn = (a, b) => {
+        if (a.priority !== b.priority) return a.priority - b.priority;
+        return b.effectiveTime - a.effectiveTime;
+      };
+
+      alertsList.sort(sortFn);
+      foodRecallsList.sort(sortFn);
+
+      currentAlertsData = alertsList;
+      currentFoodRecallsData = foodRecallsList;
 
       if (alertsList.length > 0) {
-        primaryContainer.innerHTML = alertsList.map(item => item.cardHtml).join('');
+        primaryContainer.innerHTML = alertsList.map((item, idx) => `
+          <article onclick="openAlertDetailModal(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
+                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
+                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
+              </div>
+              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0 hidden sm:inline">Details ↗</span>
+            </div>
+            <div class="text-sm font-bold text-gray-900 dark:text-white">${item.headline}</div>
+            <div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">${item.description}</div>
+          </article>
+        `).join('');
+
         if (headerAlertBadge && headerAlertCount) {
           headerAlertCount.textContent = alertsList.length;
           headerAlertBadge.classList.remove('hidden');
@@ -869,10 +1020,9 @@
         }
       }
       
-      if (foodRecallWrapper && foodRecallCountEl && foodRecallListEl) {
-        if (foodRecallCount > 0) {
-          foodRecallCountEl.textContent = foodRecallCount;
-          foodRecallListEl.innerHTML = foodRecallsList.map(item => item.recallHtml).join('');
+      if (foodRecallWrapper && foodRecallCountEl) {
+        if (foodRecallsList.length > 0) {
+          foodRecallCountEl.textContent = foodRecallsList.length;
           foodRecallWrapper.classList.remove('hidden');
         } else {
           foodRecallWrapper.classList.add('hidden');
