@@ -526,6 +526,7 @@
     let sparklineInstances = {};
 
     let currentAlertsData = [];
+    let currentFoodRecallsData = [];
 
     let currentLat = 49.85;
     let currentLon = 6.27;
@@ -579,8 +580,8 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function openAlertDetailModal(index) {
-      const item = currentAlertsData[index];
+    function openAlertDetailModal(index, isRecall = false) {
+      const item = isRecall ? currentFoodRecallsData[index] : currentAlertsData[index];
       if (!item) return;
 
       const modal = document.getElementById('alert-detail-modal');
@@ -592,7 +593,7 @@
       if (card) card.style.borderLeftColor = item.borderColorHex;
       if (meta) {
         meta.innerHTML = `
-          <span class="px-2 py-0.5 rounded font-bold text-white ${item.badgeColor}">${item.badgeText}</span>
+          <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold text-white hover:opacity-95 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
           <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
           <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
         `;
@@ -615,16 +616,6 @@
         const isHidden = listEl.classList.contains('hidden');
         listEl.classList.toggle('hidden', !isHidden);
         chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-      }
-    }
-
-    function toggleRecallDetail(index) {
-      const descEl = document.getElementById(`recall-desc-${index}`);
-      const chevronEl = document.getElementById(`recall-chevron-${index}`);
-      if (descEl && chevronEl) {
-        const isHidden = descEl.classList.contains('hidden');
-        descEl.classList.toggle('hidden', !isHidden);
-        chevronEl.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
       }
     }
 
@@ -820,7 +811,6 @@
       const now = new Date();
       let alertsList = [];
       let foodRecallsList = [];
-      let recallIndex = 0;
 
       // Feste Sortierreihenfolge: G (D) -> S1 -> S2 -> S3 -> A -> I -> T
       const priorityMap = {
@@ -956,10 +946,11 @@
       foodRecallsList.sort(sortFn);
 
       currentAlertsData = alertsList;
+      currentFoodRecallsData = foodRecallsList;
 
       if (alertsList.length > 0) {
         primaryContainer.innerHTML = alertsList.map((item, idx) => `
-          <article onclick="openAlertDetailModal(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
+          <article onclick="openAlertDetailModal(${idx}, false)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
                 <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
@@ -990,17 +981,16 @@
         if (foodRecallsList.length > 0) {
           foodRecallCountEl.textContent = foodRecallsList.length;
           foodRecallListEl.innerHTML = foodRecallsList.map((item, idx) => `
-            <article onclick="toggleRecallDetail(${idx})" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors" style="border-left-color: ${item.borderColorHex};">
+            <article onclick="openAlertDetailModal(${idx}, true)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
               <div class="flex items-center justify-between">
                 <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                  <span class="px-1.5 py-0.5 rounded font-bold text-white ${item.badgeColor}">${item.badgeText}</span>
+                  <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
                   <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
                   <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${item.sender}</span>
                 </div>
-                <i id="recall-chevron-${idx}" data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 transition-transform shrink-0 ml-1"></i>
+                <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0">Details ↗</span>
               </div>
               <div class="font-semibold text-gray-900 dark:text-white pt-0.5">${item.headline}</div>
-              ${item.description ? `<div id="recall-desc-${idx}" class="hidden text-[11px] text-gray-600 dark:text-gray-300 pt-1.5 border-t border-gray-100 dark:border-gray-700/60 leading-relaxed">${item.description}</div>` : ''}
             </article>
           `).join('');
           foodRecallWrapper.classList.remove('hidden');
