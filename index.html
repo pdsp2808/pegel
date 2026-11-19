@@ -404,9 +404,13 @@
       
       <div class="flex items-start justify-between gap-3 border-b border-gray-100 dark:border-gray-700 pb-3">
         <div id="alert-detail-meta" class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400"></div>
-        <button onclick="closeAlertDetailModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors shrink-0">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <div class="flex items-center space-x-2 shrink-0">
+          <select id="alert-lang-select" onchange="handleDetailLangChange(this.value)" aria-label="Sprache auswählen" class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </select>
+          <button onclick="closeAlertDetailModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <div class="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
@@ -536,6 +540,8 @@
       other:          { icon: 'triangle-alert',       colorClass: 'text-amber-500 animate-pulse' }
     };
 
+    const SUPPORTED_ALERT_LANGS = ['DE', 'FR', 'EN'];
+
     let parsedData = {};
     let selectedHours = 12;
     let selectedChartStations = [];
@@ -546,6 +552,7 @@
 
     let currentAlertsData = [];
     let currentFoodRecallsData = [];
+    let activeDetailItem = null;
 
     let currentLat = 49.85;
     let currentLon = 6.27;
@@ -611,26 +618,63 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function openAlertDetailModal(index, isRecall = false) {
-      const item = isRecall ? currentFoodRecallsData[index] : currentAlertsData[index];
-      if (!item) return;
+    function renderDetailModalContent(item, langCode) {
+      const translations = item.translations || {};
+      const availableLangs = SUPPORTED_ALERT_LANGS.filter(code => !!translations[code]);
+      const chosenLang = translations[langCode] ? langCode : (availableLangs[0] || item.activeLang);
+      const content = translations[chosenLang] || {
+        headline: item.headline,
+        description: item.description,
+        effectiveStr: item.effectiveStr,
+        expiresStr: item.expiresStr
+      };
 
-      const modal = document.getElementById('alert-detail-modal');
+      item.activeLang = chosenLang;
+
       const card = document.getElementById('alert-detail-card');
       const meta = document.getElementById('alert-detail-meta');
+      const langSelect = document.getElementById('alert-lang-select');
       const headlineEl = document.getElementById('alert-detail-headline');
       const descEl = document.getElementById('alert-detail-description');
 
       if (card) card.style.borderLeftColor = item.borderColorHex;
+
       if (meta) {
         meta.innerHTML = `
           <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold text-white hover:opacity-95 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
-          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
+          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${content.effectiveStr} bis ${content.expiresStr}</span>
           <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
         `;
       }
-      if (headlineEl) headlineEl.textContent = item.headline;
-      if (descEl) descEl.innerHTML = item.description || '<span class="italic text-gray-400">Keine weiteren Details verfügbar.</span>';
+
+      if (langSelect) {
+        if (availableLangs.length > 0) {
+          langSelect.innerHTML = availableLangs.map(code =>
+            `<option value="${code}" ${code === chosenLang ? 'selected' : ''}>${code}</option>`
+          ).join('');
+          langSelect.classList.remove('hidden');
+        } else {
+          langSelect.innerHTML = '';
+          langSelect.classList.add('hidden');
+        }
+      }
+
+      if (headlineEl) headlineEl.textContent = content.headline;
+      if (descEl) descEl.innerHTML = content.description || '<span class="italic text-gray-400">Keine weiteren Details verfügbar.</span>';
+    }
+
+    function handleDetailLangChange(newLang) {
+      if (!activeDetailItem) return;
+      renderDetailModalContent(activeDetailItem, newLang);
+    }
+
+    function openAlertDetailModal(index, isRecall = false) {
+      const item = isRecall ? currentFoodRecallsData[index] : currentAlertsData[index];
+      if (!item) return;
+
+      activeDetailItem = item;
+      const modal = document.getElementById('alert-detail-modal');
+      renderDetailModalContent(item, item.activeLang);
 
       if (modal) modal.classList.remove('hidden');
     }
@@ -638,6 +682,7 @@
     function closeAlertDetailModal() {
       const modal = document.getElementById('alert-detail-modal');
       if (modal) modal.classList.add('hidden');
+      activeDetailItem = null;
     }
 
     function toggleFoodRecalls() {
@@ -863,6 +908,154 @@
       return ALERT_ICON_CONFIGS.other;
     }
 
+    function normalizeLangCode(rawLang = '') {
+      const l = rawLang.trim().toLowerCase();
+      if (l.startsWith('de')) return 'DE';
+      if (l.startsWith('fr')) return 'FR';
+      if (l.startsWith('en')) return 'EN';
+      return null;
+    }
+
+    function formatAlertDate(rawStr) {
+      if (!rawStr) return rawStr;
+      try {
+        const d = new Date(rawStr);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+      } catch (e) {}
+      return rawStr;
+    }
+
+    function parseInfoBlock(infoEl, alertEl, now) {
+      const expires = infoEl.getElementsByTagName("expires")[0]?.textContent || "";
+      if (expires) {
+        const expiresDate = new Date(expires);
+        if (!isNaN(expiresDate.getTime()) && expiresDate < now) {
+          return null;
+        }
+      }
+
+      const category = infoEl.getElementsByTagName("category")[0]?.textContent || "";
+      let isFoodRecall = category.toLowerCase() === "health";
+      const eventCodes = infoEl.getElementsByTagName("eventCode");
+      for (let code of eventCodes) {
+        if (code.getElementsByTagName("value")[0]?.textContent === "FOOD_RECALL") {
+          isFoodRecall = true;
+          break;
+        }
+      }
+
+      let levelCode = "S3";
+      const parameters = infoEl.getElementsByTagName("parameter");
+      for (let param of parameters) {
+        const valName = param.getElementsByTagName("valueName")[0]?.textContent || "";
+        const val = (param.getElementsByTagName("value")[0]?.textContent || "").toUpperCase();
+
+        if (valName.includes("cb-eu-level") || valName.includes("level")) {
+          if (val.includes("LVL_1") || val === "N1" || val === "S1") levelCode = "S1";
+          else if (val.includes("LVL_2") || val === "N2" || val === "S2") levelCode = "S2";
+          else if (val.includes("LVL_3") || val === "N3" || val === "S3") levelCode = "S3";
+          else if (val.includes("LVL_4") || val === "I" || val === "INFO") levelCode = "I";
+          else if (val === "D" || val === "G" || val.includes("DANGER")) levelCode = "G";
+          else if (val === "A" || val.includes("AMBER") || val.includes("MISSING")) levelCode = "A";
+          else if (val === "T" || val.includes("TEST")) levelCode = "T";
+        }
+      }
+
+      const msgType = (alertEl?.getElementsByTagName("msgType")[0]?.textContent || "").toLowerCase();
+      const status = (alertEl?.getElementsByTagName("status")[0]?.textContent || "").toLowerCase();
+      if (status === "test" || msgType === "test") levelCode = "T";
+
+      const headline = infoEl.getElementsByTagName("headline")[0]?.textContent || "Warnmeldung";
+      const description = infoEl.getElementsByTagName("description")[0]?.textContent || "";
+      const effective = infoEl.getElementsByTagName("effective")[0]?.textContent || "";
+      const sender = alertEl?.getElementsByTagName("sender")[0]?.textContent || "LU-Alert";
+
+      const effectiveDate = new Date(effective);
+      const effectiveTime = isNaN(effectiveDate.getTime()) ? 0 : effectiveDate.getTime();
+      const effectiveStr = formatAlertDate(effective);
+      const expiresStr = formatAlertDate(expires);
+
+      return {
+        isFoodRecall,
+        levelCode,
+        headline,
+        description,
+        effectiveStr,
+        expiresStr,
+        sender,
+        effectiveTime
+      };
+    }
+
+    function buildAlertObjFromGroup(groupKey, translations, fallbackInfo) {
+      const priorityMap = {
+        'G': 1,
+        'S1': 2,
+        'S2': 3,
+        'S3': 4,
+        'A': 5,
+        'I': 6,
+        'T': 7
+      };
+
+      const activeLang = ['DE', 'FR', 'EN'].find(code => !!translations[code]) || null;
+      const primary = activeLang ? translations[activeLang] : fallbackInfo;
+      const levelCode = primary.levelCode;
+
+      let borderColorHex = '#ca8a04';
+      let badgeColor = 'bg-yellow-600';
+      let badgeText = `Stufe: ${levelCode}`;
+
+      if (levelCode === 'G') {
+        borderColorHex = '#9333ea';
+        badgeColor = 'bg-purple-600';
+        badgeText = 'Akute Gefahr: G';
+      } else if (levelCode === 'S1') {
+        borderColorHex = '#dc2626';
+        badgeColor = 'bg-red-600';
+        badgeText = 'Stufe: S1';
+      } else if (levelCode === 'S2') {
+        borderColorHex = '#ea580c';
+        badgeColor = 'bg-orange-600';
+        badgeText = 'Stufe: S2';
+      } else if (levelCode === 'S3') {
+        borderColorHex = '#ca8a04';
+        badgeColor = 'bg-yellow-600';
+        badgeText = 'Stufe: S3';
+      } else if (levelCode === 'A') {
+        borderColorHex = '#f97316';
+        badgeColor = 'bg-orange-500';
+        badgeText = 'Vermisst: A';
+      } else if (levelCode === 'I') {
+        borderColorHex = '#16a34a';
+        badgeColor = 'bg-lime-600';
+        badgeText = 'Info: I';
+      } else if (levelCode === 'T') {
+        borderColorHex = '#4b5563';
+        badgeColor = 'bg-gray-600';
+        badgeText = 'Test: T';
+      }
+
+      return {
+        groupKey,
+        priority: priorityMap[levelCode] || 99,
+        levelCode,
+        badgeText,
+        badgeColor,
+        borderColorHex,
+        headline: primary.headline,
+        description: primary.description,
+        effectiveStr: primary.effectiveStr,
+        expiresStr: primary.expiresStr,
+        sender: primary.sender,
+        effectiveTime: primary.effectiveTime,
+        translations,
+        activeLang
+      };
+    }
+
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
       const foodRecallWrapper = document.getElementById('food-recall-wrapper');
@@ -874,136 +1067,52 @@
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-      const infos = xmlDoc.getElementsByTagName("info");
-      
+      const alertElements = Array.from(xmlDoc.getElementsByTagName("alert"));
+
       const now = new Date();
       let alertsList = [];
       let foodRecallsList = [];
 
-      // Feste Sortierreihenfolge: G (D) -> S1 -> S2 -> S3 -> A -> I -> T
-      const priorityMap = {
-        'G': 1,
-        'S1': 2,
-        'S2': 3,
-        'S3': 4,
-        'A': 5,
-        'I': 6,
-        'T': 7
-      };
+      const sourceAlerts = alertElements.length > 0 ? alertElements : [xmlDoc.documentElement].filter(Boolean);
 
-      for (let info of infos) {
-        const lang = info.getElementsByTagName("language")[0]?.textContent || "";
-        if (!lang.toLowerCase().startsWith("de")) continue;
-        
-        const expires = info.getElementsByTagName("expires")[0]?.textContent || "";
-        if (expires) {
-          const expiresDate = new Date(expires);
-          if (!isNaN(expiresDate.getTime()) && expiresDate < now) {
-            continue;
+      sourceAlerts.forEach((alertEl, alertIdx) => {
+        const identifier = alertEl.getElementsByTagName("identifier")[0]?.textContent?.trim() || `alert-${alertIdx}`;
+        const infos = Array.from(alertEl.getElementsByTagName("info"));
+        if (infos.length === 0) return;
+
+        const groupedByBucket = new Map();
+
+        infos.forEach((infoEl, infoIdx) => {
+          const parsed = parseInfoBlock(infoEl, alertEl, now);
+          if (!parsed) return;
+
+          const langRaw = infoEl.getElementsByTagName("language")[0]?.textContent || "";
+          const normLang = normalizeLangCode(langRaw);
+          const bucketKey = `${identifier}__${parsed.isFoodRecall ? 'recall' : 'alert'}__${parsed.effectiveTime || infoIdx}`;
+
+          if (!groupedByBucket.has(bucketKey)) {
+            groupedByBucket.set(bucketKey, {
+              translations: {},
+              fallbackInfo: parsed,
+              isFoodRecall: parsed.isFoodRecall
+            });
           }
-        }
 
-        const category = info.getElementsByTagName("category")[0]?.textContent || "";
-        let isFoodRecall = category.toLowerCase() === "health";
-        const eventCodes = info.getElementsByTagName("eventCode");
-        for (let code of eventCodes) {
-          if (code.getElementsByTagName("value")[0]?.textContent === "FOOD_RECALL") {
-            isFoodRecall = true;
-            break;
+          const entry = groupedByBucket.get(bucketKey);
+          if (normLang && !entry.translations[normLang]) {
+            entry.translations[normLang] = parsed;
           }
-        }
-        
-        let levelCode = "S3";
-        const parameters = info.getElementsByTagName("parameter");
-        for (let param of parameters) {
-          const valName = param.getElementsByTagName("valueName")[0]?.textContent || "";
-          const val = (param.getElementsByTagName("value")[0]?.textContent || "").toUpperCase();
-          
-          if (valName.includes("cb-eu-level") || valName.includes("level")) {
-            if (val.includes("LVL_1") || val === "N1" || val === "S1") levelCode = "S1";
-            else if (val.includes("LVL_2") || val === "N2" || val === "S2") levelCode = "S2";
-            else if (val.includes("LVL_3") || val === "N3" || val === "S3") levelCode = "S3";
-            else if (val.includes("LVL_4") || val === "I" || val === "INFO") levelCode = "I";
-            else if (val === "D" || val === "G" || val.includes("DANGER")) levelCode = "G";
-            else if (val === "A" || val.includes("AMBER") || val.includes("MISSING")) levelCode = "A";
-            else if (val === "T" || val.includes("TEST")) levelCode = "T";
+        });
+
+        groupedByBucket.forEach((entry, bucketKey) => {
+          const alertObj = buildAlertObjFromGroup(bucketKey, entry.translations, entry.fallbackInfo);
+          if (entry.isFoodRecall) {
+            foodRecallsList.push(alertObj);
+          } else {
+            alertsList.push(alertObj);
           }
-        }
-
-        const msgType = (xmlDoc.getElementsByTagName("msgType")[0]?.textContent || "").toLowerCase();
-        const status = (xmlDoc.getElementsByTagName("status")[0]?.textContent || "").toLowerCase();
-        if (status === "test" || msgType === "test") levelCode = "T";
-
-        const headline = info.getElementsByTagName("headline")[0]?.textContent || "Warnmeldung";
-        const description = info.getElementsByTagName("description")[0]?.textContent || "";
-        const effective = info.getElementsByTagName("effective")[0]?.textContent || "";
-        const sender = xmlDoc.getElementsByTagName("sender")[0]?.textContent || "LU-Alert";
-        
-        let effectiveDate = new Date(effective);
-        let effectiveTime = isNaN(effectiveDate.getTime()) ? 0 : effectiveDate.getTime();
-        
-        let effectiveStr = effective;
-        try { effectiveStr = effectiveDate.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch(e) {}
-        
-        let expiresStr = expires;
-        try { expiresStr = new Date(expires).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch(e) {}
-        
-        let borderColorHex = '#ca8a04';
-        let badgeColor = 'bg-yellow-600';
-        let badgeText = `Stufe: ${levelCode}`;
-
-        if (levelCode === 'G') {
-          borderColorHex = '#9333ea';
-          badgeColor = 'bg-purple-600';
-          badgeText = 'Akute Gefahr: G';
-        } else if (levelCode === 'S1') {
-          borderColorHex = '#dc2626';
-          badgeColor = 'bg-red-600';
-          badgeText = 'Stufe: S1';
-        } else if (levelCode === 'S2') {
-          borderColorHex = '#ea580c';
-          badgeColor = 'bg-orange-600';
-          badgeText = 'Stufe: S2';
-        } else if (levelCode === 'S3') {
-          borderColorHex = '#ca8a04';
-          badgeColor = 'bg-yellow-600';
-          badgeText = 'Stufe: S3';
-        } else if (levelCode === 'A') {
-          borderColorHex = '#f97316';
-          badgeColor = 'bg-orange-500';
-          badgeText = 'Vermisst: A';
-        } else if (levelCode === 'I') {
-          borderColorHex = '#16a34a';
-          badgeColor = 'bg-lime-600';
-          badgeText = 'Info: I';
-        } else if (levelCode === 'T') {
-          borderColorHex = '#4b5563';
-          badgeColor = 'bg-gray-600';
-          badgeText = 'Test: T';
-        }
-
-        const priority = priorityMap[levelCode] || 99;
-
-        const alertObj = {
-          priority,
-          levelCode,
-          badgeText,
-          badgeColor,
-          borderColorHex,
-          headline,
-          description,
-          effectiveStr,
-          expiresStr,
-          sender,
-          effectiveTime
-        };
-
-        if (isFoodRecall) {
-          foodRecallsList.push(alertObj);
-        } else {
-          alertsList.push(alertObj);
-        }
-      }
+        });
+      });
 
       const sortFn = (a, b) => {
         if (a.priority !== b.priority) return a.priority - b.priority;
