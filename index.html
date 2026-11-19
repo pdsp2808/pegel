@@ -68,7 +68,9 @@
         <div class="flex items-center space-x-3">
           <!-- Header-Indikator für aktive Unwetterwarnungen -->
           <div id="header-alert-badge" onclick="scrollToAlerts()" class="hidden cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors" title="Aktive Notfallmeldungen vorhanden - Klicken zum Anzeigen">
-            <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500 animate-pulse"></i>
+            <span id="header-alert-icon-slot" class="inline-flex items-center justify-center">
+              <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500 animate-pulse"></i>
+            </span>
             <span id="header-alert-count" class="text-xs font-bold">0</span>
           </div>
 
@@ -796,6 +798,37 @@
       }
     }
 
+    function detectAlertCategory(headline = '') {
+      const h = headline.toLowerCase();
+      if (/\b(regen|starkregen|niederschlag|pluie|rain)\b/i.test(h)) return 'rain';
+      if (/\b(hitze|hitzewarnung|wärme|canicule|heat)\b/i.test(h)) return 'heat';
+      if (/\b(wind|windwarnung|sturm|orkan|böen|vent)\b/i.test(h)) return 'wind';
+      return 'other';
+    }
+
+    function getHeaderAlertIconConfig(alertsList) {
+      if (!alertsList || alertsList.length === 0) {
+        return { icon: 'triangle-alert', colorClass: 'text-amber-500 animate-pulse' };
+      }
+
+      const categories = new Set(alertsList.map(item => detectAlertCategory(item.headline)));
+
+      // Nur wenn genau eine Kategorie erkannt wurde und es keine "other"-Meldung gibt
+      if (categories.size === 1 && !categories.has('other')) {
+        if (categories.has('rain')) {
+          return { icon: 'cloud-rain', colorClass: 'text-sky-500' };
+        }
+        if (categories.has('heat')) {
+          return { icon: 'flame', colorClass: 'text-red-500' };
+        }
+        if (categories.has('wind')) {
+          return { icon: 'wind', colorClass: 'text-teal-500' };
+        }
+      }
+
+      return { icon: 'triangle-alert', colorClass: 'text-amber-500 animate-pulse' };
+    }
+
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
       const foodRecallWrapper = document.getElementById('food-recall-wrapper');
@@ -803,6 +836,7 @@
       const foodRecallListEl = document.getElementById('food-recall-list');
       const headerAlertBadge = document.getElementById('header-alert-badge');
       const headerAlertCount = document.getElementById('header-alert-count');
+      const headerAlertIconSlot = document.getElementById('header-alert-icon-slot');
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
@@ -966,6 +1000,10 @@
 
         if (headerAlertBadge && headerAlertCount) {
           headerAlertCount.textContent = alertsList.length;
+          if (headerAlertIconSlot) {
+            const iconCfg = getHeaderAlertIconConfig(alertsList);
+            headerAlertIconSlot.innerHTML = `<i data-lucide="${iconCfg.icon}" class="w-4 h-4 ${iconCfg.colorClass}"></i>`;
+          }
           headerAlertBadge.classList.remove('hidden');
           headerAlertBadge.classList.add('flex');
         }
