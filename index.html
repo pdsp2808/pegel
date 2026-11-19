@@ -67,7 +67,7 @@
 
         <div class="flex items-center space-x-3">
           <!-- Header-Indikator für aktive Unwetterwarnungen -->
-          <div id="header-alert-badge" onclick="scrollToAlerts()" class="hidden cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors" title="Aktive Notfallmeldungen vorhanden - Klicken zum Anzeigen">
+          <div id="header-alert-badge" onclick="handleHeaderAlertClick()" class="hidden cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors" title="Aktive Notfallmeldungen vorhanden - Klicken zum Anzeigen">
             <span id="header-alert-icon-slot" class="inline-flex items-center justify-center">
               <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500 animate-pulse"></i>
             </span>
@@ -314,8 +314,8 @@
 
   </main>
 
-  <!-- MODAL 1: LEGENDE DER LU-ALERT STUFEN -->
-  <div id="alert-legend-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+  <!-- MODAL 1: LEGENDE DER LU-ALERT STUFEN (über Detail-Modal) -->
+  <div id="alert-legend-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
       
       <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
@@ -548,8 +548,12 @@
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          closeAlertLegendModal();
-          closeAlertDetailModal();
+          const legendModal = document.getElementById('alert-legend-modal');
+          if (legendModal && !legendModal.classList.contains('hidden')) {
+            closeAlertLegendModal();
+          } else {
+            closeAlertDetailModal();
+          }
         }
       });
 
@@ -564,6 +568,14 @@
         }
       });
     });
+
+    function handleHeaderAlertClick() {
+      if (currentAlertsData.length === 1) {
+        openAlertDetailModal(0, false);
+        return;
+      }
+      scrollToAlerts();
+    }
 
     function scrollToAlerts() {
       const section = document.getElementById('lu-alert-section');
