@@ -800,9 +800,9 @@
 
     function detectAlertCategory(headline = '') {
       const h = headline.toLowerCase();
-      if (/\b(regen|starkregen|niederschlag|pluie|rain)\b/i.test(h)) return 'rain';
-      if (/\b(hitze|hitzewarnung|wärme|canicule|heat)\b/i.test(h)) return 'heat';
-      if (/\b(wind|windwarnung|sturm|orkan|böen|vent)\b/i.test(h)) return 'wind';
+      if (h.includes('regen')) return 'rain';
+      if (h.includes('hitze')) return 'heat';
+      if (h.includes('wind')) return 'wind';
       return 'other';
     }
 
@@ -813,7 +813,7 @@
 
       const categories = new Set(alertsList.map(item => detectAlertCategory(item.headline)));
 
-      // Nur wenn genau eine Kategorie erkannt wurde und es keine "other"-Meldung gibt
+      // Nur wenn alle aktiven Meldungen denselben Typ haben (und nicht 'other')
       if (categories.size === 1 && !categories.has('other')) {
         if (categories.has('rain')) {
           return { icon: 'cloud-rain', colorClass: 'text-sky-500' };
