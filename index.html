@@ -38,14 +38,14 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         
-        <div class="flex items-center space-x-3">
-          <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors" title="Zum Dashboard">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors shrink-0" title="Zum Dashboard">
             <i data-lucide="waves" class="w-6 h-6"></i>
           </div>
-          <div>
-            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white">Pegel Monitor</h1>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-col sm:flex-row sm:items-center sm:space-x-1.5">
-              <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline">Quelle: inondations.lu</a>
+          <div class="min-w-0">
+            <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white truncate">Pegel Monitor</h1>
+            <div class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center whitespace-nowrap">
+              <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline whitespace-nowrap">Quelle: inondations.lu</a>
             </div>
           </div>
         </div>
@@ -65,8 +65,8 @@
           </button>
         </nav>
 
-        <div class="flex items-center space-x-3">
-          <!-- Header-Indikator für aktive Unwetterwarnungen -->
+        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          <!-- Header-Indikator für aktive / geplante Warnungen -->
           <div id="header-alert-badge" onclick="handleHeaderAlertClick()" class="hidden cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors" title="Aktive Notfallmeldungen vorhanden - Klicken zum Anzeigen">
             <span id="header-alert-icon-slot" class="inline-flex items-center justify-center">
               <i data-lucide="triangle-alert" class="w-4 h-4 text-amber-500 animate-pulse"></i>
@@ -419,11 +419,11 @@
       </div>
 
       <div class="pt-3 flex items-center justify-between border-t border-gray-100 dark:border-gray-700">
-        <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1">
-          <span>Auf lu-alert.lu öffnen</span>
+        <a id="alert-detail-external-link" href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1">
+          <span id="alert-detail-external-label">Auf lu-alert.lu öffnen</span>
           <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
         </a>
-        <button onclick="closeAlertDetailModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+        <button id="alert-detail-close-btn" onclick="closeAlertDetailModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
           Schließen
         </button>
       </div>
@@ -537,10 +537,67 @@
       police:         { icon: 'shield',               colorClass: 'text-indigo-500' },
       cold:           { icon: 'thermometer-snowflake',colorClass: 'text-blue-400' },
       black_ice:      { icon: 'snowflake',            colorClass: 'text-cyan-400' },
-      other:          { icon: 'triangle-alert',       colorClass: 'text-amber-500 animate-pulse' }
+      other:          { icon: 'triangle-alert',       colorClass: 'text-amber-500' }
     };
 
     const SUPPORTED_ALERT_LANGS = ['DE', 'FR', 'EN'];
+
+    const ALERT_I18N = {
+      DE: {
+        validPrefix: 'Gültig:',
+        validSep: 'bis',
+        sourcePrefix: 'Quelle:',
+        openExternal: 'Auf lu-alert.lu öffnen',
+        closeBtn: 'Schließen',
+        scheduledBadge: 'Geplant',
+        detailsLink: 'Details ↗',
+        noDetails: 'Keine weiteren Details verfügbar.',
+        codes: { G: 'G', S1: 'S1', S2: 'S2', S3: 'S3', A: 'A', I: 'I', T: 'T' },
+        levelBadge: (code, displayCode) => {
+          if (code === 'G') return `Akute Gefahr: ${displayCode}`;
+          if (code === 'A') return `Vermisst: ${displayCode}`;
+          if (code === 'I') return `Info: ${displayCode}`;
+          if (code === 'T') return `Test: ${displayCode}`;
+          return `Stufe: ${displayCode}`;
+        }
+      },
+      FR: {
+        validPrefix: 'Valable :',
+        validSep: 'au',
+        sourcePrefix: 'Source :',
+        openExternal: 'Ouvrir sur lu-alert.lu',
+        closeBtn: 'Fermer',
+        scheduledBadge: 'Prévu',
+        detailsLink: 'Détails ↗',
+        noDetails: 'Aucun détail supplémentaire disponible.',
+        codes: { G: 'D', S1: 'N1', S2: 'N2', S3: 'N3', A: 'A', I: 'I', T: 'T' },
+        levelBadge: (code, displayCode) => {
+          if (code === 'G') return `Danger imminent : ${displayCode}`;
+          if (code === 'A') return `Disparition : ${displayCode}`;
+          if (code === 'I') return `Info : ${displayCode}`;
+          if (code === 'T') return `Test : ${displayCode}`;
+          return `Niveau : ${displayCode}`;
+        }
+      },
+      EN: {
+        validPrefix: 'Valid:',
+        validSep: 'to',
+        sourcePrefix: 'Source:',
+        openExternal: 'Open on lu-alert.lu',
+        closeBtn: 'Close',
+        scheduledBadge: 'Scheduled',
+        detailsLink: 'Details ↗',
+        noDetails: 'No additional details available.',
+        codes: { G: 'D', S1: 'L1', S2: 'L2', S3: 'L3', A: 'A', I: 'I', T: 'T' },
+        levelBadge: (code, displayCode) => {
+          if (code === 'G') return `Imminent danger: ${displayCode}`;
+          if (code === 'A') return `Missing person: ${displayCode}`;
+          if (code === 'I') return `Info: ${displayCode}`;
+          if (code === 'T') return `Test: ${displayCode}`;
+          return `Level: ${displayCode}`;
+        }
+      }
+    };
 
     let parsedData = {};
     let selectedHours = 12;
@@ -550,9 +607,12 @@
     let mainChartInstance = null;
     let sparklineInstances = {};
 
+    let rawAlertsXml = null;
     let currentAlertsData = [];
     let currentFoodRecallsData = [];
     let activeDetailItem = null;
+    let activeDetailIsRecall = false;
+    let globalAlertLang = null;
 
     let currentLat = 49.85;
     let currentLon = 6.27;
@@ -618,39 +678,66 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function renderDetailModalContent(item, langCode) {
+    function getItemLangData(item, preferredLang = null) {
       const translations = item.translations || {};
       const availableLangs = SUPPORTED_ALERT_LANGS.filter(code => !!translations[code]);
-      const chosenLang = translations[langCode] ? langCode : (availableLangs[0] || item.activeLang);
-      const content = translations[chosenLang] || {
-        headline: item.headline,
-        description: item.description,
-        effectiveStr: item.effectiveStr,
-        expiresStr: item.expiresStr
-      };
 
-      item.activeLang = chosenLang;
+      let chosenLang = null;
+      if (preferredLang && translations[preferredLang]) {
+        chosenLang = preferredLang;
+      } else if (globalAlertLang && translations[globalAlertLang]) {
+        chosenLang = globalAlertLang;
+      } else {
+        chosenLang = SUPPORTED_ALERT_LANGS.find(code => !!translations[code]) || availableLangs[0] || 'DE';
+      }
+
+      const content = translations[chosenLang] || item.fallbackInfo;
+      const i18n = ALERT_I18N[chosenLang] || ALERT_I18N.DE;
+      const levelCode = content.levelCode || item.levelCode || 'S3';
+      const displayLevelCode = i18n.codes[levelCode] || levelCode;
+      const badgeText = i18n.levelBadge(levelCode, displayLevelCode);
+
+      return {
+        lang: chosenLang,
+        availableLangs,
+        content,
+        i18n,
+        badgeText
+      };
+    }
+
+    function renderDetailModalContent(item, langCode) {
+      const { lang, availableLangs, content, i18n, badgeText } = getItemLangData(item, langCode);
 
       const card = document.getElementById('alert-detail-card');
       const meta = document.getElementById('alert-detail-meta');
       const langSelect = document.getElementById('alert-lang-select');
       const headlineEl = document.getElementById('alert-detail-headline');
       const descEl = document.getElementById('alert-detail-description');
+      const extLabelEl = document.getElementById('alert-detail-external-label');
+      const closeBtnEl = document.getElementById('alert-detail-close-btn');
 
-      if (card) card.style.borderLeftColor = item.borderColorHex;
+      if (card) {
+        card.style.borderLeftColor = item.borderColorHex;
+        card.classList.toggle('opacity-80', !!content.isScheduled);
+      }
 
       if (meta) {
+        const scheduledChip = content.isScheduled
+          ? `<span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded font-semibold">${i18n.scheduledBadge}</span>`
+          : '';
         meta.innerHTML = `
-          <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold text-white hover:opacity-95 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
-          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${content.effectiveStr} bis ${content.expiresStr}</span>
-          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
+          <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold text-white hover:opacity-95 transition-opacity ${item.badgeColor}">${badgeText}</button>
+          ${scheduledChip}
+          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
+          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
         `;
       }
 
       if (langSelect) {
         if (availableLangs.length > 0) {
           langSelect.innerHTML = availableLangs.map(code =>
-            `<option value="${code}" ${code === chosenLang ? 'selected' : ''}>${code}</option>`
+            `<option value="${code}" ${code === lang ? 'selected' : ''}>${code}</option>`
           ).join('');
           langSelect.classList.remove('hidden');
         } else {
@@ -660,12 +747,22 @@
       }
 
       if (headlineEl) headlineEl.textContent = content.headline;
-      if (descEl) descEl.innerHTML = content.description || '<span class="italic text-gray-400">Keine weiteren Details verfügbar.</span>';
+      if (descEl) descEl.innerHTML = content.description || `<span class="italic text-gray-400">${i18n.noDetails}</span>`;
+      if (extLabelEl) extLabelEl.textContent = i18n.openExternal;
+      if (closeBtnEl) closeBtnEl.textContent = i18n.closeBtn;
     }
 
     function handleDetailLangChange(newLang) {
-      if (!activeDetailItem) return;
-      renderDetailModalContent(activeDetailItem, newLang);
+      globalAlertLang = newLang;
+      if (rawAlertsXml) {
+        renderAlerts(rawAlertsXml);
+      }
+      if (activeDetailItem) {
+        const refreshedList = activeDetailIsRecall ? currentFoodRecallsData : currentAlertsData;
+        const updatedItem = refreshedList.find(it => it.groupKey === activeDetailItem.groupKey) || activeDetailItem;
+        activeDetailItem = updatedItem;
+        renderDetailModalContent(updatedItem, newLang);
+      }
     }
 
     function openAlertDetailModal(index, isRecall = false) {
@@ -673,8 +770,9 @@
       if (!item) return;
 
       activeDetailItem = item;
+      activeDetailIsRecall = isRecall;
       const modal = document.getElementById('alert-detail-modal');
-      renderDetailModalContent(item, item.activeLang);
+      renderDetailModalContent(item, globalAlertLang);
 
       if (modal) modal.classList.remove('hidden');
     }
@@ -683,6 +781,7 @@
       const modal = document.getElementById('alert-detail-modal');
       if (modal) modal.classList.add('hidden');
       activeDetailItem = null;
+      activeDetailIsRecall = false;
     }
 
     function toggleFoodRecalls() {
@@ -865,7 +964,8 @@
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
         const data = await response.json();
         if (data.error) throw new Error(data.error);
-        renderAlerts(data.raw_xml);
+        rawAlertsXml = data.raw_xml;
+        renderAlerts(rawAlertsXml);
       } catch (err) {
         primaryContainer.innerHTML = `<div class="p-3 bg-white dark:bg-gray-800 rounded-xl text-red-500 text-xs border border-gray-200 dark:border-gray-700">LU-Alert nicht verfügbar: ${err.message}</div>`;
         if (foodRecallWrapper) foodRecallWrapper.classList.add('hidden');
@@ -890,22 +990,33 @@
       return 'other';
     }
 
-    function getHeaderAlertIconConfig(alertsList) {
+    function getHeaderAlertIconConfig(alertsList, hasAnyActive) {
       if (!alertsList || alertsList.length === 0) {
-        return ALERT_ICON_CONFIGS.other;
+        return { icon: 'triangle-alert', colorClass: 'text-amber-500' };
       }
 
       const categories = new Set(alertsList.map(item => detectAlertCategory(item.headline)));
+      let cfg = ALERT_ICON_CONFIGS.other;
 
-      // Nur wenn alle aktiven Meldungen denselben Typ haben (und nicht 'other')
       if (categories.size === 1 && !categories.has('other')) {
         const [onlyCategory] = Array.from(categories);
         if (ALERT_ICON_CONFIGS[onlyCategory]) {
-          return ALERT_ICON_CONFIGS[onlyCategory];
+          cfg = ALERT_ICON_CONFIGS[onlyCategory];
         }
       }
 
-      return ALERT_ICON_CONFIGS.other;
+      if (!hasAnyActive) {
+        return {
+          icon: cfg.icon,
+          colorClass: 'text-slate-500 dark:text-slate-400'
+        };
+      }
+
+      const pulseClass = cfg.icon === 'triangle-alert' ? ' animate-pulse' : '';
+      return {
+        icon: cfg.icon,
+        colorClass: `${cfg.colorClass}${pulseClass}`
+      };
     }
 
     function normalizeLangCode(rawLang = '') {
@@ -969,12 +1080,20 @@
 
       const headline = infoEl.getElementsByTagName("headline")[0]?.textContent || "Warnmeldung";
       const description = infoEl.getElementsByTagName("description")[0]?.textContent || "";
-      const effective = infoEl.getElementsByTagName("effective")[0]?.textContent || "";
+      const onsetRaw = infoEl.getElementsByTagName("onset")[0]?.textContent?.trim() || "";
+      const effectiveRaw = infoEl.getElementsByTagName("effective")[0]?.textContent?.trim() || "";
       const sender = alertEl?.getElementsByTagName("sender")[0]?.textContent || "LU-Alert";
 
-      const effectiveDate = new Date(effective);
+      const effectiveDate = new Date(effectiveRaw);
       const effectiveTime = isNaN(effectiveDate.getTime()) ? 0 : effectiveDate.getTime();
-      const effectiveStr = formatAlertDate(effective);
+
+      const startRaw = onsetRaw || effectiveRaw;
+      const startDate = new Date(startRaw);
+      const hasValidStart = !isNaN(startDate.getTime());
+      const startTime = hasValidStart ? startDate.getTime() : effectiveTime;
+      const isScheduled = hasValidStart ? (startDate > now) : false;
+
+      const startStr = formatAlertDate(startRaw);
       const expiresStr = formatAlertDate(expires);
 
       return {
@@ -982,10 +1101,12 @@
         levelCode,
         headline,
         description,
-        effectiveStr,
+        startStr,
         expiresStr,
         sender,
-        effectiveTime
+        effectiveTime,
+        startTime,
+        isScheduled
       };
     }
 
@@ -1000,59 +1121,49 @@
         'T': 7
       };
 
-      const activeLang = ['DE', 'FR', 'EN'].find(code => !!translations[code]) || null;
-      const primary = activeLang ? translations[activeLang] : fallbackInfo;
+      const defaultLang = SUPPORTED_ALERT_LANGS.find(code => !!translations[code]) || null;
+      const primary = defaultLang ? translations[defaultLang] : fallbackInfo;
       const levelCode = primary.levelCode;
 
       let borderColorHex = '#ca8a04';
       let badgeColor = 'bg-yellow-600';
-      let badgeText = `Stufe: ${levelCode}`;
 
       if (levelCode === 'G') {
         borderColorHex = '#9333ea';
         badgeColor = 'bg-purple-600';
-        badgeText = 'Akute Gefahr: G';
       } else if (levelCode === 'S1') {
         borderColorHex = '#dc2626';
         badgeColor = 'bg-red-600';
-        badgeText = 'Stufe: S1';
       } else if (levelCode === 'S2') {
         borderColorHex = '#ea580c';
         badgeColor = 'bg-orange-600';
-        badgeText = 'Stufe: S2';
       } else if (levelCode === 'S3') {
         borderColorHex = '#ca8a04';
         badgeColor = 'bg-yellow-600';
-        badgeText = 'Stufe: S3';
       } else if (levelCode === 'A') {
         borderColorHex = '#f97316';
         badgeColor = 'bg-orange-500';
-        badgeText = 'Vermisst: A';
       } else if (levelCode === 'I') {
         borderColorHex = '#16a34a';
         badgeColor = 'bg-lime-600';
-        badgeText = 'Info: I';
       } else if (levelCode === 'T') {
         borderColorHex = '#4b5563';
         badgeColor = 'bg-gray-600';
-        badgeText = 'Test: T';
       }
 
       return {
         groupKey,
         priority: priorityMap[levelCode] || 99,
         levelCode,
-        badgeText,
         badgeColor,
         borderColorHex,
         headline: primary.headline,
         description: primary.description,
-        effectiveStr: primary.effectiveStr,
-        expiresStr: primary.expiresStr,
-        sender: primary.sender,
+        isScheduled: !!primary.isScheduled,
         effectiveTime: primary.effectiveTime,
+        startTime: primary.startTime,
         translations,
-        activeLang
+        fallbackInfo
       };
     }
 
@@ -1115,7 +1226,9 @@
       });
 
       const sortFn = (a, b) => {
+        if (a.isScheduled !== b.isScheduled) return a.isScheduled ? 1 : -1;
         if (a.priority !== b.priority) return a.priority - b.priority;
+        if (a.isScheduled) return a.startTime - b.startTime;
         return b.effectiveTime - a.effectiveTime;
       };
 
@@ -1126,29 +1239,44 @@
       currentFoodRecallsData = foodRecallsList;
 
       if (alertsList.length > 0) {
-        primaryContainer.innerHTML = alertsList.map((item, idx) => `
-          <article onclick="openAlertDetailModal(${idx}, false)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-                <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
-                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
-                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Quelle: ${item.sender}</span>
+        primaryContainer.innerHTML = alertsList.map((item, idx) => {
+          const { content, i18n, badgeText } = getItemLangData(item, globalAlertLang);
+          const scheduledClass = content.isScheduled ? 'opacity-80' : '';
+          const scheduledChip = content.isScheduled
+            ? `<span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded font-semibold">${i18n.scheduledBadge}</span>`
+            : '';
+
+          return `
+            <article onclick="openAlertDetailModal(${idx}, false)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all ${scheduledClass}" style="border-left-color: ${item.borderColorHex};">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                  <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
+                  ${scheduledChip}
+                  <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
+                  <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
+                </div>
+                <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0 hidden sm:inline">${i18n.detailsLink}</span>
               </div>
-              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0 hidden sm:inline">Details ↗</span>
-            </div>
-            <div class="text-sm font-bold text-gray-900 dark:text-white">${item.headline}</div>
-            <div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">${item.description}</div>
-          </article>
-        `).join('');
+              <div class="text-sm font-bold text-gray-900 dark:text-white">${content.headline}</div>
+              <div class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">${content.description}</div>
+            </article>
+          `;
+        }).join('');
 
         if (headerAlertBadge && headerAlertCount) {
+          const hasAnyActive = alertsList.some(a => !a.isScheduled);
           headerAlertCount.textContent = alertsList.length;
+
+          if (hasAnyActive) {
+            headerAlertBadge.className = 'cursor-pointer items-center space-x-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/40 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors flex';
+          } else {
+            headerAlertBadge.className = 'cursor-pointer items-center space-x-1 px-2 py-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition-colors flex';
+          }
+
           if (headerAlertIconSlot) {
-            const iconCfg = getHeaderAlertIconConfig(alertsList);
+            const iconCfg = getHeaderAlertIconConfig(alertsList, hasAnyActive);
             headerAlertIconSlot.innerHTML = `<i data-lucide="${iconCfg.icon}" class="w-4 h-4 ${iconCfg.colorClass}"></i>`;
           }
-          headerAlertBadge.classList.remove('hidden');
-          headerAlertBadge.classList.add('flex');
         }
       } else {
         primaryContainer.innerHTML = "<div class='p-3 bg-white dark:bg-gray-800 rounded-xl text-gray-500 dark:text-gray-400 text-xs border border-gray-200 dark:border-gray-700'>Aktuell liegen keine aktiven Notfall- oder Unwetterwarnungen vor.</div>";
@@ -1161,19 +1289,28 @@
       if (foodRecallWrapper && foodRecallCountEl && foodRecallListEl) {
         if (foodRecallsList.length > 0) {
           foodRecallCountEl.textContent = foodRecallsList.length;
-          foodRecallListEl.innerHTML = foodRecallsList.map((item, idx) => `
-            <article onclick="openAlertDetailModal(${idx}, true)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all" style="border-left-color: ${item.borderColorHex};">
-              <div class="flex items-center justify-between">
-                <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                  <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${item.badgeText}</button>
-                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Gültig: ${item.effectiveStr} bis ${item.expiresStr}</span>
-                  <span class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">Quelle: ${item.sender}</span>
+          foodRecallListEl.innerHTML = foodRecallsList.map((item, idx) => {
+            const { content, i18n, badgeText } = getItemLangData(item, globalAlertLang);
+            const scheduledClass = content.isScheduled ? 'opacity-80' : '';
+            const scheduledChip = content.isScheduled
+              ? `<span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded font-semibold">${i18n.scheduledBadge}</span>`
+              : '';
+
+            return `
+              <article onclick="openAlertDetailModal(${idx}, true)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all ${scheduledClass}" style="border-left-color: ${item.borderColorHex};">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+                    <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
+                    ${scheduledChip}
+                    <span class="hidden sm:inline-flex bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
+                    <span class="hidden sm:inline-flex bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
+                  </div>
+                  <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0">${i18n.detailsLink}</span>
                 </div>
-                <span class="text-[11px] text-blue-600 dark:text-blue-400 font-medium shrink-0">Details ↗</span>
-              </div>
-              <div class="font-semibold text-gray-900 dark:text-white pt-0.5">${item.headline}</div>
-            </article>
-          `).join('');
+                <div class="font-semibold text-gray-900 dark:text-white pt-0.5">${content.headline}</div>
+              </article>
+            `;
+          }).join('');
           foodRecallWrapper.classList.remove('hidden');
         } else {
           foodRecallWrapper.classList.add('hidden');
