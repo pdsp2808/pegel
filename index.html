@@ -188,11 +188,11 @@
 
         <!-- Ausklappbarer Ticker für Lebensmittel- & Produktrückrufe -->
         <div id="food-recall-wrapper" class="hidden space-y-2">
-          <div onclick="toggleFoodRecalls()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors shadow-sm">
-            <div class="flex items-center space-x-2">
+          <div onclick="toggleFoodRecalls()" class="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs text-gray-600 dark:text-gray-300 flex items-center justify-between gap-2 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-colors shadow-sm">
+            <div class="flex items-center space-x-2 min-w-0">
               <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400 shrink-0"></i>
-              <span><strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">0</strong> aktive Lebensmittel- & Produktrückrufe vorhanden.</span>
-              <i id="food-recall-chevron" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+              <span id="food-recall-summary-text"><strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">0</strong> aktive Lebensmittel- &amp; Produktrückrufe vorhanden.</span>
+              <i id="food-recall-chevron" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform shrink-0"></i>
             </div>
             <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center space-x-1 shrink-0">
               <span>lu-alert.lu</span>
@@ -321,76 +321,18 @@
       <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
         <div class="flex items-center space-x-2">
           <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500"></i>
-          <h3 class="text-base font-bold text-gray-900 dark:text-white">LU-Alert Warnstufen</h3>
+          <h3 id="alert-legend-title" class="text-base font-bold text-gray-900 dark:text-white">LU-Alert Warnstufen</h3>
         </div>
         <button onclick="closeAlertLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- Tabelle der Warnstufen -->
-      <div class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs">
-        
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-purple-600 shrink-0 mt-0.5">G</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Akute Gefahr / Sofortiges Handeln</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Warnung die sofortiges Handeln erfordert</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-red-600 shrink-0 mt-0.5">S1</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe rot / Äußerste Vorsicht</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die höchste Warnstufe</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-orange-600 shrink-0 mt-0.5">S2</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe orange / Seien Sie vorsichtig</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die mittlere Warnstufe</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-yellow-600 shrink-0 mt-0.5">S3</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Wachsamkeitsstufe gelb / Seien Sie aufmerksam</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Die niedrigste Warnstufe</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-orange-500 shrink-0 mt-0.5">A</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Vermissten- / Entführungsmeldung</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Warnung bei Vermissten-/Entführungssituationen</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-lime-600 shrink-0 mt-0.5">I</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Information (kein Risiko)</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Für Informationsmeldungen</div>
-          </div>
-        </div>
-
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white bg-gray-600 shrink-0 mt-0.5">T</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">Test (kein Risiko)</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">Für Test- und Übungszwecke</div>
-          </div>
-        </div>
-
-      </div>
+      <!-- Dynamische Tabelle der Warnstufen -->
+      <div id="alert-legend-rows" class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs"></div>
 
       <div class="pt-2 text-right border-t border-gray-100 dark:border-gray-700">
-        <button onclick="closeAlertLegendModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+        <button id="alert-legend-close-btn" onclick="closeAlertLegendModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
           Schließen
         </button>
       </div>
@@ -433,7 +375,10 @@
 
   <!-- Footer -->
   <footer class="mt-auto py-6 border-t border-gray-200 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400 space-y-1">
-    <p class="font-semibold text-gray-700 dark:text-gray-300">&copy; Patrick Pinto (2026)</p>
+    <p class="font-semibold text-gray-700 dark:text-gray-300">
+      &copy; Patrick Pinto (2026) &bull;
+      <a href="https://www.cisreisdorf.lu" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">www.cisreisdorf.lu</a>
+    </p>
     <p>Rohdaten: <a href="https://www.inondations.lu" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">inondations.lu</a> &bull; <a href="https://www.lu-alert.lu" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">lu-alert.lu</a> &bull; Wetter: <a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer" class="hover:underline text-gray-600 dark:text-gray-400">Open-Meteo.com</a></p>
     <p class="text-[11px] italic opacity-75">Alle Angaben ohne Gewähr.</p>
   </footer>
@@ -552,6 +497,17 @@
         scheduledBadge: 'Geplant',
         detailsLink: 'Details ↗',
         noDetails: 'Keine weiteren Details verfügbar.',
+        recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> aktive Lebensmittel- &amp; Produktrückrufe vorhanden.`,
+        legendTitle: 'LU-Alert Warnstufen',
+        legendItems: [
+          { code: 'G',  bg: 'bg-purple-600', title: 'Akute Gefahr / Sofortiges Handeln', desc: 'Warnung die sofortiges Handeln erfordert' },
+          { code: 'S1', bg: 'bg-red-600',    title: 'Wachsamkeitsstufe rot / Äußerste Vorsicht', desc: 'Die höchste Warnstufe' },
+          { code: 'S2', bg: 'bg-orange-600', title: 'Wachsamkeitsstufe orange / Seien Sie vorsichtig', desc: 'Die mittlere Warnstufe' },
+          { code: 'S3', bg: 'bg-yellow-600', title: 'Wachsamkeitsstufe gelb / Seien Sie aufmerksam', desc: 'Die niedrigste Warnstufe' },
+          { code: 'A',  bg: 'bg-orange-500', title: 'Vermissten- / Entführungsmeldung', desc: 'Warnung bei Vermissten-/Entführungssituationen' },
+          { code: 'I',  bg: 'bg-lime-600',   title: 'Information (kein Risiko)', desc: 'Für Informationsmeldungen' },
+          { code: 'T',  bg: 'bg-gray-600',   title: 'Test (kein Risiko)', desc: 'Für Test- und Übungszwecke' }
+        ],
         codes: { G: 'G', S1: 'S1', S2: 'S2', S3: 'S3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
           if (code === 'G') return `Akute Gefahr: ${displayCode}`;
@@ -570,6 +526,17 @@
         scheduledBadge: 'Prévu',
         detailsLink: 'Détails ↗',
         noDetails: 'Aucun détail supplémentaire disponible.',
+        recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> rappels alimentaires et de produits actifs disponibles.`,
+        legendTitle: 'Niveaux d’alerte LU-Alert',
+        legendItems: [
+          { code: 'D',  bg: 'bg-purple-600', title: 'Danger imminent / Action immédiate', desc: 'Alerte nécessitant une action immédiate' },
+          { code: 'N1', bg: 'bg-red-600',    title: 'Niveau de vigilance rouge', desc: 'Le niveau d’alerte le plus élevé' },
+          { code: 'N2', bg: 'bg-orange-600', title: 'Niveau de vigilance orange', desc: 'Le niveau d’alerte moyen' },
+          { code: 'N3', bg: 'bg-yellow-600', title: 'Niveau de vigilance jaune', desc: 'Le niveau d’alerte le plus bas' },
+          { code: 'A',  bg: 'bg-orange-500', title: 'Disparition / enlèvement', desc: 'Utilisé pour des alertes de disparition' },
+          { code: 'I',  bg: 'bg-lime-600',   title: 'Information', desc: 'Utilisé pour des messages d’information' },
+          { code: 'T',  bg: 'bg-gray-600',   title: 'Test', desc: 'Utilisé pour des messages de test' }
+        ],
         codes: { G: 'D', S1: 'N1', S2: 'N2', S3: 'N3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
           if (code === 'G') return `Danger imminent : ${displayCode}`;
@@ -588,6 +555,17 @@
         scheduledBadge: 'Scheduled',
         detailsLink: 'Details ↗',
         noDetails: 'No additional details available.',
+        recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> active food &amp; product recalls available.`,
+        legendTitle: 'LU-Alert Warning Levels',
+        legendItems: [
+          { code: 'D',  bg: 'bg-purple-600', title: 'Imminent danger / Immediate action', desc: 'Alert requiring immediate action' },
+          { code: 'L1', bg: 'bg-red-600',    title: 'Awareness level red', desc: 'The highest alert level' },
+          { code: 'L2', bg: 'bg-orange-600', title: 'Awareness level orange', desc: 'The medium alert level' },
+          { code: 'L3', bg: 'bg-yellow-600', title: 'Awareness level yellow', desc: 'The lowest alert level' },
+          { code: 'A',  bg: 'bg-orange-500', title: 'Missing person / kidnapping', desc: 'Used for missing person alerts' },
+          { code: 'I',  bg: 'bg-lime-600',   title: 'Information', desc: 'Used for information messages' },
+          { code: 'T',  bg: 'bg-gray-600',   title: 'Test', desc: 'Used for test messages' }
+        ],
         codes: { G: 'D', S1: 'L1', S2: 'L2', S3: 'L3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
           if (code === 'G') return `Imminent danger: ${displayCode}`;
@@ -622,6 +600,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       initLocationSelect();
+      renderAlertLegendContent();
       lucide.createIcons();
       fetchData();
       loadWeather(currentLat, currentLon);
@@ -668,7 +647,31 @@
       }
     }
 
+    function renderAlertLegendContent() {
+      const lang = (globalAlertLang && ALERT_I18N[globalAlertLang]) ? globalAlertLang : 'DE';
+      const i18n = ALERT_I18N[lang];
+
+      const titleEl = document.getElementById('alert-legend-title');
+      const rowsEl = document.getElementById('alert-legend-rows');
+      const closeBtnEl = document.getElementById('alert-legend-close-btn');
+
+      if (titleEl) titleEl.textContent = i18n.legendTitle;
+      if (closeBtnEl) closeBtnEl.textContent = i18n.closeBtn;
+      if (rowsEl) {
+        rowsEl.innerHTML = i18n.legendItems.map(item => `
+          <div class="py-2.5 flex items-start space-x-3">
+            <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white ${item.bg} shrink-0 mt-0.5">${item.code}</span>
+            <div>
+              <div class="font-bold text-gray-900 dark:text-white">${item.title}</div>
+              <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
     function openAlertLegendModal() {
+      renderAlertLegendContent();
       const modal = document.getElementById('alert-legend-modal');
       if (modal) modal.classList.remove('hidden');
     }
@@ -754,6 +757,7 @@
 
     function handleDetailLangChange(newLang) {
       globalAlertLang = newLang;
+      renderAlertLegendContent();
       if (rawAlertsXml) {
         renderAlerts(rawAlertsXml);
       }
@@ -1170,7 +1174,7 @@
     function renderAlerts(xmlText) {
       const primaryContainer = document.getElementById('primary-alerts');
       const foodRecallWrapper = document.getElementById('food-recall-wrapper');
-      const foodRecallCountEl = document.getElementById('food-recall-count');
+      const foodRecallSummaryText = document.getElementById('food-recall-summary-text');
       const foodRecallListEl = document.getElementById('food-recall-list');
       const headerAlertBadge = document.getElementById('header-alert-badge');
       const headerAlertCount = document.getElementById('header-alert-count');
@@ -1286,9 +1290,11 @@
         }
       }
       
-      if (foodRecallWrapper && foodRecallCountEl && foodRecallListEl) {
+      if (foodRecallWrapper && foodRecallSummaryText && foodRecallListEl) {
         if (foodRecallsList.length > 0) {
-          foodRecallCountEl.textContent = foodRecallsList.length;
+          const activeUiLang = (globalAlertLang && ALERT_I18N[globalAlertLang]) ? globalAlertLang : 'DE';
+          foodRecallSummaryText.innerHTML = ALERT_I18N[activeUiLang].recallSummary(foodRecallsList.length);
+
           foodRecallListEl.innerHTML = foodRecallsList.map((item, idx) => {
             const { content, i18n, badgeText } = getItemLangData(item, globalAlertLang);
             const scheduledClass = content.isScheduled ? 'opacity-80' : '';
