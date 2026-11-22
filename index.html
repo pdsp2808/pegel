@@ -481,6 +481,16 @@
 
     const LU_ALERT_WORKER_URL = "https://lu-alert-proxy.patrick95tuga.workers.dev/";
 
+    const ALERT_LEVEL_STYLES = {
+      G:  { hex: '#aa4db9', badgeClass: 'bg-[#aa4db9] text-white',    legendClass: 'bg-[#aa4db9] text-white' },
+      S1: { hex: '#d3161c', badgeClass: 'bg-[#d3161c] text-white',    legendClass: 'bg-[#d3161c] text-white' },
+      S2: { hex: '#eb6a23', badgeClass: 'bg-[#eb6a23] text-white',    legendClass: 'bg-[#eb6a23] text-white' },
+      S3: { hex: '#f6d971', badgeClass: 'bg-[#f6d971] text-gray-900', legendClass: 'bg-[#f6d971] text-gray-900' },
+      A:  { hex: '#f97316', badgeClass: 'bg-orange-500 text-white',   legendClass: 'bg-orange-500 text-white' },
+      I:  { hex: '#669134', badgeClass: 'bg-[#669134] text-white',    legendClass: 'bg-[#669134] text-white' },
+      T:  { hex: '#738b98', badgeClass: 'bg-[#738b98] text-white',    legendClass: 'bg-[#738b98] text-white' }
+    };
+
     const ALERT_ICON_CONFIGS = {
       rain:           { icon: 'cloud-rain',           colorClass: 'text-sky-500' },
       heat:           { icon: 'thermometer-sun',      colorClass: 'text-orange-500' },
@@ -513,13 +523,13 @@
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> aktive Lebensmittel- &amp; Produktrückrufe vorhanden.`,
         legendTitle: 'LU-Alert Warnstufen',
         legendItems: [
-          { code: 'G',  bg: 'bg-purple-600', title: 'Akute Gefahr / Sofortiges Handeln', desc: 'Warnung die sofortiges Handeln erfordert' },
-          { code: 'S1', bg: 'bg-red-600',    title: 'Wachsamkeitsstufe rot / Äußerste Vorsicht', desc: 'Die höchste Warnstufe' },
-          { code: 'S2', bg: 'bg-orange-600', title: 'Wachsamkeitsstufe orange / Seien Sie vorsichtig', desc: 'Die mittlere Warnstufe' },
-          { code: 'S3', bg: 'bg-yellow-600', title: 'Wachsamkeitsstufe gelb / Seien Sie aufmerksam', desc: 'Die niedrigste Warnstufe' },
-          { code: 'A',  bg: 'bg-orange-500', title: 'Vermissten- / Entführungsmeldung', desc: 'Warnung bei Vermissten-/Entführungssituationen' },
-          { code: 'I',  bg: 'bg-lime-600',   title: 'Information (kein Risiko)', desc: 'Für Informationsmeldungen' },
-          { code: 'T',  bg: 'bg-gray-600',   title: 'Test (kein Risiko)', desc: 'Für Test- und Übungszwecke' }
+          { code: 'G',  styleKey: 'G',  title: 'Akute Gefahr / Sofortiges Handeln', desc: 'Warnung die sofortiges Handeln erfordert' },
+          { code: 'S1', styleKey: 'S1', title: 'Wachsamkeitsstufe rot / Äußerste Vorsicht', desc: 'Die höchste Warnstufe' },
+          { code: 'S2', styleKey: 'S2', title: 'Wachsamkeitsstufe orange / Seien Sie vorsichtig', desc: 'Die mittlere Warnstufe' },
+          { code: 'S3', styleKey: 'S3', title: 'Wachsamkeitsstufe gelb / Seien Sie aufmerksam', desc: 'Die niedrigste Warnstufe' },
+          { code: 'A',  styleKey: 'A',  title: 'Vermissten- / Entführungsmeldung', desc: 'Warnung bei Vermissten-/Entführungssituationen' },
+          { code: 'I',  styleKey: 'I',  title: 'Information (kein Risiko)', desc: 'Für Informationsmeldungen' },
+          { code: 'T',  styleKey: 'T',  title: 'Test (kein Risiko)', desc: 'Für Test- und Übungszwecke' }
         ],
         codes: { G: 'G', S1: 'S1', S2: 'S2', S3: 'S3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
@@ -542,13 +552,13 @@
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> rappels alimentaires et de produits actifs disponibles.`,
         legendTitle: 'Niveaux d’alerte LU-Alert',
         legendItems: [
-          { code: 'D',  bg: 'bg-purple-600', title: 'Danger imminent / Action immédiate', desc: 'Alerte nécessitant une action immédiate' },
-          { code: 'N1', bg: 'bg-red-600',    title: 'Niveau de vigilance rouge', desc: 'Le niveau d’alerte le plus élevé' },
-          { code: 'N2', bg: 'bg-orange-600', title: 'Niveau de vigilance orange', desc: 'Le niveau d’alerte moyen' },
-          { code: 'N3', bg: 'bg-yellow-600', title: 'Niveau de vigilance jaune', desc: 'Le niveau d’alerte le plus bas' },
-          { code: 'A',  bg: 'bg-orange-500', title: 'Disparition / enlèvement', desc: 'Utilisé pour des alertes de disparition' },
-          { code: 'I',  bg: 'bg-lime-600',   title: 'Information', desc: 'Utilisé pour des messages d’information' },
-          { code: 'T',  bg: 'bg-gray-600',   title: 'Test', desc: 'Utilisé pour des messages de test' }
+          { code: 'D',  styleKey: 'G',  title: 'Danger imminent / Action immédiate', desc: 'Alerte nécessitant une action immédiate' },
+          { code: 'N1', styleKey: 'S1', title: 'Niveau de vigilance rouge', desc: 'Le niveau d’alerte le plus élevé' },
+          { code: 'N2', styleKey: 'S2', title: 'Niveau de vigilance orange', desc: 'Le niveau d’alerte moyen' },
+          { code: 'N3', styleKey: 'S3', title: 'Niveau de vigilance jaune', desc: 'Le niveau d’alerte le plus bas' },
+          { code: 'A',  styleKey: 'A',  title: 'Disparition / enlèvement', desc: 'Utilisé pour des alertes de disparition' },
+          { code: 'I',  styleKey: 'I',  title: 'Information', desc: 'Utilisé pour des messages d’information' },
+          { code: 'T',  styleKey: 'T',  title: 'Test', desc: 'Utilisé pour des messages de test' }
         ],
         codes: { G: 'D', S1: 'N1', S2: 'N2', S3: 'N3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
@@ -571,13 +581,13 @@
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> active food &amp; product recalls available.`,
         legendTitle: 'LU-Alert Warning Levels',
         legendItems: [
-          { code: 'D',  bg: 'bg-purple-600', title: 'Imminent danger / Immediate action', desc: 'Alert requiring immediate action' },
-          { code: 'L1', bg: 'bg-red-600',    title: 'Awareness level red', desc: 'The highest alert level' },
-          { code: 'L2', bg: 'bg-orange-600', title: 'Awareness level orange', desc: 'The medium alert level' },
-          { code: 'L3', bg: 'bg-yellow-600', title: 'Awareness level yellow', desc: 'The lowest alert level' },
-          { code: 'A',  bg: 'bg-orange-500', title: 'Missing person / kidnapping', desc: 'Used for missing person alerts' },
-          { code: 'I',  bg: 'bg-lime-600',   title: 'Information', desc: 'Used for information messages' },
-          { code: 'T',  bg: 'bg-gray-600',   title: 'Test', desc: 'Used for test messages' }
+          { code: 'D',  styleKey: 'G',  title: 'Imminent danger / Immediate action', desc: 'Alert requiring immediate action' },
+          { code: 'L1', styleKey: 'S1', title: 'Awareness level red', desc: 'The highest alert level' },
+          { code: 'L2', styleKey: 'S2', title: 'Awareness level orange', desc: 'The medium alert level' },
+          { code: 'L3', styleKey: 'S3', title: 'Awareness level yellow', desc: 'The lowest alert level' },
+          { code: 'A',  styleKey: 'A',  title: 'Missing person / kidnapping', desc: 'Used for missing person alerts' },
+          { code: 'I',  styleKey: 'I',  title: 'Information', desc: 'Used for information messages' },
+          { code: 'T',  styleKey: 'T',  title: 'Test', desc: 'Used for test messages' }
         ],
         codes: { G: 'D', S1: 'L1', S2: 'L2', S3: 'L3', A: 'A', I: 'I', T: 'T' },
         levelBadge: (code, displayCode) => {
@@ -692,15 +702,18 @@
       if (titleEl) titleEl.textContent = i18n.legendTitle;
       if (closeBtnEl) closeBtnEl.textContent = i18n.closeBtn;
       if (rowsEl) {
-        rowsEl.innerHTML = i18n.legendItems.map(item => `
-          <div class="py-2.5 flex items-start space-x-3">
-            <span class="w-8 h-6 flex items-center justify-center rounded font-bold text-white ${item.bg} shrink-0 mt-0.5">${item.code}</span>
-            <div>
-              <div class="font-bold text-gray-900 dark:text-white">${item.title}</div>
-              <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+        rowsEl.innerHTML = i18n.legendItems.map(item => {
+          const styleObj = ALERT_LEVEL_STYLES[item.styleKey] || ALERT_LEVEL_STYLES.S3;
+          return `
+            <div class="py-2.5 flex items-start space-x-3">
+              <span class="min-w-8 h-6 px-1.5 flex items-center justify-center rounded font-bold ${styleObj.legendClass} shrink-0 mt-0.5">${item.code}</span>
+              <div>
+                <div class="font-bold text-gray-900 dark:text-white">${item.title}</div>
+                <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -764,7 +777,7 @@
           ? `<span class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded font-semibold">${i18n.scheduledBadge}</span>`
           : '';
         meta.innerHTML = `
-          <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold text-white hover:opacity-95 transition-opacity ${item.badgeColor}">${badgeText}</button>
+          <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-2 py-0.5 rounded font-bold hover:opacity-95 transition-opacity ${item.badgeColor}">${badgeText}</button>
           ${scheduledChip}
           <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
           <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
@@ -1162,39 +1175,14 @@
       const defaultLang = SUPPORTED_ALERT_LANGS.find(code => !!translations[code]) || null;
       const primary = defaultLang ? translations[defaultLang] : fallbackInfo;
       const levelCode = primary.levelCode;
-
-      let borderColorHex = '#ca8a04';
-      let badgeColor = 'bg-yellow-600';
-
-      if (levelCode === 'G') {
-        borderColorHex = '#9333ea';
-        badgeColor = 'bg-purple-600';
-      } else if (levelCode === 'S1') {
-        borderColorHex = '#dc2626';
-        badgeColor = 'bg-red-600';
-      } else if (levelCode === 'S2') {
-        borderColorHex = '#ea580c';
-        badgeColor = 'bg-orange-600';
-      } else if (levelCode === 'S3') {
-        borderColorHex = '#ca8a04';
-        badgeColor = 'bg-yellow-600';
-      } else if (levelCode === 'A') {
-        borderColorHex = '#f97316';
-        badgeColor = 'bg-orange-500';
-      } else if (levelCode === 'I') {
-        borderColorHex = '#16a34a';
-        badgeColor = 'bg-lime-600';
-      } else if (levelCode === 'T') {
-        borderColorHex = '#4b5563';
-        badgeColor = 'bg-gray-600';
-      }
+      const styleObj = ALERT_LEVEL_STYLES[levelCode] || ALERT_LEVEL_STYLES.S3;
 
       return {
         groupKey,
         priority: priorityMap[levelCode] || 99,
         levelCode,
-        badgeColor,
-        borderColorHex,
+        badgeColor: styleObj.badgeClass,
+        borderColorHex: styleObj.hex,
         headline: primary.headline,
         description: primary.description,
         isScheduled: !!primary.isScheduled,
@@ -1288,7 +1276,7 @@
             <article onclick="openAlertDetailModal(${idx}, false)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm border-l-4 space-y-2 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all ${scheduledClass}" style="border-left-color: ${item.borderColorHex};">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
-                  <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
+                  <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
                   ${scheduledChip}
                   <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
                   <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
@@ -1340,7 +1328,7 @@
               <article onclick="openAlertDetailModal(${idx}, true)" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm border-l-4 space-y-1 text-xs cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all ${scheduledClass}" style="border-left-color: ${item.borderColorHex};">
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                    <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold text-white hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
+                    <button onclick="event.stopPropagation(); openAlertLegendModal();" title="Bedeutung der Stufe anzeigen" class="px-1.5 py-0.5 rounded font-bold hover:opacity-90 transition-opacity ${item.badgeColor}">${badgeText}</button>
                     ${scheduledChip}
                     <span class="hidden sm:inline-flex bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">${i18n.validPrefix} ${content.startStr} ${i18n.validSep} ${content.expiresStr}</span>
                     <span class="hidden sm:inline-flex bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">${i18n.sourcePrefix} ${content.sender}</span>
