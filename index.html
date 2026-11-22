@@ -282,7 +282,7 @@
           </div>
           <div class="relative w-full sm:w-72">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station oder Gewässer suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station, Gewässer oder Pegel suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
 
@@ -313,6 +313,7 @@
                 <th class="px-4 py-3">Gewässer</th>
                 <th class="px-4 py-3 text-right">Aktueller Pegel</th>
                 <th class="px-4 py-3 text-center">Trend</th>
+                <th class="px-4 py-3 text-right" title="Durchschnitt der letzten 72 Stunden">Ø Pegel (72h)</th>
                 <th class="px-4 py-3 text-right">Messung</th>
               </tr>
             </thead>
@@ -1545,6 +1546,17 @@
       return globalLatestTime;
     }
 
+    function calculate72hAverage(series) {
+      if (!Array.isArray(series) || series.length === 0) return null;
+      const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000);
+      const filtered = series.filter(d => d && d.time instanceof Date && d.time >= cutoff && typeof d.value === 'number' && !isNaN(d.value));
+      if (filtered.length === 0) return null;
+
+      const sum = filtered.reduce((acc, item) => acc + item.value, 0);
+      const avg = sum / filtered.length;
+      return Number(avg.toFixed(6));
+    }
+
     function renderDashboard() {
       const grid = document.getElementById('dashboard-grid');
       grid.innerHTML = '';
@@ -1915,6 +1927,8 @@
       stationKeys.forEach(id => {
         const st = parsedData[id];
         const latest = st.points[st.points.length - 1];
+        const avg72h = calculate72hAverage(st.points);
+        const avg72hText = avg72h !== null ? `${avg72h} cm` : '--';
         
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
@@ -1940,6 +1954,7 @@
               <i data-lucide="${trendIcon}" class="w-4 h-4"></i>
             </div>
           </td>
+          <td class="px-4 py-3 text-right font-mono text-gray-700 dark:text-gray-300">${avg72hText}</td>
           <td class="px-4 py-3 text-right text-gray-500 font-mono">${timeStr}</td>
         `;
         tbody.appendChild(tr);
