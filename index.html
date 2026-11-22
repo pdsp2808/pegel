@@ -42,8 +42,8 @@
       <div class="flex items-center justify-between h-16">
         
         <div class="flex items-center space-x-3 min-w-0">
-          <div onclick="switchTab('dashboard')" class="p-2 bg-blue-600 text-white rounded-lg shadow cursor-pointer hover:bg-blue-700 transition-colors shrink-0" title="Zum Dashboard">
-            <i data-lucide="waves" class="w-6 h-6"></i>
+          <div onclick="switchTab('dashboard')" class="w-10 h-10 rounded-lg shadow cursor-pointer overflow-hidden border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity shrink-0" title="Zum Dashboard">
+            <img src="icon-512.png" alt="Pegel Monitor Icon" class="w-full h-full object-cover">
           </div>
           <div class="min-w-0">
             <h1 class="text-lg font-bold leading-none text-gray-900 dark:text-white truncate">Pegel Monitor</h1>
@@ -287,7 +287,7 @@
           </div>
           <div class="relative w-full sm:w-72">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station, Gewässer, Pegel oder Kennwert suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="table-search-input" onkeyup="filterAllStationsTable()" placeholder="Station, Gewässer oder Pegel suchen..." class="w-full pl-9 pr-4 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
 
@@ -318,25 +318,8 @@
                 <th class="px-4 py-3">Gewässer</th>
                 <th class="px-4 py-3 text-right">Aktueller Pegel</th>
                 <th class="px-4 py-3 text-center">Trend</th>
-                <th class="px-4 py-3 text-right" title="Durchschnitt der letzten 72 Stunden">Ø Pegel (72h)</th>
-                <th class="px-4 py-3 text-right" onclick="event.stopPropagation()">
-                  <div class="inline-flex items-center justify-end gap-1.5">
-                    <span>Kennwerte:</span>
-                    <select id="kennwert-select" onchange="handleKennwertChange(this.value)" aria-label="Kennwert auswählen" class="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-[11px] font-semibold normal-case tracking-normal focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <option value="ORANGE">Warnstufe Orange</option>
-                      <option value="ROT">Warnstufe Rot</option>
-                      <option value="MNW">MNW</option>
-                      <option value="MW">MW</option>
-                      <option value="HQ2">HQ2</option>
-                      <option value="HQ5">HQ5</option>
-                      <option value="HQ10">HQ10</option>
-                      <option value="HQ20">HQ20</option>
-                      <option value="HQ50">HQ50</option>
-                      <option value="HQ100">HQ100</option>
-                    </select>
-                  </div>
-                </th>
                 <th class="px-4 py-3 text-right">Messung</th>
+                <th class="px-4 py-3 text-right" title="Durchschnitt der letzten 72 Stunden">Ø Pegel (72h)</th>
               </tr>
             </thead>
             <tbody id="all-stations-table-body" class="divide-y divide-gray-200 dark:divide-gray-700/50"></tbody>
@@ -425,16 +408,16 @@
     ];
 
     const KENNWEERTE_META = [
-      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', lineColor: '#00ffff' },
-      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        lineColor: '#0000ff' },
-      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             lineColor: '#ff8819' },
-      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                lineColor: '#c93b42' },
-      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    lineColor: '#ffea00' },
-      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    lineColor: '#ffd780' },
-      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   lineColor: '#ffa500' },
-      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   lineColor: '#d50000' },
-      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   lineColor: '#d500f9' },
-      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  lineColor: '#50008a' }
+      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', lineColor: '#00ffff', group: 'warning' },
+      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        lineColor: '#0000ff', group: 'warning' },
+      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             lineColor: '#ff8819', group: 'warning' },
+      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                lineColor: '#c93b42', group: 'warning' },
+      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    lineColor: '#ffea00', group: 'hq' },
+      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    lineColor: '#ffd780', group: 'hq' },
+      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   lineColor: '#ffa500', group: 'hq' },
+      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   lineColor: '#d50000', group: 'hq' },
+      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   lineColor: '#d500f9', group: 'hq' },
+      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  lineColor: '#50008a', group: 'hq' }
     ];
 
     const STATION_KENNWERTE_DATA = {
@@ -687,7 +670,6 @@
     let selectedHours = 12;
     let selectedChartStations = [];
     let selectedRiverFilter = 'all';
-    let selectedKennwert = 'ORANGE';
     let allStationsSortMode = 'river';
     let mainChartInstance = null;
     let sparklineInstances = {};
@@ -762,15 +744,6 @@
       }
       const matchedEntry = Object.entries(STATION_KENNWERTE_DATA).find(([k]) => cleanKey.includes(k) || k.includes(cleanKey));
       return matchedEntry ? matchedEntry[1] : null;
-    }
-
-    function getKennwertMeta(key) {
-      return KENNWEERTE_META.find(m => m.key === key) || KENNWEERTE_META[0];
-    }
-
-    function handleKennwertChange(newKey) {
-      selectedKennwert = newKey;
-      renderAllStationsTable();
     }
 
     function resetManualThresholdOverrides() {
@@ -1921,7 +1894,7 @@
 
     function computeSingleStationThresholds(singleSt, kennwerteObj, cutoff) {
       if (!singleSt || !kennwerteObj) {
-        return { allItems: [], activeLines: [] };
+        return { allItems: [], activeLines: [], manuallyForcedLines: [] };
       }
 
       const filteredPoints = cutoff ? singleSt.points.filter(d => d.time >= cutoff) : singleSt.points;
@@ -1935,17 +1908,38 @@
           const autoVisible = maxInWindow !== null ? (maxInWindow >= val * 0.85) : false;
           const override = manualThresholdOverrides[m.key];
           const isLineVisible = (typeof override === 'boolean') ? override : autoVisible;
+          const isManuallyForced = (override === true);
 
           return {
             ...m,
             value: val,
             autoVisible,
-            isLineVisible
+            isLineVisible,
+            isManuallyForced
           };
         });
 
       const activeLines = allItems.filter(item => item.isLineVisible);
-      return { allItems, activeLines };
+      const manuallyForcedLines = allItems.filter(item => item.isManuallyForced);
+      return { allItems, activeLines, manuallyForcedLines };
+    }
+
+    function buildKennwertPillHtml(m, latestVal) {
+      const isReached = (typeof latestVal === 'number' && latestVal >= m.value && m.key !== 'MNW');
+      const activeRingClass = m.isLineVisible
+        ? 'ring-2 ring-blue-500/70 bg-blue-50/70 dark:bg-blue-900/25 border-blue-400 dark:border-blue-500'
+        : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 opacity-90 hover:opacity-100';
+      const reachedTextClass = isReached
+        ? 'text-red-700 dark:text-red-300 font-bold'
+        : 'text-gray-900 dark:text-white';
+
+      return `
+        <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm) – Klicken zum Ein-/Ausblenden der Linie" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
+          <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-black/15" style="background-color: ${m.lineColor};"></span>
+          <span class="font-semibold text-gray-600 dark:text-gray-300">${m.boxLabel}:</span>
+          <span class="font-mono font-bold ${reachedTextClass}">${m.value} cm</span>
+        </button>
+      `;
     }
 
     function renderSingleStationKennwerteBar(stObj, allItems) {
@@ -1959,30 +1953,30 @@
       }
 
       const latestVal = (stObj.points && stObj.points.length > 0) ? stObj.points[stObj.points.length - 1].value : null;
+      const hasOrangeOrRot = allItems.some(item => (item.key === 'ORANGE' || item.key === 'ROT'));
 
-      const pillsHtml = allItems.map(m => {
-        const isReached = (typeof latestVal === 'number' && latestVal >= m.value && m.key !== 'MNW');
-        const activeRingClass = m.isLineVisible
-          ? 'ring-2 ring-blue-500/70 bg-blue-50/70 dark:bg-blue-900/25 border-blue-400 dark:border-blue-500'
-          : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 opacity-90 hover:opacity-100';
-        const reachedTextClass = isReached
-          ? 'text-red-700 dark:text-red-300 font-bold'
-          : 'text-gray-900 dark:text-white';
+      let rowsHtml = '';
+      if (hasOrangeOrRot) {
+        const row1Items = allItems.filter(item => item.group === 'warning');
+        const row2Items = allItems.filter(item => item.group === 'hq');
 
-        return `
-          <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm) – Klicken zum Ein-/Ausblenden der Linie" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
-            <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-black/15" style="background-color: ${m.lineColor};"></span>
-            <span class="font-semibold text-gray-600 dark:text-gray-300">${m.boxLabel}:</span>
-            <span class="font-mono font-bold ${reachedTextClass}">${m.value} cm</span>
-          </button>
-        `;
-      }).join('');
+        const row1Html = row1Items.length > 0
+          ? `<div class="flex flex-wrap justify-center gap-1.5">${row1Items.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`
+          : '';
+        const row2Html = row2Items.length > 0
+          ? `<div class="flex flex-wrap justify-center gap-1.5">${row2Items.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`
+          : '';
+
+        rowsHtml = `${row1Html}${row2Html}`;
+      } else {
+        rowsHtml = `<div class="flex flex-wrap justify-center gap-1.5">${allItems.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`;
+      }
 
       container.innerHTML = `
         <div class="text-center">
           <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}</span>
         </div>
-        <div class="flex flex-wrap justify-center gap-1.5">${pillsHtml}</div>
+        <div class="space-y-2">${rowsHtml}</div>
       `;
       container.classList.remove('hidden');
     }
@@ -2046,11 +2040,14 @@
 
       const datasets = [];
       let labelTimestamps = [];
+      let allSeriesValues = [];
 
       selectedChartStations.forEach((id, idx) => {
         const st = parsedData[id];
         if (!st) return;
         const filtered = cutoff ? st.points.filter(d => d.time >= cutoff) : st.points;
+        const vals = filtered.map(d => d.value).filter(v => typeof v === 'number' && !isNaN(v));
+        allSeriesValues = allSeriesValues.concat(vals);
 
         if (filtered.length > labelTimestamps.length) {
           labelTimestamps = filtered.map(d => d.time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false }));
@@ -2069,14 +2066,31 @@
       });
 
       let thresholdsToDraw = [];
+      let yScaleOverride = {};
+
       if (selectedChartStations.length === 1) {
         const singleId = selectedChartStations[0];
         const singleSt = parsedData[singleId];
         const kennwerteObj = singleSt ? (getStationKennwerte(singleId) || getStationKennwerte(singleSt.name)) : null;
-        const { allItems, activeLines } = computeSingleStationThresholds(singleSt, kennwerteObj, cutoff);
+        const { allItems, activeLines, manuallyForcedLines } = computeSingleStationThresholds(singleSt, kennwerteObj, cutoff);
 
         renderSingleStationKennwerteBar(singleSt, allItems);
         thresholdsToDraw = activeLines;
+
+        if (manuallyForcedLines.length > 0) {
+          const forcedVals = manuallyForcedLines.map(item => item.value);
+          const combinedVals = allSeriesValues.concat(forcedVals);
+          if (combinedVals.length > 0) {
+            const minCombined = Math.min(...combinedVals);
+            const maxCombined = Math.max(...combinedVals);
+            const span = Math.max(maxCombined - minCombined, 20);
+            const pad = Math.max(span * 0.08, 8);
+            yScaleOverride = {
+              min: formatNumberMax2(Math.max(0, minCombined - pad)),
+              max: formatNumberMax2(maxCombined + pad)
+            };
+          }
+        }
       } else {
         renderSingleStationKennwerteBar(null, []);
       }
@@ -2086,6 +2100,13 @@
       const activePlugins = thresholdsToDraw.length > 0
         ? [buildSingleStationThresholdPlugin(thresholdsToDraw, isDark)]
         : [];
+
+      const yAxisConfig = {
+        ticks: { color: isDark ? '#9ca3af' : '#9ca3af' },
+        title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' }
+      };
+      if (typeof yScaleOverride.min === 'number') yAxisConfig.min = yScaleOverride.min;
+      if (typeof yScaleOverride.max === 'number') yAxisConfig.max = yScaleOverride.max;
 
       mainChartInstance = new Chart(ctx, {
         type: 'line',
@@ -2118,7 +2139,7 @@
           },
           scales: {
             x: { ticks: { color: isDark ? '#9ca3af' : '#4b5563' } },
-            y: { ticks: { color: isDark ? '#9ca3af' : '#9ca3af' }, title: { display: true, text: 'cm', color: isDark ? '#9ca3af' : '#4b5563' } }
+            y: yAxisConfig
           }
         }
       });
@@ -2167,8 +2188,6 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      const kennwertMeta = getKennwertMeta(selectedKennwert);
-
       const stationKeys = Object.keys(parsedData).filter(id => {
         const st = parsedData[id];
         if (!st.points || st.points.length === 0) return false;
@@ -2204,20 +2223,6 @@
         const latestDisplayVal = formatNumberMax2(latest.value);
         const avg72h = calculate72hAverage(st.points);
         const avg72hText = avg72h !== null ? `${avg72h} cm` : '--';
-
-        const kennwerteObj = getStationKennwerte(id) || getStationKennwerte(st.name);
-        const rawKennwertVal = kennwerteObj ? kennwerteObj[kennwertMeta.key] : undefined;
-        const hasKennwert = typeof rawKennwertVal === 'number' && !isNaN(rawKennwertVal);
-        const kennwertVal = hasKennwert ? formatNumberMax2(rawKennwertVal) : null;
-        const kennwertText = hasKennwert ? `${kennwertVal} cm` : '--';
-
-        const isExceeded = hasKennwert && typeof latest.value === 'number' && latest.value >= kennwertVal && kennwertMeta.key !== 'MNW';
-        const kennwertCellClass = isExceeded
-          ? 'text-red-600 dark:text-red-400 font-bold'
-          : 'text-gray-700 dark:text-gray-300 font-mono';
-        const statusBadgeHtml = isExceeded
-          ? `<span class="ml-1.5 inline-block px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300" title="Aktueller Pegel hat ${kennwertMeta.fullLabel} erreicht oder überschritten">≥</span>`
-          : '';
         
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
@@ -2243,9 +2248,8 @@
               <i data-lucide="${trendIcon}" class="w-4 h-4"></i>
             </div>
           </td>
-          <td class="px-4 py-3 text-right font-mono text-gray-700 dark:text-gray-300">${avg72hText}</td>
-          <td class="px-4 py-3 text-right ${kennwertCellClass}" title="${kennwertMeta.fullLabel}">${kennwertText}${statusBadgeHtml}</td>
           <td class="px-4 py-3 text-right text-gray-500 font-mono">${timeStr}</td>
+          <td class="px-4 py-3 text-right font-mono text-gray-700 dark:text-gray-300">${avg72hText}</td>
         `;
         tbody.appendChild(tr);
       });
