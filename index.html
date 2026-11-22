@@ -126,7 +126,7 @@
         </div>
 
         <!-- Kompaktes Wetter-Widget -->
-        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2.5 w-full lg:w-[380px] shrink-0">
+        <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl p-3 shadow-sm text-xs flex flex-col space-y-2.5 w-full lg:w-[410px] shrink-0">
           
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -153,12 +153,19 @@
             </div>
           </div>
 
-          <!-- Untere Widget-Zeile -->
-          <div class="flex items-center justify-end space-x-2 pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
-            <span class="text-[11px] text-gray-400 font-medium">Prognose anzeigen:</span>
-            <div class="flex space-x-1.5">
-              <button id="btn-hourly" onclick="toggleForecast('hourly')" class="px-2.5 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Stunden</button>
-              <button id="btn-daily" onclick="toggleForecast('daily')" class="px-2.5 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Tage</button>
+          <!-- Untere Widget-Zeile: MeteoLux Wetterbericht links + Prognose rechts -->
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-200/60 dark:border-gray-700/60">
+            <a id="meteolux-report-link" href="https://www.meteolux.lu/de/filedownload/69/Allgemeine_Wettervorhersage_von_7_Uhr.pdf/340" target="_blank" rel="noopener noreferrer" title="Wetterbericht MeteoLux von 07 Uhr" class="inline-flex items-center space-x-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline min-w-0">
+              <i data-lucide="file-text" class="w-3.5 h-3.5 shrink-0"></i>
+              <span class="truncate">Wetterbericht MeteoLux</span>
+            </a>
+
+            <div class="flex items-center space-x-1.5 shrink-0">
+              <span class="text-[11px] text-gray-400 font-medium hidden sm:inline">Prognose:</span>
+              <div class="flex space-x-1">
+                <button id="btn-hourly" onclick="toggleForecast('hourly')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Stunden</button>
+                <button id="btn-daily" onclick="toggleForecast('daily')" class="px-2 py-1 rounded text-[11px] font-semibold border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-blue-500 transition-colors">Tage</button>
+              </div>
             </div>
           </div>
 
@@ -469,6 +476,9 @@
       "Capellen": { lat: 49.64, lon: 6.00 }
     };
 
+    const METEOLUX_REPORT_7H_URL = "https://www.meteolux.lu/de/filedownload/69/Allgemeine_Wettervorhersage_von_7_Uhr.pdf/340";
+    const METEOLUX_REPORT_14H_URL = "https://www.meteolux.lu/de/filedownload/69/Allgemeine_Wettervorhersage_von_14_Uhr.pdf/340";
+
     const LU_ALERT_WORKER_URL = "https://lu-alert-proxy.patrick95tuga.workers.dev/";
 
     const ALERT_ICON_CONFIGS = {
@@ -603,6 +613,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       initLocationSelect();
+      updateMeteoLuxReportLink();
       renderAlertLegendContent();
       lucide.createIcons();
       fetchData();
@@ -611,6 +622,10 @@
       setInterval(() => {
         fetchData();
       }, 300000);
+
+      setInterval(() => {
+        updateMeteoLuxReportLink();
+      }, 60000);
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -634,6 +649,22 @@
         }
       });
     });
+
+    function updateMeteoLuxReportLink() {
+      const linkEl = document.getElementById('meteolux-report-link');
+      if (!linkEl) return;
+
+      const hour = new Date().getHours();
+      const isMorningEdition = (hour >= 7 && hour < 14);
+
+      if (isMorningEdition) {
+        linkEl.href = METEOLUX_REPORT_7H_URL;
+        linkEl.title = 'Wetterbericht MeteoLux von 07 Uhr';
+      } else {
+        linkEl.href = METEOLUX_REPORT_14H_URL;
+        linkEl.title = 'Wetterbericht MeteoLux von 14 Uhr';
+      }
+    }
 
     function handleHeaderAlertClick() {
       if (currentAlertsData.length === 1) {
@@ -1375,6 +1406,7 @@
 
       loadAlerts();
       loadWeather(currentLat, currentLon);
+      updateMeteoLuxReportLink();
 
       if (latestDataTime) {
         document.getElementById('last-update-time').innerText = latestDataTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
