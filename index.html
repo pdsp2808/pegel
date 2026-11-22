@@ -32,6 +32,20 @@
     ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 3px; }
     .sparkline-container { height: 50px; width: 130px; }
     html { scroll-behavior: smooth; }
+    .kennwert-legend-badge {
+      width: 7.5rem;
+      height: 1.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.85), 0 1px 2px rgba(0, 0, 0, 0.75);
+      flex-shrink: 0;
+      white-space: nowrap;
+      padding: 0 0.35rem;
+    }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
@@ -337,7 +351,7 @@
       <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
         <div class="flex items-center space-x-2">
           <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
-          <h3 class="text-base font-bold text-gray-900 dark:text-white">Legende der Kennwerte</h3>
+          <h3 id="kennwerte-legend-title" class="text-base font-bold text-gray-900 dark:text-white">Legende der Kennwerte</h3>
         </div>
         <button onclick="closeKennwerteLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -362,7 +376,10 @@
       <div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 pb-3">
         <div class="flex items-center space-x-2 min-w-0">
           <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500 shrink-0"></i>
-          <h3 id="alert-legend-title" class="text-base font-bold text-gray-900 dark:text-white truncate">LU-Alert Warnstufen</h3>
+          <div class="min-w-0">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight truncate">LU-Alert</h3>
+            <p id="alert-legend-subtitle" class="text-[11px] font-medium text-gray-500 dark:text-gray-400 mt-0.5 truncate">Warnstufen und Warnkategorien</p>
+          </div>
         </div>
         <div class="flex items-center space-x-2 shrink-0">
           <select id="alert-legend-lang-select" onchange="handleDetailLangChange(this.value)" aria-label="Sprache auswählen" class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -440,22 +457,22 @@
     ];
 
     const KENNWEERTE_META = [
-      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', desc: 'Langjähriger Durchschnitt der jährlichen Niedrigwasserstände', lineColor: '#00ffff', group: 'warning', rank: 0 },
-      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        desc: 'Langjähriger Durchschnitt aller Wasserstände',                  lineColor: '#0000ff', group: 'warning', rank: 0 },
-      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             desc: 'Erhöhte Aufmerksamkeit bei steigenden Pegeln / Hochwassergefahr', lineColor: '#ff8819', group: 'warning', rank: 1 },
-      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                desc: 'Akute Hochwassergefahr / Ausuferungen möglich',                 lineColor: '#c93b42', group: 'warning', rank: 2 },
-      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 2 Jahre erreicht oder überschritten wird', lineColor: '#ffea00', group: 'hq', rank: 3 },
-      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 5 Jahre erreicht oder überschritten wird', lineColor: '#ffd780', group: 'hq', rank: 4 },
-      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 10 Jahre erreicht oder überschritten wird', lineColor: '#ffa500', group: 'hq', rank: 5 },
-      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 20 Jahre erreicht oder überschritten wird', lineColor: '#d50000', group: 'hq', rank: 6 },
-      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 50 Jahre erreicht oder überschritten wird', lineColor: '#d500f9', group: 'hq', rank: 7 },
-      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  desc: 'Hochwasserabfluss/-stand, der statistisch alle 100 Jahre erreicht oder überschritten wird (Bemessungshochwasser)', lineColor: '#50008a', group: 'hq', rank: 8 }
+      { key: 'MNQ',    shortLabel: 'MNQ',             boxLabel: 'MNQ',             fullLabel: 'Mittlerer Niedrigwasserstand', desc: 'Langjähriger Durchschnitt der jährlichen Niedrigwasserstände', lineColor: '#00c8ff', group: 'warning', rank: 0, compactText: false },
+      { key: 'MQ',     shortLabel: 'MQ',              boxLabel: 'MQ',              fullLabel: 'Mittlerer Wasserstand',        desc: 'Langjähriger Durchschnitt aller Wasserstände',                  lineColor: '#0000ff', group: 'warning', rank: 0, compactText: false },
+      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             desc: 'Erhöhte Aufmerksamkeit bei steigenden Pegeln / Hochwassergefahr', lineColor: '#ff8819', group: 'warning', rank: 1, compactText: true },
+      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                desc: 'Akute Hochwassergefahr / Ausuferungen möglich',                 lineColor: '#c93b42', group: 'warning', rank: 2, compactText: true },
+      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 2 Jahre erreicht oder überschritten wird', lineColor: '#ffff00', group: 'hq', rank: 3, compactText: false },
+      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 5 Jahre erreicht oder überschritten wird', lineColor: '#ffd780', group: 'hq', rank: 4, compactText: false },
+      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 10 Jahre erreicht oder überschritten wird', lineColor: '#ffc800', group: 'hq', rank: 5, compactText: false },
+      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 20 Jahre erreicht oder überschritten wird', lineColor: '#ff7d00', group: 'hq', rank: 6, compactText: false },
+      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 50 Jahre erreicht oder überschritten wird', lineColor: '#ff0000', group: 'hq', rank: 7, compactText: false },
+      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  desc: 'Hochwasserabfluss/-stand, der statistisch alle 100 Jahre erreicht oder überschritten wird (Bemessungshochwasser)', lineColor: '#8b008b', group: 'hq', rank: 8, compactText: false }
     ];
 
     const STATION_KENNWERTE_DATA = {
       diekirch: {
-        MNW: 119,
-        MW: 183,
+        MNQ: 119,
+        MQ: 183,
         HQ2: 459,
         HQ5: 497,
         HQ10: 522,
@@ -466,8 +483,8 @@
         ROT: 470
       },
       bollendorf: {
-        MNW: 57,
-        MW: 103,
+        MNQ: 57,
+        MQ: 103,
         HQ2: 377,
         HQ5: 448,
         HQ10: 500,
@@ -478,8 +495,8 @@
         ROT: 425
       },
       vianden: {
-        MNW: 49,
-        MW: 80,
+        MNQ: 49,
+        MQ: 80,
         HQ2: 225,
         HQ5: 259,
         HQ10: 285,
@@ -488,8 +505,8 @@
         HQ100: 372
       },
       larochette: {
-        MNW: 43.5,
-        MW: 54,
+        MNQ: 43.5,
+        MQ: 54,
         HQ2: 224,
         HQ5: 254,
         HQ10: 271,
@@ -619,7 +636,7 @@
         detailsLink: 'Details ↗',
         noDetails: 'Keine weiteren Details verfügbar.',
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> aktive Lebensmittel- &amp; Produktrückrufe vorhanden.`,
-        legendTitle: 'LU-Alert Warnstufen',
+        legendSubtitle: 'Warnstufen und Warnkategorien',
         legendItems: [
           { code: 'G',  styleKey: 'G',  title: 'Akute Gefahr / Sofortiges Handeln', desc: 'Warnung die sofortiges Handeln erfordert' },
           { code: 'S1', styleKey: 'S1', title: 'Wachsamkeitsstufe rot / Äußerste Vorsicht', desc: 'Die höchste Warnstufe' },
@@ -648,7 +665,7 @@
         detailsLink: 'Détails ↗',
         noDetails: 'Aucun détail supplémentaire disponible.',
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> rappels alimentaires et de produits actifs disponibles.`,
-        legendTitle: 'Niveaux d’alerte LU-Alert',
+        legendSubtitle: "Niveaux et catégories d'alerte",
         legendItems: [
           { code: 'D',  styleKey: 'G',  title: 'Danger imminent / Action immédiate', desc: 'Alerte nécessitant une action immédiate' },
           { code: 'N1', styleKey: 'S1', title: 'Niveau de vigilance rouge', desc: 'Le niveau d’alerte le plus élevé' },
@@ -677,7 +694,7 @@
         detailsLink: 'Details ↗',
         noDetails: 'No additional details available.',
         recallSummary: (count) => `<strong id="food-recall-count" class="font-semibold text-gray-900 dark:text-white">${count}</strong> active food &amp; product recalls available.`,
-        legendTitle: 'LU-Alert Warning Levels',
+        legendSubtitle: 'Alert levels and categories',
         legendItems: [
           { code: 'D',  styleKey: 'G',  title: 'Imminent danger / Immediate action', desc: 'Alert requiring immediate action' },
           { code: 'L1', styleKey: 'S1', title: 'Awareness level red', desc: 'The highest alert level' },
@@ -710,6 +727,9 @@
     // true = Linie erzwingen, false = Linie unterdrücken
     let manualThresholdOverrides = {};
     let lastSingleStationKey = null;
+
+    // Tatsächlich im sichtbaren Chart gezeichnete Kennwerte (für exakte Markierung der Kästchen)
+    let actuallyDrawnThresholdKeys = new Set();
 
     let rawAlertsXml = null;
     let currentAlertsData = [];
@@ -812,23 +832,37 @@
       return candidates[0];
     }
 
-    function renderKennwerteLegendContent() {
+    function renderKennwerteLegendContent(kennwerteObj = null) {
       const rowsEl = document.getElementById('kennwerte-legend-rows');
       if (!rowsEl) return;
 
-      rowsEl.innerHTML = KENNWEERTE_META.map(item => `
-        <div class="py-2.5 flex items-start space-x-3">
-          <span class="min-w-24 px-2 py-1 rounded font-bold text-gray-900 bg-white border-2 shrink-0 text-center" style="border-color: ${item.lineColor};">${item.boxLabel}</span>
-          <div>
-            <div class="font-bold text-gray-900 dark:text-white">${item.fullLabel}</div>
-            <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+      const itemsToShow = kennwerteObj
+        ? KENNWEERTE_META.filter(m => typeof kennwerteObj[m.key] === 'number' && !isNaN(kennwerteObj[m.key]))
+        : KENNWEERTE_META;
+
+      rowsEl.innerHTML = itemsToShow.map(item => {
+        const sizeClass = item.compactText ? 'text-[10px]' : 'text-xs';
+        return `
+          <div class="py-2.5 flex items-start space-x-3">
+            <span class="kennwert-legend-badge ${sizeClass}" style="background-color: ${item.lineColor};">${item.boxLabel}</span>
+            <div>
+              <div class="font-bold text-gray-900 dark:text-white">${item.fullLabel}</div>
+              <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function openKennwerteLegendModal() {
-      renderKennwerteLegendContent();
+      let activeKennwerte = null;
+      if (selectedChartStations.length === 1) {
+        const singleSt = parsedData[selectedChartStations[0]];
+        if (singleSt) {
+          activeKennwerte = getStationKennwerte(selectedChartStations[0]) || getStationKennwerte(singleSt.name);
+        }
+      }
+      renderKennwerteLegendContent(activeKennwerte);
       const modal = document.getElementById('kennwerte-legend-modal');
       if (modal) modal.classList.remove('hidden');
       lucide.createIcons();
@@ -892,12 +926,12 @@
       const lang = (globalAlertLang && ALERT_I18N[globalAlertLang]) ? globalAlertLang : 'DE';
       const i18n = ALERT_I18N[lang];
 
-      const titleEl = document.getElementById('alert-legend-title');
+      const subtitleEl = document.getElementById('alert-legend-subtitle');
       const rowsEl = document.getElementById('alert-legend-rows');
       const closeBtnEl = document.getElementById('alert-legend-close-btn');
       const legendLangSelect = document.getElementById('alert-legend-lang-select');
 
-      if (titleEl) titleEl.textContent = i18n.legendTitle;
+      if (subtitleEl) subtitleEl.textContent = i18n.legendSubtitle;
       if (closeBtnEl) closeBtnEl.textContent = i18n.closeBtn;
       if (legendLangSelect) legendLangSelect.value = lang;
 
@@ -2008,7 +2042,7 @@
 
     function computeSingleStationThresholds(singleSt, kennwerteObj, cutoff) {
       if (!singleSt || !kennwerteObj) {
-        return { allItems: [], activeLines: [], manuallyForcedLines: [] };
+        return { allItems: [], candidateLines: [], manuallyForcedLines: [] };
       }
 
       const filteredPoints = cutoff ? singleSt.points.filter(d => d.time >= cutoff) : singleSt.points;
@@ -2021,30 +2055,31 @@
           const val = formatNumberMax2(kennwerteObj[m.key]);
           const autoVisible = maxInWindow !== null ? (maxInWindow >= val * 0.85) : false;
           const override = manualThresholdOverrides[m.key];
-          const isLineVisible = (typeof override === 'boolean') ? override : autoVisible;
+          const isLineRequested = (typeof override === 'boolean') ? override : autoVisible;
           const isManuallyForced = (override === true);
 
           return {
             ...m,
             value: val,
             autoVisible,
-            isLineVisible,
+            isLineRequested,
             isManuallyForced
           };
         });
 
-      const activeLines = allItems.filter(item => item.isLineVisible);
+      const candidateLines = allItems.filter(item => item.isLineRequested);
       const manuallyForcedLines = allItems.filter(item => item.isManuallyForced);
-      return { allItems, activeLines, manuallyForcedLines };
+      return { allItems, candidateLines, manuallyForcedLines };
     }
 
     function buildKennwertPillHtml(m) {
-      const activeRingClass = m.isLineVisible
+      const isActuallyDrawn = actuallyDrawnThresholdKeys.has(m.key);
+      const activeRingClass = isActuallyDrawn
         ? 'ring-2 ring-blue-500/80 bg-blue-50/80 dark:bg-blue-900/30 border-blue-500 dark:border-blue-400'
         : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 opacity-90 hover:opacity-100';
 
       return `
-        <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm)" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
+        <button type="button" onclick="toggleThresholdBox('${m.key}', ${isActuallyDrawn})" title="${m.fullLabel} (${m.value} cm)" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
           <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-black/15" style="background-color: ${m.lineColor};"></span>
           <span class="font-semibold text-gray-600 dark:text-gray-300">${m.boxLabel}:</span>
           <span class="font-mono font-bold text-gray-900 dark:text-white">${m.value} cm</span>
@@ -2096,49 +2131,56 @@
       lucide.createIcons();
     }
 
-    function buildSingleStationThresholdPlugin(thresholdsToDraw, isDark) {
+    function buildSingleStationThresholdPlugin(thresholdsToDraw, isDark, onDrawnKeysComputed) {
       return {
         id: 'singleStationThresholdsPlugin',
         afterDatasetsDraw(chart) {
-          if (!thresholdsToDraw || thresholdsToDraw.length === 0) return;
+          const drawnNow = new Set();
           const { ctx, chartArea, scales } = chart;
-          if (!chartArea || !scales || !scales.y) return;
 
-          ctx.save();
-          thresholdsToDraw.forEach(th => {
-            const yPixel = scales.y.getPixelForValue(th.value);
-            if (isNaN(yPixel) || yPixel < chartArea.top - 10 || yPixel > chartArea.bottom + 10) return;
+          if (thresholdsToDraw && thresholdsToDraw.length > 0 && chartArea && scales && scales.y) {
+            ctx.save();
+            thresholdsToDraw.forEach(th => {
+              const yPixel = scales.y.getPixelForValue(th.value);
+              if (isNaN(yPixel) || yPixel < chartArea.top - 10 || yPixel > chartArea.bottom + 10) return;
 
-            ctx.beginPath();
-            ctx.setLineDash([6, 4]);
-            ctx.lineWidth = 1.6;
-            ctx.strokeStyle = th.lineColor;
-            ctx.moveTo(chartArea.left, yPixel);
-            ctx.lineTo(chartArea.right, yPixel);
-            ctx.stroke();
+              drawnNow.add(th.key);
 
-            ctx.setLineDash([]);
-            const labelText = `${th.shortLabel} (${th.value} cm)`;
-            ctx.font = '600 10px sans-serif';
-            const textWidth = ctx.measureText(labelText).width;
-            const padX = 6;
-            const boxW = textWidth + padX * 2;
-            const boxH = 16;
-            const boxX = chartArea.right - boxW - 4;
-            const boxY = Math.max(chartArea.top + 2, yPixel - boxH - 2);
+              ctx.beginPath();
+              ctx.setLineDash([6, 4]);
+              ctx.lineWidth = 1.6;
+              ctx.strokeStyle = th.lineColor;
+              ctx.moveTo(chartArea.left, yPixel);
+              ctx.lineTo(chartArea.right, yPixel);
+              ctx.stroke();
 
-            ctx.fillStyle = isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.94)';
-            ctx.fillRect(boxX, boxY, boxW, boxH);
-            ctx.strokeStyle = th.lineColor;
-            ctx.lineWidth = 1;
-            ctx.strokeRect(boxX, boxY, boxW, boxH);
+              ctx.setLineDash([]);
+              const labelText = `${th.shortLabel} (${th.value} cm)`;
+              ctx.font = '600 10px sans-serif';
+              const textWidth = ctx.measureText(labelText).width;
+              const padX = 6;
+              const boxW = textWidth + padX * 2;
+              const boxH = 16;
+              const boxX = chartArea.right - boxW - 4;
+              const boxY = Math.max(chartArea.top + 2, yPixel - boxH - 2);
 
-            ctx.fillStyle = isDark ? '#f9fafb' : '#111827';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(labelText, boxX + padX, boxY + boxH / 2 + 0.5);
-          });
-          ctx.restore();
+              ctx.fillStyle = isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.94)';
+              ctx.fillRect(boxX, boxY, boxW, boxH);
+              ctx.strokeStyle = th.lineColor;
+              ctx.lineWidth = 1;
+              ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+              ctx.fillStyle = isDark ? '#f9fafb' : '#111827';
+              ctx.textAlign = 'left';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(labelText, boxX + padX, boxY + boxH / 2 + 0.5);
+            });
+            ctx.restore();
+          }
+
+          if (typeof onDrawnKeysComputed === 'function') {
+            onDrawnKeysComputed(drawnNow);
+          }
         }
       };
     }
@@ -2148,6 +2190,7 @@
       if (!ctx) return;
 
       syncSingleStationOverrideState();
+      actuallyDrawnThresholdKeys = new Set();
 
       const isDark = document.documentElement.classList.contains('dark');
       const colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48', '#84cc16'];
@@ -2182,15 +2225,18 @@
 
       let thresholdsToDraw = [];
       let yScaleOverride = {};
+      let currentSingleSt = null;
+      let currentAllItems = [];
 
       if (selectedChartStations.length === 1) {
         const singleId = selectedChartStations[0];
         const singleSt = parsedData[singleId];
+        currentSingleSt = singleSt;
         const kennwerteObj = singleSt ? (getStationKennwerte(singleId) || getStationKennwerte(singleSt.name)) : null;
-        const { allItems, activeLines, manuallyForcedLines } = computeSingleStationThresholds(singleSt, kennwerteObj, cutoff);
+        const { allItems, candidateLines, manuallyForcedLines } = computeSingleStationThresholds(singleSt, kennwerteObj, cutoff);
 
-        renderSingleStationKennwerteBar(singleSt, allItems);
-        thresholdsToDraw = activeLines;
+        currentAllItems = allItems;
+        thresholdsToDraw = candidateLines;
 
         if (manuallyForcedLines.length > 0) {
           const forcedVals = manuallyForcedLines.map(item => item.value);
@@ -2206,14 +2252,21 @@
             };
           }
         }
-      } else {
-        renderSingleStationKennwerteBar(null, []);
       }
+
+      renderSingleStationKennwerteBar(currentSingleSt, currentAllItems);
 
       if (mainChartInstance) mainChartInstance.destroy();
 
       const activePlugins = thresholdsToDraw.length > 0
-        ? [buildSingleStationThresholdPlugin(thresholdsToDraw, isDark)]
+        ? [buildSingleStationThresholdPlugin(thresholdsToDraw, isDark, (drawnSet) => {
+            const prevKeys = Array.from(actuallyDrawnThresholdKeys).sort().join(',');
+            const nextKeys = Array.from(drawnSet).sort().join(',');
+            actuallyDrawnThresholdKeys = drawnSet;
+            if (prevKeys !== nextKeys && currentSingleSt && currentAllItems.length > 0) {
+              renderSingleStationKennwerteBar(currentSingleSt, currentAllItems);
+            }
+          })]
         : [];
 
       const yAxisConfig = {
