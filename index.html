@@ -330,18 +330,50 @@
 
   </main>
 
-  <!-- MODAL 1: LEGENDE DER LU-ALERT STUFEN (über Detail-Modal) -->
-  <div id="alert-legend-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+  <!-- MODAL 0: LEGENDE DER KENNWERTE (VERLAUFSDIAGRAMM) -->
+  <div id="kennwerte-legend-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
       
       <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
         <div class="flex items-center space-x-2">
-          <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500"></i>
-          <h3 id="alert-legend-title" class="text-base font-bold text-gray-900 dark:text-white">LU-Alert Warnstufen</h3>
+          <i data-lucide="info" class="w-5 h-5 text-blue-500"></i>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">Legende der Kennwerte</h3>
         </div>
-        <button onclick="closeAlertLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
+        <button onclick="closeKennwerteLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
+      </div>
+
+      <div id="kennwerte-legend-rows" class="divide-y divide-gray-100 dark:divide-gray-700/60 text-xs max-h-[65vh] overflow-y-auto pr-1"></div>
+
+      <div class="pt-2 text-right border-t border-gray-100 dark:border-gray-700">
+        <button onclick="closeKennwerteLegendModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition-colors">
+          Schließen
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 1: LEGENDE DER LU-ALERT STUFEN (über Detail-Modal) -->
+  <div id="alert-legend-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl max-w-lg w-full p-5 shadow-xl space-y-4 relative overflow-hidden">
+      
+      <div class="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 pb-3">
+        <div class="flex items-center space-x-2 min-w-0">
+          <i data-lucide="triangle-alert" class="w-5 h-5 text-amber-500 shrink-0"></i>
+          <h3 id="alert-legend-title" class="text-base font-bold text-gray-900 dark:text-white truncate">LU-Alert Warnstufen</h3>
+        </div>
+        <div class="flex items-center space-x-2 shrink-0">
+          <select id="alert-legend-lang-select" onchange="handleDetailLangChange(this.value)" aria-label="Sprache auswählen" class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="DE">DE</option>
+            <option value="FR">FR</option>
+            <option value="EN">EN</option>
+          </select>
+          <button onclick="closeAlertLegendModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Dynamische Tabelle der Warnstufen -->
@@ -408,16 +440,16 @@
     ];
 
     const KENNWEERTE_META = [
-      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', lineColor: '#00ffff', group: 'warning' },
-      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        lineColor: '#0000ff', group: 'warning' },
-      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             lineColor: '#ff8819', group: 'warning' },
-      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                lineColor: '#c93b42', group: 'warning' },
-      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    lineColor: '#ffea00', group: 'hq' },
-      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    lineColor: '#ffd780', group: 'hq' },
-      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   lineColor: '#ffa500', group: 'hq' },
-      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   lineColor: '#d50000', group: 'hq' },
-      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   lineColor: '#d500f9', group: 'hq' },
-      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  lineColor: '#50008a', group: 'hq' }
+      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', desc: 'Langjähriger Durchschnitt der jährlichen Niedrigwasserstände', lineColor: '#00ffff', group: 'warning', rank: 0 },
+      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        desc: 'Langjähriger Durchschnitt aller Wasserstände',                  lineColor: '#0000ff', group: 'warning', rank: 0 },
+      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             desc: 'Erhöhte Aufmerksamkeit bei steigenden Pegeln / Hochwassergefahr', lineColor: '#ff8819', group: 'warning', rank: 1 },
+      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                desc: 'Akute Hochwassergefahr / Ausuferungen möglich',                 lineColor: '#c93b42', group: 'warning', rank: 2 },
+      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 2 Jahre erreicht oder überschritten wird', lineColor: '#ffea00', group: 'hq', rank: 3 },
+      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    desc: 'Hochwasserabfluss/-stand, der statistisch alle 5 Jahre erreicht oder überschritten wird', lineColor: '#ffd780', group: 'hq', rank: 4 },
+      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 10 Jahre erreicht oder überschritten wird', lineColor: '#ffa500', group: 'hq', rank: 5 },
+      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 20 Jahre erreicht oder überschritten wird', lineColor: '#d50000', group: 'hq', rank: 6 },
+      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   desc: 'Hochwasserabfluss/-stand, der statistisch alle 50 Jahre erreicht oder überschritten wird', lineColor: '#d500f9', group: 'hq', rank: 7 },
+      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  desc: 'Hochwasserabfluss/-stand, der statistisch alle 100 Jahre erreicht oder überschritten wird (Bemessungshochwasser)', lineColor: '#50008a', group: 'hq', rank: 8 }
     ];
 
     const STATION_KENNWERTE_DATA = {
@@ -548,13 +580,13 @@
     const LU_ALERT_WORKER_URL = "https://lu-alert-proxy.patrick95tuga.workers.dev/";
 
     const ALERT_LEVEL_STYLES = {
-      G:  { hex: '#aa4db9', badgeClass: 'bg-[#aa4db9] text-white',    legendClass: 'bg-[#aa4db9] text-white' },
-      S1: { hex: '#d3161c', badgeClass: 'bg-[#d3161c] text-white',    legendClass: 'bg-[#d3161c] text-white' },
-      S2: { hex: '#eb6a23', badgeClass: 'bg-[#eb6a23] text-white',    legendClass: 'bg-[#eb6a23] text-white' },
-      S3: { hex: '#f6d971', badgeClass: 'bg-[#f6d971] text-gray-900', legendClass: 'bg-[#f6d971] text-gray-900' },
-      A:  { hex: '#f97316', badgeClass: 'bg-orange-500 text-white',   legendClass: 'bg-orange-500 text-white' },
-      I:  { hex: '#669134', badgeClass: 'bg-[#669134] text-white',    legendClass: 'bg-[#669134] text-white' },
-      T:  { hex: '#738b98', badgeClass: 'bg-[#738b98] text-white',    legendClass: 'bg-[#738b98] text-white' }
+      G:  { hex: '#aa4db9', badgeClass: 'bg-[#aa4db9] text-white',                          legendClass: 'bg-[#aa4db9] text-white' },
+      S1: { hex: '#d3161c', badgeClass: 'bg-[#d3161c] text-white',                          legendClass: 'bg-[#d3161c] text-white' },
+      S2: { hex: '#eb6a23', badgeClass: 'bg-[#eb6a23] text-white',                          legendClass: 'bg-[#eb6a23] text-gray-900' },
+      S3: { hex: '#f6d971', badgeClass: 'bg-[#f6d971] text-gray-900',                       legendClass: 'bg-[#f6d971] text-gray-900' },
+      A:  { hex: '#f97316', badgeClass: 'bg-white text-gray-900 border-2 border-[#f97316]', legendClass: 'bg-white text-gray-900 border-2 border-[#f97316]' },
+      I:  { hex: '#669134', badgeClass: 'bg-[#669134] text-white',                          legendClass: 'bg-[#669134] text-gray-900' },
+      T:  { hex: '#738b98', badgeClass: 'bg-[#738b98] text-white',                          legendClass: 'bg-[#738b98] text-gray-900' }
     };
 
     const ALERT_ICON_CONFIGS = {
@@ -695,6 +727,7 @@
       initTheme();
       initLocationSelect();
       updateMeteoLuxReportLink();
+      renderKennwerteLegendContent();
       renderAlertLegendContent();
       lucide.createIcons();
       fetchData();
@@ -710,8 +743,11 @@
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          const kennwerteModal = document.getElementById('kennwerte-legend-modal');
           const legendModal = document.getElementById('alert-legend-modal');
-          if (legendModal && !legendModal.classList.contains('hidden')) {
+          if (kennwerteModal && !kennwerteModal.classList.contains('hidden')) {
+            closeKennwerteLegendModal();
+          } else if (legendModal && !legendModal.classList.contains('hidden')) {
             closeAlertLegendModal();
           } else {
             closeAlertDetailModal();
@@ -719,7 +755,7 @@
         }
       });
 
-      ['alert-legend-modal', 'alert-detail-modal'].forEach(id => {
+      ['kennwerte-legend-modal', 'alert-legend-modal', 'alert-detail-modal'].forEach(id => {
         const modal = document.getElementById(id);
         if (modal) {
           modal.addEventListener('click', (e) => {
@@ -736,6 +772,15 @@
       return Number(val.toFixed(2));
     }
 
+    function hexToRgba(hex, alpha) {
+      const clean = (hex || '').replace('#', '');
+      if (clean.length !== 6) return `rgba(239, 68, 68, ${alpha})`;
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     function getStationKennwerte(stationKeyOrName) {
       if (!stationKeyOrName) return null;
       const cleanKey = stationKeyOrName.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -744,6 +789,54 @@
       }
       const matchedEntry = Object.entries(STATION_KENNWERTE_DATA).find(([k]) => cleanKey.includes(k) || k.includes(cleanKey));
       return matchedEntry ? matchedEntry[1] : null;
+    }
+
+    function getHighestExceededThreshold(latestVal, kennwerteObj) {
+      if (typeof latestVal !== 'number' || isNaN(latestVal) || !kennwerteObj) return null;
+
+      const candidates = KENNWEERTE_META
+        .filter(m => m.rank > 0 && typeof kennwerteObj[m.key] === 'number' && !isNaN(kennwerteObj[m.key]))
+        .map(m => ({
+          ...m,
+          value: formatNumberMax2(kennwerteObj[m.key])
+        }))
+        .filter(th => latestVal >= th.value);
+
+      if (candidates.length === 0) return null;
+
+      candidates.sort((a, b) => {
+        if (b.rank !== a.rank) return b.rank - a.rank;
+        return b.value - a.value;
+      });
+
+      return candidates[0];
+    }
+
+    function renderKennwerteLegendContent() {
+      const rowsEl = document.getElementById('kennwerte-legend-rows');
+      if (!rowsEl) return;
+
+      rowsEl.innerHTML = KENNWEERTE_META.map(item => `
+        <div class="py-2.5 flex items-start space-x-3">
+          <span class="min-w-24 px-2 py-1 rounded font-bold text-gray-900 bg-white border-2 shrink-0 text-center" style="border-color: ${item.lineColor};">${item.boxLabel}</span>
+          <div>
+            <div class="font-bold text-gray-900 dark:text-white">${item.fullLabel}</div>
+            <div class="text-gray-500 dark:text-gray-400 text-[11px]">${item.desc}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openKennwerteLegendModal() {
+      renderKennwerteLegendContent();
+      const modal = document.getElementById('kennwerte-legend-modal');
+      if (modal) modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeKennwerteLegendModal() {
+      const modal = document.getElementById('kennwerte-legend-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function resetManualThresholdOverrides() {
@@ -802,9 +895,12 @@
       const titleEl = document.getElementById('alert-legend-title');
       const rowsEl = document.getElementById('alert-legend-rows');
       const closeBtnEl = document.getElementById('alert-legend-close-btn');
+      const legendLangSelect = document.getElementById('alert-legend-lang-select');
 
       if (titleEl) titleEl.textContent = i18n.legendTitle;
       if (closeBtnEl) closeBtnEl.textContent = i18n.closeBtn;
+      if (legendLangSelect) legendLangSelect.value = lang;
+
       if (rowsEl) {
         rowsEl.innerHTML = i18n.legendItems.map(item => {
           const styleObj = ALERT_LEVEL_STYLES[item.styleKey] || ALERT_LEVEL_STYLES.S3;
@@ -1665,6 +1761,8 @@
       const grid = document.getElementById('dashboard-grid');
       grid.innerHTML = '';
 
+      const isDark = document.documentElement.classList.contains('dark');
+
       PRIMARY_STATIONS.forEach(st => {
         const matchedKey = Object.keys(parsedData).find(k => k.includes(st.search));
         const stObj = matchedKey ? parsedData[matchedKey] : null;
@@ -1672,7 +1770,13 @@
         const latest = series.length > 0 ? series[series.length - 1] : { value: '--', time: new Date() };
         const previous = series.length > 1 ? series[series.length - 2] : null;
         const displayName = stObj ? stObj.name : st.name;
+        const displayRiver = stObj ? stObj.river : st.river;
         const latestDisplayVal = typeof latest.value === 'number' ? formatNumberMax2(latest.value) : latest.value;
+
+        const kennwerteObj = getStationKennwerte(matchedKey || st.search) || getStationKennwerte(displayName);
+        const exceededThreshold = (typeof latest.value === 'number')
+          ? getHighestExceededThreshold(latest.value, kennwerteObj)
+          : null;
         
         let trendIcon = 'minus';
         let trendColor = 'text-gray-400';
@@ -1705,12 +1809,22 @@
 
         const card = document.createElement('div');
         card.className = 'bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-all';
+        if (exceededThreshold) {
+          card.style.borderColor = exceededThreshold.lineColor;
+          card.style.borderWidth = '2px';
+          card.style.backgroundColor = hexToRgba(exceededThreshold.lineColor, isDark ? 0.16 : 0.08);
+        }
         card.setAttribute('onclick', `focusSingleStationInChart('${matchedKey || st.search}')`);
+
+        const exceededBadgeHtml = exceededThreshold
+          ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded text-gray-900 bg-white/90 border" style="border-color: ${exceededThreshold.lineColor};">${exceededThreshold.boxLabel} (≥ ${exceededThreshold.value} cm)</span>`
+          : '';
         
         card.innerHTML = `
           <div class="space-y-1">
-            <div class="flex items-center space-x-2">
-              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${st.river}</span>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${displayRiver}</span>
+              ${exceededBadgeHtml}
             </div>
             <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center space-x-2">
               <span>${displayName}</span>
@@ -1924,20 +2038,16 @@
       return { allItems, activeLines, manuallyForcedLines };
     }
 
-    function buildKennwertPillHtml(m, latestVal) {
-      const isReached = (typeof latestVal === 'number' && latestVal >= m.value && m.key !== 'MNW');
+    function buildKennwertPillHtml(m) {
       const activeRingClass = m.isLineVisible
-        ? 'ring-2 ring-blue-500/70 bg-blue-50/70 dark:bg-blue-900/25 border-blue-400 dark:border-blue-500'
+        ? 'ring-2 ring-blue-500/80 bg-blue-50/80 dark:bg-blue-900/30 border-blue-500 dark:border-blue-400'
         : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 opacity-90 hover:opacity-100';
-      const reachedTextClass = isReached
-        ? 'text-red-700 dark:text-red-300 font-bold'
-        : 'text-gray-900 dark:text-white';
 
       return `
-        <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm) – Klicken zum Ein-/Ausblenden der Linie" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
+        <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm)" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
           <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-black/15" style="background-color: ${m.lineColor};"></span>
           <span class="font-semibold text-gray-600 dark:text-gray-300">${m.boxLabel}:</span>
-          <span class="font-mono font-bold ${reachedTextClass}">${m.value} cm</span>
+          <span class="font-mono font-bold text-gray-900 dark:text-white">${m.value} cm</span>
         </button>
       `;
     }
@@ -1952,7 +2062,6 @@
         return;
       }
 
-      const latestVal = (stObj.points && stObj.points.length > 0) ? stObj.points[stObj.points.length - 1].value : null;
       const hasOrangeOrRot = allItems.some(item => (item.key === 'ORANGE' || item.key === 'ROT'));
 
       let rowsHtml = '';
@@ -1961,24 +2070,30 @@
         const row2Items = allItems.filter(item => item.group === 'hq');
 
         const row1Html = row1Items.length > 0
-          ? `<div class="flex flex-wrap justify-center gap-1.5">${row1Items.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`
+          ? `<div class="flex flex-wrap justify-center gap-1.5">${row1Items.map(m => buildKennwertPillHtml(m)).join('')}</div>`
           : '';
         const row2Html = row2Items.length > 0
-          ? `<div class="flex flex-wrap justify-center gap-1.5">${row2Items.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`
+          ? `<div class="flex flex-wrap justify-center gap-1.5">${row2Items.map(m => buildKennwertPillHtml(m)).join('')}</div>`
           : '';
 
         rowsHtml = `${row1Html}${row2Html}`;
       } else {
-        rowsHtml = `<div class="flex flex-wrap justify-center gap-1.5">${allItems.map(m => buildKennwertPillHtml(m, latestVal)).join('')}</div>`;
+        rowsHtml = `<div class="flex flex-wrap justify-center gap-1.5">${allItems.map(m => buildKennwertPillHtml(m)).join('')}</div>`;
       }
 
+      const riverSuffix = stObj.river ? ` (${stObj.river})` : '';
+
       container.innerHTML = `
-        <div class="text-center">
-          <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}</span>
+        <div class="flex items-center justify-center space-x-1.5">
+          <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}${riverSuffix}</span>
+          <button type="button" onclick="openKennwerteLegendModal()" title="Legende der Kennwerte anzeigen" class="inline-flex items-center text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-0.5">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          </button>
         </div>
         <div class="space-y-2">${rowsHtml}</div>
       `;
       container.classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function buildSingleStationThresholdPlugin(thresholdsToDraw, isDark) {
