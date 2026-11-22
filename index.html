@@ -425,16 +425,16 @@
     ];
 
     const KENNWEERTE_META = [
-      { key: 'MNW',    shortLabel: 'MNW',    fullLabel: 'Mittlerer Niedrigwasserstand', lineColor: '#64748b' },
-      { key: 'MW',     shortLabel: 'MW',     fullLabel: 'Mittlerer Wasserstand',        lineColor: '#0284c7' },
-      { key: 'ORANGE', shortLabel: 'Orange', fullLabel: 'Warnstufe Orange',             lineColor: '#f97316' },
-      { key: 'ROT',    shortLabel: 'Rot',    fullLabel: 'Warnstufe Rot',                lineColor: '#dc2626' },
-      { key: 'HQ2',    shortLabel: 'HQ2',    fullLabel: '≥ 2-jährliches Hochwasser',    lineColor: '#eab308' },
-      { key: 'HQ5',    shortLabel: 'HQ5',    fullLabel: '≥ 5-jährliches Hochwasser',    lineColor: '#f59e0b' },
-      { key: 'HQ10',   shortLabel: 'HQ10',   fullLabel: '≥ 10-jährliches Hochwasser',   lineColor: '#ea580c' },
-      { key: 'HQ20',   shortLabel: 'HQ20',   fullLabel: '≥ 20-jährliches Hochwasser',   lineColor: '#e11d48' },
-      { key: 'HQ50',   shortLabel: 'HQ50',   fullLabel: '≥ 50-jährliches Hochwasser',   lineColor: '#be123c' },
-      { key: 'HQ100',  shortLabel: 'HQ100',  fullLabel: '≥ 100-jährliches Hochwasser',  lineColor: '#7f1d1d' }
+      { key: 'MNW',    shortLabel: 'MNW',             boxLabel: 'MNW',             fullLabel: 'Mittlerer Niedrigwasserstand', lineColor: '#00ffff' },
+      { key: 'MW',     shortLabel: 'MW',              boxLabel: 'MW',              fullLabel: 'Mittlerer Wasserstand',        lineColor: '#0000ff' },
+      { key: 'ORANGE', shortLabel: 'Warnstufe Orange',boxLabel: 'Warnstufe Orange',fullLabel: 'Warnstufe Orange',             lineColor: '#ff8819' },
+      { key: 'ROT',    shortLabel: 'Warnstufe Rot',   boxLabel: 'Warnstufe Rot',   fullLabel: 'Warnstufe Rot',                lineColor: '#c93b42' },
+      { key: 'HQ2',    shortLabel: 'HQ2',             boxLabel: 'HQ2',             fullLabel: '≥ 2-jährliches Hochwasser',    lineColor: '#ffea00' },
+      { key: 'HQ5',    shortLabel: 'HQ5',             boxLabel: 'HQ5',             fullLabel: '≥ 5-jährliches Hochwasser',    lineColor: '#ffd780' },
+      { key: 'HQ10',   shortLabel: 'HQ10',            boxLabel: 'HQ10',            fullLabel: '≥ 10-jährliches Hochwasser',   lineColor: '#ffa500' },
+      { key: 'HQ20',   shortLabel: 'HQ20',            boxLabel: 'HQ20',            fullLabel: '≥ 20-jährliches Hochwasser',   lineColor: '#d50000' },
+      { key: 'HQ50',   shortLabel: 'HQ50',            boxLabel: 'HQ50',            fullLabel: '≥ 50-jährliches Hochwasser',   lineColor: '#d500f9' },
+      { key: 'HQ100',  shortLabel: 'HQ100',           boxLabel: 'HQ100',           fullLabel: '≥ 100-jährliches Hochwasser',  lineColor: '#50008a' }
     ];
 
     const STATION_KENNWERTE_DATA = {
@@ -461,6 +461,26 @@
         HQ100: 671,
         ORANGE: 350,
         ROT: 425
+      },
+      vianden: {
+        MNW: 49,
+        MW: 80,
+        HQ2: 225,
+        HQ5: 259,
+        HQ10: 285,
+        HQ20: 310,
+        HQ50: 344,
+        HQ100: 372
+      },
+      larochette: {
+        MNW: 43.5,
+        MW: 54,
+        HQ2: 224,
+        HQ5: 254,
+        HQ10: 271,
+        HQ20: 284,
+        HQ50: 302,
+        HQ100: 315
       }
     };
 
@@ -672,6 +692,11 @@
     let mainChartInstance = null;
     let sparklineInstances = {};
 
+    // Manuelle Overrides für Kennwert-Linien bei genau 1 ausgewählter Station:
+    // true = Linie erzwingen, false = Linie unterdrücken
+    let manualThresholdOverrides = {};
+    let lastSingleStationKey = null;
+
     let rawAlertsXml = null;
     let currentAlertsData = [];
     let currentFoodRecallsData = [];
@@ -746,6 +771,24 @@
     function handleKennwertChange(newKey) {
       selectedKennwert = newKey;
       renderAllStationsTable();
+    }
+
+    function resetManualThresholdOverrides() {
+      manualThresholdOverrides = {};
+    }
+
+    function syncSingleStationOverrideState() {
+      const currentSingleKey = selectedChartStations.length === 1 ? selectedChartStations[0] : null;
+      if (currentSingleKey !== lastSingleStationKey) {
+        resetManualThresholdOverrides();
+        lastSingleStationKey = currentSingleKey;
+      }
+    }
+
+    function toggleThresholdBox(key, currentlyVisible) {
+      if (selectedChartStations.length !== 1) return;
+      manualThresholdOverrides[key] = !currentlyVisible;
+      renderMainChart();
     }
 
     function updateMeteoLuxReportLink() {
@@ -1630,6 +1673,7 @@
         });
       }
 
+      syncSingleStationOverrideState();
       return globalLatestTime;
     }
 
@@ -1725,6 +1769,7 @@
       const matchedKey = Object.keys(parsedData).find(k => k.includes(key));
       if (matchedKey) {
         selectedChartStations = [matchedKey];
+        syncSingleStationOverrideState();
         switchTab('chart');
         initChartControls();
         renderMainChart();
@@ -1838,6 +1883,7 @@
         const matchKey = Object.keys(parsedData).find(k => k.includes(st.search));
         if (matchKey) selectedChartStations.push(matchKey);
       });
+      syncSingleStationOverrideState();
       initChartControls();
       renderMainChart();
     }
@@ -1848,12 +1894,14 @@
       } else {
         selectedChartStations = [];
       }
+      syncSingleStationOverrideState();
       initChartControls();
       renderMainChart();
     }
 
     function toggleChartStation(id) {
       selectedChartStations = selectedChartStations.includes(id) ? selectedChartStations.filter(k => k !== id) : [...selectedChartStations, id];
+      syncSingleStationOverrideState();
       initChartControls();
       renderMainChart();
     }
@@ -1871,18 +1919,40 @@
       renderMainChart();
     }
 
-    function renderSingleStationKennwerteBar(stObj, kennwerteObj) {
+    function computeSingleStationThresholds(singleSt, kennwerteObj, cutoff) {
+      if (!singleSt || !kennwerteObj) {
+        return { allItems: [], activeLines: [] };
+      }
+
+      const filteredPoints = cutoff ? singleSt.points.filter(d => d.time >= cutoff) : singleSt.points;
+      const numericValues = filteredPoints.map(p => p.value).filter(v => typeof v === 'number' && !isNaN(v));
+      const maxInWindow = numericValues.length > 0 ? Math.max(...numericValues) : null;
+
+      const allItems = KENNWEERTE_META
+        .filter(m => typeof kennwerteObj[m.key] === 'number' && !isNaN(kennwerteObj[m.key]))
+        .map(m => {
+          const val = formatNumberMax2(kennwerteObj[m.key]);
+          const autoVisible = maxInWindow !== null ? (maxInWindow >= val * 0.85) : false;
+          const override = manualThresholdOverrides[m.key];
+          const isLineVisible = (typeof override === 'boolean') ? override : autoVisible;
+
+          return {
+            ...m,
+            value: val,
+            autoVisible,
+            isLineVisible
+          };
+        });
+
+      const activeLines = allItems.filter(item => item.isLineVisible);
+      return { allItems, activeLines };
+    }
+
+    function renderSingleStationKennwerteBar(stObj, allItems) {
       const container = document.getElementById('chart-station-kennwerte');
       if (!container) return;
 
-      if (!stObj || !kennwerteObj) {
-        container.innerHTML = '';
-        container.classList.add('hidden');
-        return;
-      }
-
-      const availableItems = KENNWEERTE_META.filter(m => typeof kennwerteObj[m.key] === 'number' && !isNaN(kennwerteObj[m.key]));
-      if (availableItems.length === 0) {
+      if (!stObj || !allItems || allItems.length === 0) {
         container.innerHTML = '';
         container.classList.add('hidden');
         return;
@@ -1890,27 +1960,29 @@
 
       const latestVal = (stObj.points && stObj.points.length > 0) ? stObj.points[stObj.points.length - 1].value : null;
 
-      const pillsHtml = availableItems.map(m => {
-        const val = formatNumberMax2(kennwerteObj[m.key]);
-        const isReached = (typeof latestVal === 'number' && latestVal >= val && m.key !== 'MNW');
-        const badgeStyle = isReached
-          ? 'bg-red-50 dark:bg-red-900/30 border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 font-bold'
-          : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300';
+      const pillsHtml = allItems.map(m => {
+        const isReached = (typeof latestVal === 'number' && latestVal >= m.value && m.key !== 'MNW');
+        const activeRingClass = m.isLineVisible
+          ? 'ring-2 ring-blue-500/70 bg-blue-50/70 dark:bg-blue-900/25 border-blue-400 dark:border-blue-500'
+          : 'bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 opacity-90 hover:opacity-100';
+        const reachedTextClass = isReached
+          ? 'text-red-700 dark:text-red-300 font-bold'
+          : 'text-gray-900 dark:text-white';
 
         return `
-          <div title="${m.fullLabel} (${val} cm)" class="px-2.5 py-1 rounded-lg border text-[11px] flex items-center space-x-1.5 cursor-default transition-colors ${badgeStyle}">
-            <span class="font-semibold text-gray-500 dark:text-gray-400">${m.shortLabel}:</span>
-            <span class="font-mono font-bold text-gray-900 dark:text-white">${val} cm</span>
-          </div>
+          <button type="button" onclick="toggleThresholdBox('${m.key}', ${m.isLineVisible})" title="${m.fullLabel} (${m.value} cm) – Klicken zum Ein-/Ausblenden der Linie" class="px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center space-x-1.5 cursor-pointer transition-all ${activeRingClass}">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-black/15" style="background-color: ${m.lineColor};"></span>
+            <span class="font-semibold text-gray-600 dark:text-gray-300">${m.boxLabel}:</span>
+            <span class="font-mono font-bold ${reachedTextClass}">${m.value} cm</span>
+          </button>
         `;
       }).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
+        <div class="text-center">
           <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}</span>
-          <span class="text-[10px] text-gray-400">Schwellenlinien im Chart ab 85 % des Maximalpegels im Zeitraum</span>
         </div>
-        <div class="flex flex-wrap gap-1.5">${pillsHtml}</div>
+        <div class="flex flex-wrap justify-center gap-1.5">${pillsHtml}</div>
       `;
       container.classList.remove('hidden');
     }
@@ -1930,7 +2002,7 @@
 
             ctx.beginPath();
             ctx.setLineDash([6, 4]);
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1.6;
             ctx.strokeStyle = th.lineColor;
             ctx.moveTo(chartArea.left, yPixel);
             ctx.lineTo(chartArea.right, yPixel);
@@ -1946,13 +2018,13 @@
             const boxX = chartArea.right - boxW - 4;
             const boxY = Math.max(chartArea.top + 2, yPixel - boxH - 2);
 
-            ctx.fillStyle = isDark ? 'rgba(17, 24, 39, 0.88)' : 'rgba(255, 255, 255, 0.92)';
+            ctx.fillStyle = isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.94)';
             ctx.fillRect(boxX, boxY, boxW, boxH);
             ctx.strokeStyle = th.lineColor;
             ctx.lineWidth = 1;
             ctx.strokeRect(boxX, boxY, boxW, boxH);
 
-            ctx.fillStyle = th.lineColor;
+            ctx.fillStyle = isDark ? '#f9fafb' : '#111827';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(labelText, boxX + padX, boxY + boxH / 2 + 0.5);
@@ -1965,6 +2037,8 @@
     function renderMainChart() {
       const ctx = document.getElementById('mainChart');
       if (!ctx) return;
+
+      syncSingleStationOverrideState();
 
       const isDark = document.documentElement.classList.contains('dark');
       const colors = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48', '#84cc16'];
@@ -1999,26 +2073,12 @@
         const singleId = selectedChartStations[0];
         const singleSt = parsedData[singleId];
         const kennwerteObj = singleSt ? (getStationKennwerte(singleId) || getStationKennwerte(singleSt.name)) : null;
+        const { allItems, activeLines } = computeSingleStationThresholds(singleSt, kennwerteObj, cutoff);
 
-        renderSingleStationKennwerteBar(singleSt, kennwerteObj);
-
-        if (singleSt && kennwerteObj) {
-          const filteredPoints = cutoff ? singleSt.points.filter(d => d.time >= cutoff) : singleSt.points;
-          const numericValues = filteredPoints.map(p => p.value).filter(v => typeof v === 'number' && !isNaN(v));
-          const maxInWindow = numericValues.length > 0 ? Math.max(...numericValues) : null;
-
-          if (maxInWindow !== null) {
-            thresholdsToDraw = KENNWEERTE_META
-              .filter(m => typeof kennwerteObj[m.key] === 'number' && !isNaN(kennwerteObj[m.key]))
-              .map(m => ({
-                ...m,
-                value: formatNumberMax2(kennwerteObj[m.key])
-              }))
-              .filter(th => maxInWindow >= th.value * 0.85);
-          }
-        }
+        renderSingleStationKennwerteBar(singleSt, allItems);
+        thresholdsToDraw = activeLines;
       } else {
-        renderSingleStationKennwerteBar(null, null);
+        renderSingleStationKennwerteBar(null, []);
       }
 
       if (mainChartInstance) mainChartInstance.destroy();
