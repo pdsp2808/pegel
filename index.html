@@ -270,24 +270,27 @@
           <canvas id="mainChart" class="w-full h-[400px]"></canvas>
         </div>
 
-        <!-- Kennwerte-Leiste unter dem Diagramm (nur sichtbar bei genau 1 ausgewählter Station mit Kennwerten) -->
+        <!-- Kennwerte-Leiste unter dem Diagramm (nur sichtbar bei genau 1 ausgewählter Station mit Kennwerten, auf Mobile ausklappbar) -->
         <div id="chart-station-kennwerte" class="hidden pt-3 border-t border-gray-100 dark:border-gray-700/70 space-y-2"></div>
       </div>
 
-      <!-- All Stations Below Chart -->
+      <!-- All Stations Below Chart (auf Mobile ausklappbar) -->
       <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-gray-700 shadow-sm space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div onclick="toggleMobileChartSection('all-stations')" class="flex items-center justify-between cursor-pointer sm:cursor-default select-none">
           <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Alle Stationen:</span>
-          
+          <i id="chevron-mobile-all-stations" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform sm:hidden"></i>
+        </div>
+
+        <div id="mobile-body-all-stations" class="hidden sm:block space-y-3 pt-1">
           <!-- Umschalter für Sortierung -->
-          <div class="flex items-center space-x-1.5 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800 self-start sm:self-auto">
+          <div class="flex items-center space-x-1.5 bg-gray-100 dark:bg-gray-900 p-1 rounded-lg border border-gray-200 dark:border-gray-800 w-max">
             <span class="text-[10px] text-gray-400 font-semibold px-1">Sortierung:</span>
             <button id="btn-sort-river" onclick="setAllStationsSortMode('river')" class="px-2 py-0.5 rounded text-[11px] font-semibold transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm">Nach Fluss</button>
             <button id="btn-sort-alpha" onclick="setAllStationsSortMode('alpha')" class="px-2 py-0.5 rounded text-[11px] font-semibold transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Alphabetisch (A–Z)</button>
           </div>
+          
+          <div id="all-stations-selector" class="flex flex-wrap gap-2"></div>
         </div>
-        
-        <div id="all-stations-selector" class="flex flex-wrap gap-2 pt-1"></div>
       </div>
     </section>
 
@@ -599,11 +602,11 @@
     const ALERT_LEVEL_STYLES = {
       G:  { hex: '#aa4db9', badgeClass: 'bg-[#aa4db9] text-white',                          legendClass: 'bg-[#aa4db9] text-white' },
       S1: { hex: '#d3161c', badgeClass: 'bg-[#d3161c] text-white',                          legendClass: 'bg-[#d3161c] text-white' },
-      S2: { hex: '#eb6a23', badgeClass: 'bg-[#eb6a23] text-gray-900',                          legendClass: 'bg-[#eb6a23] text-gray-900' },
+      S2: { hex: '#eb6a23', badgeClass: 'bg-[#eb6a23] text-white',                          legendClass: 'bg-[#eb6a23] text-gray-900' },
       S3: { hex: '#f6d971', badgeClass: 'bg-[#f6d971] text-gray-900',                       legendClass: 'bg-[#f6d971] text-gray-900' },
       A:  { hex: '#f97316', badgeClass: 'bg-white text-gray-900 border-2 border-[#f97316]', legendClass: 'bg-white text-gray-900 border-2 border-[#f97316]' },
-      I:  { hex: '#669134', badgeClass: 'bg-[#669134] text-gray-900',                          legendClass: 'bg-[#669134] text-gray-900' },
-      T:  { hex: '#738b98', badgeClass: 'bg-[#738b98] text-gray-900',                          legendClass: 'bg-[#738b98] text-gray-900' }
+      I:  { hex: '#669134', badgeClass: 'bg-[#669134] text-gray-900',                       legendClass: 'bg-[#669134] text-gray-900' },
+      T:  { hex: '#738b98', badgeClass: 'bg-[#738b98] text-gray-900',                       legendClass: 'bg-[#738b98] text-gray-900' }
     };
 
     const ALERT_ICON_CONFIGS = {
@@ -723,6 +726,10 @@
     let mainChartInstance = null;
     let sparklineInstances = {};
 
+    // Einklapp-Zustände für Mobile im Verlaufsdiagramm
+    let mobileKennwerteExpanded = false;
+    let mobileAllStationsExpanded = false;
+
     // Manuelle Overrides für Kennwert-Linien bei genau 1 ausgewählter Station:
     // true = Linie erzwingen, false = Linie unterdrücken
     let manualThresholdOverrides = {};
@@ -786,6 +793,24 @@
         }
       });
     });
+
+    function toggleMobileChartSection(section) {
+      if (window.innerWidth >= 640) return;
+
+      if (section === 'kennwerte') {
+        mobileKennwerteExpanded = !mobileKennwerteExpanded;
+        const body = document.getElementById('mobile-body-kennwerte');
+        const chevron = document.getElementById('chevron-mobile-kennwerte');
+        if (body) body.classList.toggle('hidden', !mobileKennwerteExpanded);
+        if (chevron) chevron.style.transform = mobileKennwerteExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+      } else if (section === 'all-stations') {
+        mobileAllStationsExpanded = !mobileAllStationsExpanded;
+        const body = document.getElementById('mobile-body-all-stations');
+        const chevron = document.getElementById('chevron-mobile-all-stations');
+        if (body) body.classList.toggle('hidden', !mobileAllStationsExpanded);
+        if (chevron) chevron.style.transform = mobileAllStationsExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
 
     function formatNumberMax2(val) {
       if (typeof val !== 'number' || isNaN(val)) return '--';
@@ -2117,15 +2142,20 @@
       }
 
       const riverSuffix = stObj.river ? ` (${stObj.river})` : '';
+      const mobileHiddenClass = mobileKennwerteExpanded ? '' : 'hidden sm:block';
+      const chevronRotateStyle = mobileKennwerteExpanded ? 'style="transform: rotate(180deg);"' : '';
 
       container.innerHTML = `
-        <div class="flex items-center justify-center space-x-1.5">
-          <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}${riverSuffix}</span>
-          <button type="button" onclick="openKennwerteLegendModal()" title="Legende der Kennwerte anzeigen" class="inline-flex items-center text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-0.5">
-            <i data-lucide="info" class="w-3.5 h-3.5"></i>
-          </button>
+        <div onclick="toggleMobileChartSection('kennwerte')" class="flex items-center justify-between sm:justify-center cursor-pointer sm:cursor-default select-none">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kennwerte – ${stObj.name}${riverSuffix}</span>
+            <button type="button" onclick="event.stopPropagation(); openKennwerteLegendModal();" title="Legende der Kennwerte anzeigen" class="inline-flex items-center text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-0.5">
+              <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <i id="chevron-mobile-kennwerte" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform sm:hidden" ${chevronRotateStyle}></i>
         </div>
-        <div class="space-y-2">${rowsHtml}</div>
+        <div id="mobile-body-kennwerte" class="${mobileHiddenClass} space-y-2 pt-1">${rowsHtml}</div>
       `;
       container.classList.remove('hidden');
       lucide.createIcons();
